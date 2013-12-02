@@ -1,4 +1,7 @@
-5206_Robotics_Code
+Team 5206: The Knights of Ni
 ==================
 
-FTC RobotC code for team 5206
+
+*"We are the keepers of the sacred words: Ni, Ping, and Nee-womm!"*
+
+This is where we keep our robot's code and cookies.
