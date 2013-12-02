@@ -83,6 +83,7 @@ void move(int inches, int speed)
  * Preform a point turn
  * degrees: number of degrees to turn - positive values turn right, negative values turn left
  * speed: speed to travel at
+ * May Still need Debugging, but this is what the ROBOTC tutorial suggested.  - Dev
  */
 void point(int degrees, int speed)
 {
@@ -92,15 +93,21 @@ void point(int degrees, int speed)
 
 	nMotorEncoderTarget[RightDr] = counts;
 
-	if(degrees > 0)
+	if(degrees > 0);
 	{
 		motor[LeftDr] = speed;
 		motor[RightDr] = -speed;
+		wait1Msec(500);
+		motor[LeftDr] = DCstop;
+		motor[RightDr] = DCstop;
 	}
 	else
 	{
 		motor[LeftDr] = -speed;
 		motor[RightDr] = speed;
+		wait1Msec(500);
+		motor[LeftDr] = DCstop;
+		motor[RightDr] = DCstop;
 	}
 }
 
