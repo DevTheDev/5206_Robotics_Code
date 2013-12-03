@@ -33,8 +33,7 @@ void hold()
 	while(true) {}
 }
 
-<<<<<<< HEAD
-=======
+
 /**
 * Wait until the robot has completed its current movement
 * WARNING: Calling this function will limit the robot to only moving
@@ -46,7 +45,7 @@ void waitUntilStop()
 	pause();
 }
 
->>>>>>> Cleaning
+
 void stopRobot() {
 	motor[LeftDr] = DCstop;
 	motor[RightDr] = DCstop;
@@ -96,7 +95,6 @@ void move(int inches, int speed)
 }
 
 /**
-<<<<<<< HEAD
 * Preform a point turn
 * degrees: number of degrees to turn - positive values turn right, negative values turn left
 * speed: speed to travel at
@@ -104,287 +102,282 @@ void move(int inches, int speed)
 void point(float degrees, int speed)
 {
 	int counts = degrees * 20;
-=======
-* Perform a point turn
-* degrees: number of degrees to turn - positive values turn right, negative values turn left
-* speed: speed to travel at
-* May Still need Debugging, but this is what the ROBOTC tutorial suggested.  -
-*/
-void point(int degrees, int speed)
-{
-	int counts = ((((robot.wheel.around / robot.wheel.circumference) * (degrees / 360)) / 2) / (1440 * robot.wheel.dRatio));
->>>>>>> Cleaning
-
-	reset();
-
-	//nMotorEncoderTarget[RightDr] = counts;
-
-	if(degrees > 0)
+	/**
+	Perform a point turn
+	degrees: number of degrees to turn - positive values turn right, negative values turn left
+	speed: speed to travel at
+	May Still need Debugging, but this is what the ROBOTC tutorial suggested.  -
+	*/
+	void point(int degrees, int speed)
 	{
-		motor[LeftDr] = speed;
-		motor[RightDr] = -speed;
-		while(nMotorEncoder[RightDr] > -counts){
+		int counts = ((((robot.wheel.around / robot.wheel.circumference) * (degrees / 360)) / 2) / (1440 * robot.wheel.dRatio));
+
+
+		reset();
+
+		//nMotorEncoderTarget[RightDr] = counts;
+
+		if(degrees > 0)
+		{
+			motor[LeftDr] = speed;
+			motor[RightDr] = -speed;
+			while(nMotorEncoder[RightDr] > -counts){
+			}
+		}
+		else
+		{
+			motor[LeftDr] = -speed;
+			motor[RightDr] = speed;
+			while(nMotorEncoder[RightDr] < -counts){
+			}
+		}
+
+		pause();
+	}
+
+	/**
+	* Preform a swing turn
+	* Perform a swing turn
+	* degrees: number of degrees to turn - positive values turn right, negative values turn left
+	* speed: speed to travel at
+	*/
+	void swing(int degrees, int speed)
+	{
+		int counts = degrees * 20;
+
+		reset();
+
+		nMotorEncoderTarget[RightDr] = counts;
+
+		if (degrees > 0)
+		{
+			motor[LeftDr] = speed;
+			motor[RightDr] = -speed;
+		}
+		else
+		{
+			motor[LeftDr] =- speed;
+			motor[RightDr] = speed;
 		}
 	}
-	else
+
+	/**
+	* Score the blocks that the robot is carring
+	*/
+	void scoreBlocks()
 	{
-		motor[LeftDr] = -speed;
-		motor[RightDr] = speed;
-		while(nMotorEncoder[RightDr] < -counts){
-		}
+		motor[PaddleMtr] = 15;
+		wait1Msec(2000);
 	}
-
-	pause();
-}
-
-/**
-<<<<<<< HEAD
-* Preform a swing turn
-=======
-* Perform a swing turn
->>>>>>> Cleaning
-* degrees: number of degrees to turn - positive values turn right, negative values turn left
-* speed: speed to travel at
-*/
-void swing(int degrees, int speed)
-{
-	int counts = degrees * 20;
-
-	reset();
-
-	nMotorEncoderTarget[RightDr] = counts;
-
-	if (degrees > 0)
-	{
-		motor[LeftDr] = speed;
-		motor[RightDr] = -speed;
-	}
-	else
-	{
-		motor[LeftDr] =- speed;
-		motor[RightDr] = speed;
-	}
-}
-
-/**
-* Score the blocks that the robot is carring
-*/
-void scoreBlocks()
-{
-	motor[PaddleMtr] = 15;
-	wait1Msec(2000);
-}
-
-/**
-* TODO: Give description of what this fuction does
-*/
-bool joy1sector(int type) {
-	switch(type) {
-<<<<<<< HEAD
-		case 1:
-=======
-	case 1: {
->>>>>>> Cleaning
-			if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-			break;
-<<<<<<< HEAD
-		case 2:
-=======
-		}
-	case 2: {
->>>>>>> Cleaning
-			if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-			break;
-<<<<<<< HEAD
-		default:
-			return false;
-	}
-}
 
 	/**
 	* TODO: Give description of what this fuction does
 	*/
-	bool EOPDDetect(tSensors EOPD, int eopdetect) {
-		return(HTEOPDreadProcessed(EOPD) >= eopdetect);
-	}
+	bool joy1sector(int type) {
+		switch(type) {
 
-	/////////////////////////////////////////
-///             TELE-OP               ///
-/////////////////////////////////////////
+		case 1:
 
-void singleJoyDrive();
-void doublejoyDrive();
-void PaddleAndIntake();
-void liftandflag();
-void onePaddleTurn(int speed);
+		case 1: {
+
+				if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+				break;
+
+			case 2:
+
+			}
+		case 2: {
+
+				if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+				break;
+
+			default:
+				return false;
+			}
+		}
+
+		/**
+		* TODO: Give description of what this fuction does
+		*/
+		bool EOPDDetect(tSensors EOPD, int eopdetect) {
+			return(HTEOPDreadProcessed(EOPD) >= eopdetect);
+		}
+
+		/////////////////////////////////////////
+		///             TELE-OP               ///
+		/////////////////////////////////////////
+
+		void singleJoyDrive();
+		void doublejoyDrive();
+		void PaddleAndIntake();
+		void liftandflag();
+		void onePaddleTurn(int speed);
 
 
-///////////////////
-/*****************/
-/*     DRIVE     */
-/*****************/
-///////////////////
-// Single Joy Drive //
-void singleJoyDrive() {
-	// FORWARD / BACKWARD
-	if(abs(joystick.joy1_y1) > threshhold && joy1sector(1)) {
-  			motor[LeftDr] = joystick.joy1_y1*constdrivereg;
-  		  motor[RightDr] = joystick.joy1_y1*constdrivereg;
-    }
+		///////////////////
+		/*****************/
+		/*     DRIVE     */
+		/*****************/
+		///////////////////
+		// Single Joy Drive //
+		void singleJoyDrive() {
+			// FORWARD / BACKWARD
+			if(abs(joystick.joy1_y1) > threshhold && joy1sector(1)) {
+				motor[LeftDr] = joystick.joy1_y1*constdrivereg;
+				motor[RightDr] = joystick.joy1_y1*constdrivereg;
+			}
 
-    // TURN
-    else if(abs(joystick.joy1_x1) > threshhold && joy1sector(2)) {
-  			motor[LeftDr] = joystick.joy1_x1*constdrivereg;
-  			motor[RightDr] = -joystick.joy1_x1*constdrivereg;
-    }
+			// TURN
+			else if(abs(joystick.joy1_x1) > threshhold && joy1sector(2)) {
+				motor[LeftDr] = joystick.joy1_x1*constdrivereg;
+				motor[RightDr] = -joystick.joy1_x1*constdrivereg;
+			}
 
-    else if(joy1Btn(9)==1) {
-    	drive(80);
-    	wait1Msec(60);
-    	drive(-80);
-    	wait1Msec(60);
-    	turn(80);
-    	wait1Msec(60);
-    	turn(-80);
-    	wait1Msec(60);
-    	drive(80);
-    	wait1Msec(60);
-    	drive(0);
-    }
+			else if(joy1Btn(9)==1) {
+				drive(80);
+				wait1Msec(60);
+				drive(-80);
+				wait1Msec(60);
+				turn(80);
+				wait1Msec(60);
+				turn(-80);
+				wait1Msec(60);
+				drive(80);
+				wait1Msec(60);
+				drive(0);
+			}
 
-    // NO MOVEMENT
-    else {
-      motor[LeftDr] = DCstop;
-      motor[RightDr] = DCstop;
-    }
-}
+			// NO MOVEMENT
+			else {
+				motor[LeftDr] = DCstop;
+				motor[RightDr] = DCstop;
+			}
+		}
 
-void doublejoyDrive() {
-	(abs(joystick.joy1_y1) > threshhold) ? motor[LeftDr]=joystick.joy1_y1*constdrivereg : motor[LeftDr]=DCstop;
-	(abs(joystick.joy1_y2) > threshhold) ? motor[RightDr]=joystick.joy1_y2*constdrivereg : motor[RightDr]=DCstop;
-}
+		void doublejoyDrive() {
+		(abs(joystick.joy1_y1) > threshhold) ? motor[LeftDr]=joystick.joy1_y1*constdrivereg : motor[LeftDr]=DCstop;
+		(abs(joystick.joy1_y2) > threshhold) ? motor[RightDr]=joystick.joy1_y2*constdrivereg : motor[RightDr]=DCstop;
+		}
 
-// PADDLE + INTAKE //
-void PaddleAndIntake() {
-	if(joystick.joy1_TopHat==2) {
-		(joy1Btn(btnA)==1) ? onePaddleTurn(paddlespeedslow) : onePaddleTurn(paddlespeedreg);
-	}
-	else if(joystick.joy1_TopHat==6) {
-		(joy1Btn(btnA)==1) ? onePaddleTurn(-paddlespeedslow) : onePaddleTurn(-paddlespeedreg);
-	}
+		// PADDLE + INTAKE //
+		void PaddleAndIntake() {
+			if(joystick.joy1_TopHat==2) {
+			(joy1Btn(btnA)==1) ? onePaddleTurn(paddlespeedslow) : onePaddleTurn(paddlespeedreg);
+			}
+			else if(joystick.joy1_TopHat==6) {
+			(joy1Btn(btnA)==1) ? onePaddleTurn(-paddlespeedslow) : onePaddleTurn(-paddlespeedreg);
+			}
 
-	// INTAKE ALGORITHM
-	if(joy1Btn(btnY)==1) {
-		servo[LeftIntake]=leftintakefwd;
-		servo[RightIntake]=rightintakefwd;
+			// INTAKE ALGORITHM
+			if(joy1Btn(btnY)==1) {
+				servo[LeftIntake]=leftintakefwd;
+				servo[RightIntake]=rightintakefwd;
 
-		if(EOPDDetect(PaddleEOPD,farblockconst)==1) {
-			motor[LiftFlagMtr]=100;
+				if(EOPDDetect(PaddleEOPD,farblockconst)==1) {
+					motor[LiftFlagMtr]=100;
+					wait1Msec(100);
+					motor[LiftFlagMtr]=0;
+					wait1Msec(100);
+					motor[LiftFlagMtr]=-100;
+					wait1Msec(120);
+					motor[LiftFlagMtr]=DCstop;
+				}
+			}
+
+			else {
+				// INTAKE
+				if(joy1Btn(btnRT)==1) {
+					servo[LeftIntake]=leftintakefwd;
+					servo[RightIntake]=rightintakefwd;
+				}
+
+				else if(joy1Btn(btnLT)==1) {
+					servo[LeftIntake]=leftintakebck;
+					servo[RightIntake]=rightintakebck;
+				}
+
+				else {
+					servo[LeftIntake]=intakestop;
+					servo[RightIntake]=intakestop;
+				}
+
+				// PADDLE
+				if(abs(joystick.joy1_y2)>threshhold) {
+					motor[PaddleMtr]=joystick.joy1_y2 * paddleratio;
+				}
+				else if(joy1Btn(btnRB)==1) {
+					motor[PaddleMtr]=paddlespeedreg;
+				}
+				else if(joy1Btn(btnLB)==1) {
+					motor[PaddleMtr]=-paddlespeedreg;
+				}
+				else {
+					motor[PaddleMtr]=DCstop;
+				}
+			}
+		}
+
+		// LIFT AND FLAG MECHANISM //
+		void liftandflag()
+		{
+			if(abs(joystick.joy2_y2)>threshhold) {
+				motor[LiftFlagMtr]=joystick.joy2_y2*constdrivereg;
+			}
+			else if(joy2Btn(btnA)==1) {
+				motor[LiftFlagMtr]=100;
+				wait1Msec(500);
+				motor[LiftFlagMtr]=DCstop;
+			}
+			else {
+				motor[LiftFlagMtr]=DCstop;
+
+			}
+		default: {
+				return false;
+			}
+
+		}
+
+
+		void onePaddleTurn(int speed) {
+			motor[PaddleMtr]=speed;
+			wait1Msec(250);
+			ClearTimer(T2);
+			while(SensorValue[PaddleLIGHT]<paddleLightThresh && time1[T2]<2000){
+				singleJoyDrive();
+				liftandflag();
+			}
+			ClearTimer(T2);
+			while(SensorValue[PaddleLIGHT]>paddleLightThresh && time1[T2]<2000){
+				singleJoyDrive();
+				liftandflag();
+			}
+			motor[PaddleMtr]=DCstop;
 			wait1Msec(100);
-			motor[LiftFlagMtr]=0;
-			wait1Msec(100);
-			motor[LiftFlagMtr]=-100;
-			wait1Msec(120);
-			motor[LiftFlagMtr]=DCstop;
-		}
-	}
-
-	else {
-		// INTAKE
-		if(joy1Btn(btnRT)==1) {
-			servo[LeftIntake]=leftintakefwd;
-			servo[RightIntake]=rightintakefwd;
-		}
-
-		else if(joy1Btn(btnLT)==1) {
-			servo[LeftIntake]=leftintakebck;
-			servo[RightIntake]=rightintakebck;
-		}
-
-		else {
-			servo[LeftIntake]=intakestop;
-			servo[RightIntake]=intakestop;
-		}
-
-		// PADDLE
-		if(abs(joystick.joy1_y2)>threshhold) {
-			motor[PaddleMtr]=joystick.joy1_y2 * paddleratio;
-		}
-		else if(joy1Btn(btnRB)==1) {
-			motor[PaddleMtr]=paddlespeedreg;
-		}
-		else if(joy1Btn(btnLB)==1) {
 			motor[PaddleMtr]=-paddlespeedreg;
-		}
-		else {
+			wait1Msec(50);
 			motor[PaddleMtr]=DCstop;
 		}
-	}
-}
 
-// LIFT AND FLAG MECHANISM //
-void liftandflag()
-{
-	if(abs(joystick.joy2_y2)>threshhold) {
-		motor[LiftFlagMtr]=joystick.joy2_y2*constdrivereg;
-	}
-	else if(joy2Btn(btnA)==1) {
-		motor[LiftFlagMtr]=100;
-		wait1Msec(500);
-		motor[LiftFlagMtr]=DCstop;
-	}
-	else {
-		motor[LiftFlagMtr]=DCstop;
-=======
+		void initializeRobotnext() {
+			HTEOPDsetShortRange(PaddleEOPD);
 		}
-	default: {
-			return false;
+		/**
+		* TODO: Give description of what this function does
+		*/
+		bool EOPDDetect(tSensors EOPD, int eopdetect) {
+			return(HTEOPDreadProcessed(EOPD) >= eopdetect);
 		}
->>>>>>> Cleaning
-	}
-
-<<<<<<< HEAD
-void onePaddleTurn(int speed) {
-	motor[PaddleMtr]=speed;
-	wait1Msec(250);
-	ClearTimer(T2);
-	while(SensorValue[PaddleLIGHT]<paddleLightThresh && time1[T2]<2000){
-		singleJoyDrive();
-	  liftandflag();
-	}
-	ClearTimer(T2);
-	while(SensorValue[PaddleLIGHT]>paddleLightThresh && time1[T2]<2000){
-		singleJoyDrive();
-	  liftandflag();
-	}
-	motor[PaddleMtr]=DCstop;
-	wait1Msec(100);
-	motor[PaddleMtr]=-paddlespeedreg;
-	wait1Msec(50);
-	motor[PaddleMtr]=DCstop;
-}
-
-void initializeRobotnext() {
-	HTEOPDsetShortRange(PaddleEOPD);
-}
-=======
-	/**
-	* TODO: Give description of what this function does
-	*/
-	bool EOPDDetect(tSensors EOPD, int eopdetect) {
-		return(HTEOPDreadProcessed(EOPD) >= eopdetect);
-	}
->>>>>>> Cleaning
