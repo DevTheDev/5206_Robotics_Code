@@ -21,7 +21,7 @@
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
 
-int driveTime;
+int driveTurns;
 
 /**
  * returns true if the robot is aligned with the beacon
@@ -52,7 +52,7 @@ task main()
 	
 	while(!aligned() || time1[T1] < 3500){
 		if(aligned()){
-			driveTime = time1[T1];
+			driveTurns = nMotorEncoder[RightDr];
 			pause();
 		}
 		if(time1[T1] < 3500){
@@ -68,10 +68,9 @@ task main()
 	scoreBlocks();
 	
 	// Move back
-	move(-distToPend, -40);
+	move(-distToPend, -80);
 	point(-90, 100);
-	drive(-60);
-	wait1Msec(driveTime-500);
+	drive(-driveTurns*robot.wheel.circumference/(encoderticks*robot.wheel.dRatio)+4 ,-80);//make another move function that takes raw encoder values?
 	pause();
 	point(90, 100);
 	move(12, 80);
