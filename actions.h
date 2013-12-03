@@ -84,28 +84,26 @@ void move(float inches, int speed)
 */
 void point(float degrees, int speed)
 {
-        int counts = degrees * 20;
+	int counts = -1440.0 * robot.wheel.around * robot.wheel.dRatio * degrees/ 360.0;
 
-        reset();
+	reset();
 
-        //nMotorEncoderTarget[RightDr] = counts;
+	//nMotorEncoderTarget[RightDr] = counts;
 
-        if(degrees > 0)
-        {
-                motor[LeftDr] = speed;
-                motor[RightDr] = -speed;
-                while(nMotorEncoder[RightDr] > -counts){
-                }
-        }
-        else
-        {
-                motor[LeftDr] = -speed;
-                motor[RightDr] = speed;
-                while(nMotorEncoder[RightDr] < -counts){
-                }
-        }
+	if(degrees > 0)
+	{
+		turn(speed);
+		while(nMotorEncoder[RightDr] > counts){
+		}
+	}
+	else
+	{
+		turn(-speed)
+		while(nMotorEncoder[RightDr] < counts){
+		}
+	}
 
-        pause();
+	pause();
 }
 
 /**
@@ -115,22 +113,26 @@ void point(float degrees, int speed)
 */
 void swing(int degrees, int speed)
 {
-        int counts = degrees * 20;
+	int counts = 2 * -1440.0 * robot.wheel.around * robot.wheel.dRatio * degrees/ 360.0;
 
-        reset();
+	reset();
 
-        nMotorEncoderTarget[RightDr] = counts;
+	//nMotorEncoderTarget[RightDr] = counts;
 
-        if (degrees > 0)
-        {
-                motor[LeftDr] = speed;
-                motor[RightDr] = -speed;
-        }
-        else
-        {
-                motor[LeftDr] =- speed;
-                motor[RightDr] = speed;
-        }
+	if(degrees > 0)
+	{
+		motor[RightDr] = -speed;
+		while(nMotorEncoder[RightDr] > counts){
+		}
+	}
+	else
+	{
+		motor[RightDr] = speed;
+		while(nMotorEncoder[RightDr] < counts){
+		}
+	}
+
+	pause();
 }
 
 /**
@@ -188,6 +190,25 @@ void PaddleAndIntake();
 void liftandflag();
 void onePaddleTurn(int speed);
 
+typedef struct{
+	float x;
+	float y;
+} vec2;
+
+/**
+	if the joystick is inside a circle of radius threshhold set x and y to 0
+*/
+vec2 clampToThreshhold(float x, float y){
+	vec2 out;
+	if(x*x + y*y <= threshhold*threshhold){
+		out.x = 0;
+		out.y = 0;
+	}else{
+		out.x = x;
+		out.y = x;
+	}
+	return out;
+}
 
 ///////////////////
 /*****************/
@@ -196,37 +217,33 @@ void onePaddleTurn(int speed);
 ///////////////////
 // Single Joy Drive //
 void singleJoyDrive() {
-        // FORWARD / BACKWARD
-        if(abs(joystick.joy1_y1) > threshhold && joy1sector(1)) {
-                          motor[LeftDr] = joystick.joy1_y1*constdrivereg;
-                    motor[RightDr] = joystick.joy1_y1*constdrivereg;
-    }
+	
+        vec2 joyVec = clampToThreshhold(joystick.joy1_x1, joystick.joy1_y1);
+        if(joyVec.x != 0 || joyVec,y != 0) {
+        	float turnRatio = (joyVec.x+/*range of joystick*/)/(/*range of joystick*/-joyVec.x);//TODO: division by zero safety
+          motor[LeftDr] = joyVec.y*turnRatio*constdrivereg;
+          motor[RightDr] = joyVec.y*(1/turnRatio)*constdrivereg;
+        }
 
-    // TURN
-    else if(abs(joystick.joy1_x1) > threshhold && joy1sector(2)) {
-                          motor[LeftDr] = joystick.joy1_x1*constdrivereg;
-                          motor[RightDr] = -joystick.joy1_x1*constdrivereg;
-    }
+  else if(joy1Btn(9)==1) {
+  	drive(80);
+  	wait1Msec(60);
+  	drive(-80);
+  	wait1Msec(60);
+  	turn(80);
+  	wait1Msec(60);
+  	turn(-80);
+  	wait1Msec(60);
+  	drive(80);
+  	wait1Msec(60);
+  	drive(0);
+  }
 
-    else if(joy1Btn(9)==1) {
-            drive(80);
-            wait1Msec(60);
-            drive(-80);
-            wait1Msec(60);
-            turn(80);
-            wait1Msec(60);
-            turn(-80);
-            wait1Msec(60);
-            drive(80);
-            wait1Msec(60);
-            drive(0);
-    }
-
-    // NO MOVEMENT
-    else {
-      motor[LeftDr] = DCstop;
-      motor[RightDr] = DCstop;
-    }
+  // NO MOVEMENT
+  else {
+    motor[LeftDr] = DCstop;
+    motor[RightDr] = DCstop;
+  }
 }
 
 void doublejoyDrive() {
