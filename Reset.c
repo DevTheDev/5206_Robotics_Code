@@ -16,106 +16,65 @@
 
 #include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
 #include "consts.c"
+#include "menu.h"
 
-/*int leftarrow=2;
-int rightarrow=1;
-int orangebutton=3;
-int graybutton=0;*/
+Menu resetMenu;
 
-//Motor motors[2] = {LiftFlagMtr, PaddleMtr};//data type of the motors?
-//int speeds[2] = {80, 20};
+void initResetMenu(){
+	resetMenu.itemCount = 2;
+	resetMenu.selected = 0;
+	string itemNames[2] = {"Lift", "Hopper"};
+	resetMenu.itemNames = &itemNames;
+	string infos[2] = {"", ""};
+	resetMenu.infos = &infos;
+}
+
+/**
+	workaround to robot c not having function pointers
+*/
+void activateResetMenu(int f){
+	switch(resetMenu.selected){
+		case 0:
+			switch(f){
+				case 0:
+					motor[LiftFlagMtr]=-80;
+					break;
+				case 1:
+					motor[LiftFlagMtr]=80;
+					break;
+			}
+			break;
+		case 1:
+			switch(f){
+				case 0:
+					motor[PaddleMtr]=-20;
+					break;
+				case 1:
+					motor[PaddleMtr]=20;
+					break;
+			}
+			break;
+	}
+}
 
 task main()
 {
-	int toggle=0;
-
-	eraseDisplay(); //Clear the NXT screen
-  bDisplayDiagnostics = false; //Takes control away from FCS
-  bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
-  wait1Msec(100);
-
-  while(true) {
-  	if(toggle==0) {
-  		nxtDisplayClearTextLine(1);
-  		nxtDisplayCenteredTextLine(1, "Lift");
-  	}
-  	else {
-  		nxtDisplayClearTextLine(1);
-  		nxtDisplayCenteredTextLine(1, "Hopper");
-  	}
-
-  	if(nNxtButtonPressed==orangebutton) {
-  		while(nNxtButtonPressed==orangebutton) {}
-  		toggle=(toggle+1)%2;
-  	}
-
-		if(nNxtButtonPressed==leftarrow) {
-	  	switch(toggle){
-	  		case 0:
-	  			motor[LiftFlagMtr]=-80;
-	  			break;
-	  		case 1:
-	  			motor[PaddleMtr]=-20;
-	  			break;
-	  		default:
-	  			break;
-	  	}
-	  	//motor[motors[toggle]] = speeds[toggle];
-		}else if(nNxtButtonPressed==rightarrow) {
-	  	switch(toggle){
-	  		case 0:
-	  			motor[LiftFlagMtr]=80;
-	  			break;
-	  		case 1:
-	  			motor[PaddleMtr]=20;
-	  			break;
-	  		default:
-	  			break;
-	  	}
+	initResetMenu();
+	clearScreen();
+	while(true){
+		displayMenu(resetMenu);
+		if(pressed(orangebutton)){
+			selectNext(resetMenu);
 		}
-		else {
-	  	switch(toggle){
-	  		case 0:
-	  			motor[LiftFlagMtr]=0;
-	  			break;
-	  		case 1:
-	  			motor[PaddleMtr]=0;
-	  			break;
-	  		default:
-	  			break;
-	  	}
+
+		if(held(leftarrow, 1)){
+			activateResetMenu(0);
 		}
-  }
-}/*
-  	if(toggle==0) {
-	  	if(nNxtButtonPressed==rightarrow) {
-  			motor[LiftFlagMtr]=-80;
-  		}
-  		else {
-  			motor[LiftFlagMtr]=0;
-  		}
 
-  		if(nNxtButtonPressed==leftarrow) {
-  			motor[PaddleMtr]=-20;
-  		}
-  		else {
-	  		motor[PaddleMtr]=0;
-  		}
-  	}
-  	else {
-  		if(nNxtButtonPressed==rightarrow) {
-  			motor[LiftFlagMtr]=100;
-  		}
-  		else {
-  			motor[LiftFlagMtr]=0;
-  		}
+		if(held(rightarrow, 1)){
+			activateResetMenu(1);
+		}
 
-  		if(nNxtButtonPressed==leftarrow) {
-  			motor[PaddleMtr]=20;
-  		}
-  		else {
-	  		motor[PaddleMtr]=0;
-  		}
-  	}
+		updateButtons();
 	}
-}*/
+}
