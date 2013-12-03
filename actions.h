@@ -92,7 +92,7 @@ void move(float inches, int speed)
  */
 void point(float degrees, int speed)
 {
-	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (encoderticks);
+	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
 	
 	reset();
@@ -100,13 +100,13 @@ void point(float degrees, int speed)
 	// turn left
 	if(degrees > 0) {
 		turn(abs(speed));
-		while(nMotorEncoder[RightDr] < counts) {}
+		while(nMotorEncoder[RightDr] > counts) {}
 	}
 	
 	// turn right
 	else {
 		turn(-abs(speed));
-		while(nMotorEncoder[RightDr] > counts) {}
+		while(nMotorEncoder[RightDr] < counts) {}
 	}
 
 	pause(); // Stop movement
