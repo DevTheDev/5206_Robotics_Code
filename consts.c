@@ -5,7 +5,7 @@
 #define WHEEL_RADIUS 2
 #define WHEEL_WIDTH 17 // width between the wheels on opposite sides of robot
 #define D_RATIO 1 // the gear ratio on the drive motors
-
+#define encoderticks 1440
 #define scoredist 20;
 
 // Joystick Buttons
@@ -34,6 +34,7 @@
 #define DCstop 0
 #define paddleLightThresh 50
 #define paddleratio 14.0/128.0
+
 
 //nxt buttons
 #define leftarrow 2

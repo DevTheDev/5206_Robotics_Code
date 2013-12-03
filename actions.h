@@ -2,7 +2,7 @@
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
-
+#include "consts.c"
 
 /**
 * Reset the motor encoders
@@ -84,7 +84,7 @@ void move(float inches, int speed)
 */
 void point(float degrees, int speed)
 {
-	int counts = -1440.0 * robot.wheel.around * robot.wheel.dRatio * degrees/ 360.0;
+	int counts = -encoderticks * robot.wheel.around * robot.wheel.dRatio * degrees/ 360.0;
 
 	reset();
 
@@ -217,7 +217,7 @@ vec2 clampToThreshhold(float x, float y){
 ///////////////////
 // Single Joy Drive //
 void singleJoyDrive() {
-	
+
         vec2 joyVec = clampToThreshhold(joystick.joy1_x1, joystick.joy1_y1);
         if(joyVec.x != 0 || joyVec,y != 0) {
         	float turnRatio = (joyVec.x+/*range of joystick*/)/(/*range of joystick*/-joyVec.x);//TODO: division by zero safety
