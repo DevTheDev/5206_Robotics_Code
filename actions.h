@@ -84,8 +84,9 @@ void move(float inches, int speed)
 */
 void point(float degrees, int speed)
 {
-	int counts = -encoderticks * robot.wheel.around * robot.wheel.dRatio * degrees / (robot.wheel.circumference*360.0);
-
+	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
+	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
+	
 	reset();
 
 	//nMotorEncoderTarget[RightDr] = counts;
