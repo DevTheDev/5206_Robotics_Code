@@ -62,11 +62,7 @@ task main()
 	move(distToPend, 40);
 
 	//dump block
-	motor[PaddleMtr]=10;
-	wait1Msec(2000);
-	motor[PaddleMtr]=-10;
-	wait1Msec(2000);
-	motor[PaddleMtr]=DCstop;
+	score();
 
 	move(-distToPend, -40);
 	point(-90, 100);
