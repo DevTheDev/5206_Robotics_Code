@@ -33,6 +33,20 @@ void hold()
 	while(true) {}
 }
 
+<<<<<<< HEAD
+=======
+/**
+* Wait until the robot has completed its current movement
+* WARNING: Calling this function will limit the robot to only moving
+*/
+void waitUntilStop()
+{
+	while(nMotorRunState[RightDr] != runStateIdle) {}
+
+	pause();
+}
+
+>>>>>>> Cleaning
 void stopRobot() {
 	motor[LeftDr] = DCstop;
 	motor[RightDr] = DCstop;
@@ -61,7 +75,11 @@ void turn(int speed) {
 * inches: number of inches to move
 * speed: speed to traval at (negative values will cause the robot to drive backwards)
 */
+<<<<<<< HEAD
 void move(float inches, int speed)
+=======
+void move(int inches, int speed)
+>>>>>>> Cleaning
 {
 	int rotations = inches * 1440 / robot.wheel.circumference * robot.wheel.dRatio;
 
@@ -78,6 +96,7 @@ void move(float inches, int speed)
 }
 
 /**
+<<<<<<< HEAD
 * Preform a point turn
 * degrees: number of degrees to turn - positive values turn right, negative values turn left
 * speed: speed to travel at
@@ -85,6 +104,16 @@ void move(float inches, int speed)
 void point(float degrees, int speed)
 {
 	int counts = degrees * 20;
+=======
+* Perform a point turn
+* degrees: number of degrees to turn - positive values turn right, negative values turn left
+* speed: speed to travel at
+* May Still need Debugging, but this is what the ROBOTC tutorial suggested.  -
+*/
+void point(int degrees, int speed)
+{
+	int counts = ((((robot.wheel.around / robot.wheel.circumference) * (degrees / 360)) / 2) / (1440 * robot.wheel.dRatio));
+>>>>>>> Cleaning
 
 	reset();
 
@@ -109,7 +138,11 @@ void point(float degrees, int speed)
 }
 
 /**
+<<<<<<< HEAD
 * Preform a swing turn
+=======
+* Perform a swing turn
+>>>>>>> Cleaning
 * degrees: number of degrees to turn - positive values turn right, negative values turn left
 * speed: speed to travel at
 */
@@ -147,7 +180,11 @@ void scoreBlocks()
 */
 bool joy1sector(int type) {
 	switch(type) {
+<<<<<<< HEAD
 		case 1:
+=======
+	case 1: {
+>>>>>>> Cleaning
 			if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
 				return true;
 			}
@@ -156,7 +193,12 @@ bool joy1sector(int type) {
 				return false;
 			}
 			break;
+<<<<<<< HEAD
 		case 2:
+=======
+		}
+	case 2: {
+>>>>>>> Cleaning
 			if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1))
 			{
 				return true;
@@ -166,6 +208,7 @@ bool joy1sector(int type) {
 				return false;
 			}
 			break;
+<<<<<<< HEAD
 		default:
 			return false;
 	}
@@ -305,9 +348,15 @@ void liftandflag()
 	}
 	else {
 		motor[LiftFlagMtr]=DCstop;
+=======
+		}
+	default: {
+			return false;
+		}
+>>>>>>> Cleaning
 	}
-}
 
+<<<<<<< HEAD
 void onePaddleTurn(int speed) {
 	motor[PaddleMtr]=speed;
 	wait1Msec(250);
@@ -331,3 +380,11 @@ void onePaddleTurn(int speed) {
 void initializeRobotnext() {
 	HTEOPDsetShortRange(PaddleEOPD);
 }
+=======
+	/**
+	* TODO: Give description of what this function does
+	*/
+	bool EOPDDetect(tSensors EOPD, int eopdetect) {
+		return(HTEOPDreadProcessed(EOPD) >= eopdetect);
+	}
+>>>>>>> Cleaning
