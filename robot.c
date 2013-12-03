@@ -33,7 +33,8 @@ void initializeRobot() // a.k.a. initialize()
 	robot.wheel.around = WHEEL_WIDTH * PI;
 	robot.wheel.dRatio = D_RATIO;
 
-	// I WANT COOKIES
+	// Encoder Ticks
+	robot.encoder.ticks = encoderticks;
 
 	// TODO: Place code here to sinitialize servos to starting positions.
 
