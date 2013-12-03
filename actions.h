@@ -35,7 +35,7 @@ void hold()
 
 /**
  * Bring the robot to a complete stop
- * /
+ */
 void stopRobot() {
     motor[LeftDr] = DCstop;
     motor[RightDr] = DCstop;
