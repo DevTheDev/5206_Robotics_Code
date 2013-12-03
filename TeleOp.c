@@ -17,34 +17,33 @@
 
 #include "JoystickDriver.c"
 #include "robot.c"
-#include "actions.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
 
-/*
-REMOTE 1
-Left Joystick - Drive
-Right Joystick - Paddle (slow variable speed)
-Button LB / RB - Paddle forward / reverse (fixed fast speed)
-Button LT / RT - Intake forward / reverse
-Top Hat, right / left - paddle, one-carriage turn in forward /reverse direction
-  + button A - slow
-
-REMOTE 2
-Right Joystick - Lift
-Button A - move lift up slightly
-*/
+/**
+ * REMOTE 1
+ *  Left Joystick - Drive
+ *  Right Joystick - Paddle (slow variable speed)
+ *  Button LB / RB - Paddle forward / reverse (fixed fast speed)
+ *  Button LT / RT - Intake forward / reverse
+ *  Top Hat, right / left - paddle, one-carriage turn in forward /reverse direction
+ *    + button A - slow
+ *
+ * REMOTE 2
+ *  Right Joystick - Lift
+ *  Button A - move lift up slightly
+ */
 
 task main() {
 	initializeRobot();
 	initializeRobotnext();
-
-	waitForStart();   // wait for start of tele-op phase
-
+	
+	waitForStart(); // wait for start of tele-op phase
+	
 	while(true) {
 		getJoystickSettings(joystick);
 		singleJoyDrive();
-	  PaddleAndIntake();
-  	liftandflag();
-  }
+		PaddleAndIntake();
+		liftandflag();
+	}
 }
