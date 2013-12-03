@@ -1,4 +1,5 @@
 #include "consts.c"
+#include "actions.c"
 
 // Robot's wheel
 typedef struct {
