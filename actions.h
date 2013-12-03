@@ -54,6 +54,11 @@ void drive(int speed) {
     motor[RightDr] = speed;
 }
 
+/**
+ * Set turn speed
+ * Speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
+ */
+
 void turn(int speed) {
     motor[LeftDr] = speed;
     motor[RightDr] = -speed;
@@ -81,33 +86,31 @@ void move(float inches, int speed)
 }
 
 /**
- * Preform a point turn
- * degrees: number of degrees to turn - positive values turn right, negative values turn left
+ * Preform a pivot turn
+ * degrees: number of degrees to turn - positive values turn left, negative values turn right
  * speed: speed to travel at
  */
 void point(float degrees, int speed)
 {
-	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
+	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (encoderticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
 	
 	reset();
 
-	//nMotorEncoderTarget[RightDr] = counts;
-
-	if(degrees > 0)
-	{
-		turn(speed);
-		while(nMotorEncoder[RightDr] > counts) {}
-	}
-	else
-	{
-		turn(-speed)
+	// turn left
+	if(degrees > 0) {
+		turn(abs(speed));
 		while(nMotorEncoder[RightDr] < counts) {}
 	}
+	
+	// turn right
+	else {
+		turn(-abs(speed));
+		while(nMotorEncoder[RightDr] > counts) {}
+	}
 
-	pause();
+	pause(); // Stop movement
 }
-
 /**
  * Preform a swing turn
  * degrees: number of degrees to turn - positive values turn right, negative values turn left
