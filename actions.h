@@ -5,83 +5,86 @@
 
 
 /**
-* Reset the motor encoders
-*/
+ * Reset the motor encoders
+ */
 void reset()
 {
-        nMotorEncoder[RightDr] = 0;
-        //nMotorEncoder[LeftDr] = 0;
+    nMotorEncoder[RightDr] = 0;
+    //nMotorEncoder[LeftDr] = 0;
 }
 
 /**
-* Pause the robot in one spot
-*/
+ * Pause the robot in one spot
+ */
 void pause()
 {
-        motor[LeftDr] = 0;
-        motor[RightDr] = 0;
+    motor[LeftDr] = 0;
+    motor[RightDr] = 0;
 }
 
 /**
-* Stop the robot and wait for time to end
-*/
+ * Stop the robot and wait for time to end
+ */
 void hold()
 {
-        pause();
+    pause();
 
-        //Wait for time to end
-        while(true) {}
-}
-
-void stopRobot() {
-        motor[LeftDr] = DCstop;
-        motor[RightDr] = DCstop;
-        motor[PaddleMtr] = DCstop;
-        motor[LiftFlagMtr] = DCstop;
-        servo[LeftIntake] = intakestop;
-        servo[RightIntake] = intakestop;
+    //Wait for time to end
+    while(true) {}
 }
 
 /**
-* Drive until told elsewhere to stop
-* speed: the speed to drive at (negative speed will cause the robot to go backwards)
-*/
+ * Bring the robot to a complete stop
+ * /
+void stopRobot() {
+    motor[LeftDr] = DCstop;
+    motor[RightDr] = DCstop;
+    motor[PaddleMtr] = DCstop;
+    motor[LiftFlagMtr] = DCstop;
+    servo[LeftIntake] = intakestop;
+    servo[RightIntake] = intakestop;
+}
+
+/**
+ * Drive until told elsewhere to stop
+ * speed: the speed to drive at (negative speed will cause the robot to go backwards)
+ */
 void drive(int speed) {
-        motor[LeftDr] = speed;
-        motor[RightDr] = speed;
+    motor[LeftDr] = speed;
+    motor[RightDr] = speed;
 }
 
 void turn(int speed) {
-        motor[LeftDr] = speed;
-        motor[RightDr] = -speed;
+    motor[LeftDr] = speed;
+    motor[RightDr] = -speed;
 }
 
 /**
-* Drive a set distance
-* inches: number of inches to move
-* speed: speed to traval at (negative values will cause the robot to drive backwards)
-*/
+ * Drive a set distance
+ * inches: number of inches to move
+ * speed: speed to traval at (negative values will cause the robot to drive backwards)
+ */
 void move(float inches, int speed)
 {
-        int rotations = inches * 1440 / robot.wheel.circumference * robot.wheel.dRatio;
+    int rotations = inches * 1440 / robot.wheel.circumference * robot.wheel.dRatio;
 
-        reset();
+    reset();
 
-        drive(speed);
-        if(inches > 0){
-                while (nMotorEncoder[RightDr] < rotations){}
-        }
-        else{
-                while (nMotorEncoder[RightDr] > rotations){}
-        }
-        pause();
+    drive(speed);
+    if(inches > 0){
+        while (nMotorEncoder[RightDr] < rotations) {}
+    }
+    else{
+        while (nMotorEncoder[RightDr] > rotations) {}
+    }
+    pause();
 }
 
 /**
-* Preform a point turn
-* degrees: number of degrees to turn - positive values turn right, negative values turn left
-* speed: speed to travel at
-*/
+ * Preform a point turn
+ * degrees: number of degrees to turn - positive values turn right, negative values turn left
+ * speed: speed to travel at
+ */
 void point(float degrees, int speed)
 {
 	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
@@ -94,24 +97,22 @@ void point(float degrees, int speed)
 	if(degrees > 0)
 	{
 		turn(speed);
-		while(nMotorEncoder[RightDr] > counts){
-		}
+		while(nMotorEncoder[RightDr] > counts) {}
 	}
 	else
 	{
 		turn(-speed)
-		while(nMotorEncoder[RightDr] < counts){
-		}
+		while(nMotorEncoder[RightDr] < counts) {}
 	}
 
 	pause();
 }
 
 /**
-* Preform a swing turn
-* degrees: number of degrees to turn - positive values turn right, negative values turn left
-* speed: speed to travel at
-*/
+ * Preform a swing turn
+ * degrees: number of degrees to turn - positive values turn right, negative values turn left
+ * speed: speed to travel at
+ */
 void swing(int degrees, int speed)
 {
 	int counts = 2 * -encoderticks * robot.wheel.around * robot.wheel.dRatio * degrees / (robot.wheel.circumference*360.0);
@@ -137,51 +138,54 @@ void swing(int degrees, int speed)
 }
 
 /**
-* Score the blocks that the robot is carring
-*/
+ * Score the blocks that the robot is carring
+ */
 void scoreBlocks()
 {
-        motor[PaddleMtr] = 15;
-        wait1Msec(2000);
+    motor[PaddleMtr] = 10;
+    wait1Msec(2000);
+    motor[PaddleMtr] = -10;
+    wait1Msec(2000);
+    motor[PaddleMtr] = DCstop;
 }
 
 /**
-* TODO: Give description of what this fuction does
-*/
+ * TODO: Give description of what this fuction does
+ */
 bool joy1sector(int type) {
-        switch(type) {
-                case 1:
-                        if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
-                                return true;
-                        }
-                        else
-                        {
-                                return false;
-                        }
-                        break;
-                case 2:
-                        if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1))
-                        {
-                                return true;
-                        }
-                        else
-                        {
-                                return false;
-                        }
-                        break;
-                default:
-                        return false;
-        }
+    switch(type) {
+        case 1:
+            if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
+                    return true;
+            }
+            else
+            {
+                    return false;
+            }
+            break;
+        case 2:
+            if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1))
+            {
+                    return true;
+            }
+            else
+            {
+                    return false;
+            }
+            break;
+        default:
+			return false;
+    }
 }
 
-        /**
-        * TODO: Give description of what this fuction does
-        */
-        bool EOPDDetect(tSensors EOPD, int eopdetect) {
-                return(HTEOPDreadProcessed(EOPD) >= eopdetect);
-        }
+/**
+ * TODO: Give description of what this fuction does
+ */
+bool EOPDDetect(tSensors EOPD, int eopdetect) {
+        return(HTEOPDreadProcessed(EOPD) >= eopdetect);
+}
 
-        /////////////////////////////////////////
+/////////////////////////////////////////
 ///             TELE-OP               ///
 /////////////////////////////////////////
 
