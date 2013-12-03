@@ -24,29 +24,32 @@
 int driveTime;
 
 /**
-returns true if the robot is aligned with the beacon
-*/
+ * returns true if the robot is aligned with the beacon
+ */
 bool aligned(){
 	return nMotorEncoder[RightDr] > 1440*24/robot.wheel.circumference*robot.wheel.dRatio;
 }
 
 task main()
 {
-	eraseDisplay(); //Clear the NXT screen
-  bDisplayDiagnostics = false; //Takes control away from FCS
-  bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
-  while(nNxtButtonPressed != orangebutton){
-	  nxtDisplayCenteredTextLine(1, "IR: %d", HTIRS2readACDir(AutoIR));
+	eraseDisplay(); // Clear the NXT screen
+	bDisplayDiagnostics = false; // Takes control away from FCS
+	bNxtLCDStatusDisplay = false; // Takes control away from NXT firmware
+	
+	while(nNxtButtonPressed != orangebutton) {
+		nxtDisplayCenteredTextLine(1, "IR: %d", HTIRS2readACDir(AutoIR));
 	}
+	
 	initializeRobot();
 	waitForStart();
-
-	//drive to basket
+	
+	// Drive to basket
 	motor[LiftFlagMtr]=100;
 	ClearTimer(T1);
-	//	wait1Msec(2000);
+	//wait1Msec(2000);
 	reset();
 	drive(60);
+	
 	while(!aligned() || time1[T1] < 3500){
 		if(aligned()){
 			driveTime = time1[T1];
@@ -60,13 +63,13 @@ task main()
 	//pause();
 	point(90, 100);
 	move(distToPend, 40);
-
-	//dump block
-	score();
-
+	
+	// Score block
+	scoreBlocks();
+	
+	// Move back
 	move(-distToPend, -40);
 	point(-90, 100);
-	//move back
 	drive(-60);
 	wait1Msec(driveTime-500);
 	pause();
