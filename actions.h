@@ -94,7 +94,7 @@ void point(float degrees, int speed)
 {
 	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
-	
+
 	reset();
 
 	// turn left
@@ -102,7 +102,7 @@ void point(float degrees, int speed)
 		turn(abs(speed));
 		while(nMotorEncoder[RightDr] > counts) {}
 	}
-	
+
 	// turn right
 	else {
 		turn(-abs(speed));
@@ -111,6 +111,25 @@ void point(float degrees, int speed)
 
 	pause(); // Stop movement
 }
+
+/**
+	Moves the robot relative to it's current position
+	y: the distance in inches if front of the robot to move
+	x: the distance in inches left of the robot to move
+	speed: the driving speed
+	turnSpeed: the turning speed
+*/
+void moveTo(float y, float x, int speed, int turnSpeed){
+	if(y == 0){
+		point((x > 0) 90:-90, turnSpeed);
+		move(x*x, speed);
+	}
+	else{
+		point(radiansToDegrees(atan(x/y)), 100);
+		move((y > 0)? sqrt(y*y+x*x):-sqrt(y*y+x*x), (y > 0)? speed:-speed);
+	}
+}
+
 /**
  * Preform a swing turn
  * degrees: number of degrees to turn - positive values turn right, negative values turn left
@@ -213,7 +232,7 @@ vec2 clampToThreshhold(float x, float y){
 		out.y = 0;
 	}else{
 		out.x = x;
-		out.y = x;
+		out.y = y;
 	}
 	return out;
 }
@@ -225,73 +244,56 @@ vec2 clampToThreshhold(float x, float y){
 ///////////////////
 // Single Joy Drive //
 void singleJoyDrive() {
-
-        vec2 joyVec = clampToThreshhold(joystick.joy1_x1, joystick.joy1_y1);
-        if(joyVec.x != 0 || joyVec,y != 0) {
-        	float turnRatio = (joyVec.x+/*range of joystick*/)/(/*range of joystick*/-joyVec.x);//TODO: division by zero safety
-          motor[LeftDr] = joyVec.y*turnRatio*constdrivereg;
-          motor[RightDr] = joyVec.y*(1/turnRatio)*constdrivereg;
-        }
-
-  else if(joy1Btn(9)==1) {
-  	drive(80);
-  	wait1Msec(60);
-  	drive(-80);
-  	wait1Msec(60);
-  	turn(80);
-  	wait1Msec(60);
-  	turn(-80);
-  	wait1Msec(60);
-  	drive(80);
-  	wait1Msec(60);
-  	drive(0);
-  }
-
-  // NO MOVEMENT
-  else {
-    motor[LeftDr] = DCstop;
-    motor[RightDr] = DCstop;
-  }
+  vec2 joyVec = clampToThreshhold(joystick.joy1_x1, joystick.joy1_y1);
+  motor[LeftDr] = (joyVec.y+abs(joyVec.x))*(2*joyVec.x/joystickRange+1)*constdrivereg;
+  motor[RightDr] = (joyVec.y+abs(joyVec.x))*(-2*joyVec.x/joystickRange+1)*constdrivereg;
 }
 
 void doublejoyDrive() {
-        (abs(joystick.joy1_y1) > threshhold) ? motor[LeftDr]=joystick.joy1_y1*constdrivereg : motor[LeftDr]=DCstop;
-        (abs(joystick.joy1_y2) > threshhold) ? motor[RightDr]=joystick.joy1_y2*constdrivereg : motor[RightDr]=DCstop;
+        motor[LeftDr] = (abs(joystick.joy1_y1) > threshhold) ? joystick.joy1_y1*constdrivereg : DCstop;
+        motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdrivereg : DCstop;
+}
+
+void paddleStart(){
+	      clearTimer(T2);
 }
 
 // PADDLE + INTAKE //
 void PaddleAndIntake() {
-        if(joystick.joy1_TopHat==2) {
-                (joy1Btn(btnA)==1) ? onePaddleTurn(paddlespeedslow) : onePaddleTurn(paddlespeedreg);
+        if(paddleForwardButton) {
+                onePaddleTurn(slowButton) ? paddlespeedslow : paddlespeedreg);
         }
-        else if(joystick.joy1_TopHat==6) {
-                (joy1Btn(btnA)==1) ? onePaddleTurn(-paddlespeedslow) : onePaddleTurn(-paddlespeedreg);
+        else if(paddleBackButton) {
+                onePaddleTurn(-(slowButton) ? paddlespeedslow : paddlespeedreg);
         }
 
         // INTAKE ALGORITHM
-        if(joy1Btn(btnY)==1) {
+        if(time1[T2] >= paddleWaitTime && time1[T2] < paddleFastTime+paddleWaitTime){
+       		motor[PaddleMtr]=paddlespeedreg;
+        }
+        else if(time1[T2] >= paddleFastTime+paddleWaitTime && time1[T2] < paddleIntakeTime){
+        	motor[PaddleMtr]=paddlespeedslow;
+        	if(SensorValue[PaddleLIGHT] < paddleLightThresh){
+        		motor[PaddleMtr]=DCstop;
+        	}
+        }
+        if(autoIntakeButton) {
                 servo[LeftIntake]=leftintakefwd;
                 servo[RightIntake]=rightintakefwd;
 
-                if(EOPDDetect(PaddleEOPD,farblockconst)==1) {
-                        motor[LiftFlagMtr]=100;
-                        wait1Msec(100);
-                        motor[LiftFlagMtr]=0;
-                        wait1Msec(100);
-                        motor[LiftFlagMtr]=-100;
-                        wait1Msec(120);
-                        motor[LiftFlagMtr]=DCstop;
+                if(EOPDDetect(PaddleEOPD,farblockconst)==1 && time1[T2] > paddleIntakeTime) {
+                        paddleStart();
                 }
         }
 
         else {
                 // INTAKE
-                if(joy1Btn(btnRT)==1) {
+                if(manualIntakeButton) {
                         servo[LeftIntake]=leftintakefwd;
                         servo[RightIntake]=rightintakefwd;
                 }
 
-                else if(joy1Btn(btnLT)==1) {
+                else if(manualOuttakeButton) {
                         servo[LeftIntake]=leftintakebck;
                         servo[RightIntake]=rightintakebck;
                 }

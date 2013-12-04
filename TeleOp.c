@@ -37,9 +37,10 @@
 task main() {
 	initializeRobot();
 	initializeRobotnext();
-	
+
 	waitForStart(); // wait for start of tele-op phase
-	
+
+	ClearTimer(T1);
 	while(true) {
 		getJoystickSettings(joystick);
 		singleJoyDrive();
