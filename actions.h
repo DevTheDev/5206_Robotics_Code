@@ -86,9 +86,9 @@ void move(float inches, int speed)
 }
 
 /**
- * Preform a pivot turn
- * degrees: number of degrees to turn - positive values turn left, negative values turn right
- * speed: speed to travel at
+	Perform a pivot turn
+	degrees: number of degrees to turn - positive values turn left, negative values turn right
+	speed: speed to travel at
  */
 void point(float degrees, int speed)
 {
@@ -131,9 +131,9 @@ void moveTo(float y, float x, int speed, int turnSpeed){
 }
 
 /**
- * Preform a swing turn
- * degrees: number of degrees to turn - positive values turn right, negative values turn left
- * speed: speed to travel at
+	Perform a swing turn
+	degrees: number of degrees to turn - positive values turn right, negative values turn left
+	speed: speed to travel at
  */
 void swing(int degrees, int speed)
 {
@@ -160,7 +160,7 @@ void swing(int degrees, int speed)
 }
 
 /**
- * Score the blocks that the robot is carring
+ Score the blocks that the robot is carring
  */
 void scoreBlocks()
 {
@@ -172,7 +172,8 @@ void scoreBlocks()
 }
 
 /**
- * TODO: Give description of what this fuction does
+ TODO: Give description of what this function does
+ This appears to be a function that will shorten, and neaten Tele-op, but is unimplimented, correct me if I'm wrong.
  */
 bool joy1sector(int type) {
     switch(type) {
@@ -201,7 +202,7 @@ bool joy1sector(int type) {
 }
 
 /**
- * TODO: Give description of what this fuction does
+ * TODO: Give description of what this function does
  */
 bool EOPDDetect(tSensors EOPD, int eopdetect) {
         return(HTEOPDreadProcessed(EOPD) >= eopdetect);
