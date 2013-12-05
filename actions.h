@@ -92,7 +92,7 @@ void move(float inches, int speed)
  */
 void point(float degrees, int speed)
 {
-	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-encoderticks);
+	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-robot.encoder.ticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
 
 	reset();
