@@ -5,7 +5,7 @@
 #define WHEEL_RADIUS 2
 #define WHEEL_WIDTH 17 // width between the wheels on opposite sides of robot
 #define D_RATIO 1 // the gear ratio on the drive motors
-#define encoderticks 1440
+#define encoderticks 1440 //the number of encoder ticks in a rotation
 #define scoredist 20;
 
 // Joystick Buttons
@@ -32,7 +32,7 @@
 #define intakestop 127
 #define paddlespeedreg 18
 #define paddlespeedslow 8
-#define DCstop 0
+#define DCstop 0 //full DC motor stop
 #define paddleLightThresh 50
 #define paddleratio 14.0/128.0
 #define paddleIntakeTime 6000;//the time in ms the robot takes to intake a block after seeing a block

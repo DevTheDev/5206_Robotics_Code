@@ -202,7 +202,7 @@ bool joy1sector(int type) {
 }
 
 /**
- * TODO: Give description of what this function does
+ Checks if a block is in front of the EOPD
  */
 bool EOPDDetect(tSensors EOPD, int eopdetect) {
         return(HTEOPDreadProcessed(EOPD) >= eopdetect);
