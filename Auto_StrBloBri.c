@@ -21,25 +21,25 @@ task main()
 {
 	initializeRobot();
 	waitForStart();
-	
+
 	//drive to basket
 	motor[LiftFlagMtr] = 100;
 	wait1Msec(2000);
-	
+
 	move(20,80);
 	move(7, 40);
 	motor[LiftFlagMtr] = 0;
-	
+
 	//dump block
 	motor[PaddleMtr] = 10;
 	wait1Msec(2000);
 	motor[PaddleMtr] = -10;
 	wait1Msec(2000);
 	motor[PaddleMtr] = DCstop;
-	
+
 	//lower lift
 	motor[LiftFlagMtr] = -100;
-	
+
 	//move onto bridge
 	move(-4,-80);
 	//point(-90, 100);
@@ -54,6 +54,6 @@ task main()
 	turn(50);
 	wait1Msec(750);
 	move(48, 80);
-	
+
 	stopRobot();
 }

@@ -20,9 +20,9 @@ typedef struct {
 Robot robot;
 
 /**
- * Initilizes all the value and get the robot read to go
- * (also has a 0.01% change of causing world destruction)
- */
+* Initilizes all the value and get the robot read to go
+* (also has a 0.01% change of causing world destruction)
+*/
 void initializeRobot() // a.k.a. initialize()
 {
 	// Set robot values
