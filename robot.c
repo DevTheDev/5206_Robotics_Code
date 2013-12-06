@@ -1,5 +1,4 @@
 #include "consts.c"
-#include "actions.c"
 
 // Robot's wheel
 typedef struct {
@@ -10,9 +9,16 @@ typedef struct {
 	float dRatio;
 } Wheel;
 
+// Robot's encoder
+typedef struct {
+	float tickes;
+} Encoder;
+
+
 // Robot structure
 typedef struct {
 	Wheel wheel;
+	Encoder encoder;
 	float optimalSpeed;
 } Robot;
 
