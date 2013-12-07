@@ -121,7 +121,7 @@ turnSpeed: the turning speed
 */
 void moveTo(float y, float x, int speed, int turnSpeed){
 	if(y == 0){
-	point((x > 0) 90:-90, turnSpeed);
+	point((x > 0) ? 90:-90, turnSpeed);
 		move(x*x, speed);
 	}
 	else{
@@ -218,24 +218,14 @@ void PaddleAndIntake();
 void liftandflag();
 void onePaddleTurn(int speed);
 
-typedef struct{
-	float x;
-	float y;
-} vec2;
-
 /**
 if the joystick is inside a circle of radius threshhold set x and y to 0
 */
-vec2 clampToThreshhold(float x, float y){
-	vec2 out;
+void clampToThreshhold(float& x, float& y){
 	if(x*x + y*y <= threshhold*threshhold){
-		out.x = 0;
-		out.y = 0;
-		}else{
-		out.x = x;
-		out.y = y;
+		x = 0;
+		y = 0;
 	}
-	return out;
 }
 
 ///////////////////
@@ -245,9 +235,11 @@ vec2 clampToThreshhold(float x, float y){
 ///////////////////
 // Single Joy Drive //
 void singleJoyDrive() {
-	vec2 joyVec = clampToThreshhold(joystick.joy1_x1, joystick.joy1_y1);
-	motor[LeftDr] = (joyVec.y+abs(joyVec.x))*(2*joyVec.x/joystickRange+1)*constdrivereg;
-	motor[RightDr] = (joyVec.y+abs(joyVec.x))*(-2*joyVec.x/joystickRange+1)*constdrivereg;
+	joyX = joystick.joy1_x1;
+	joyY = joystick.joy1_y1;
+	clampToThreshhold(joyX, joyY);
+	motor[LeftDr] = (joyY+abs(joyX))*(2*joyX/joystickRange+1)*constdrivereg;
+	motor[RightDr] = (joyY+abs(joyX))*(-2*joyX/joystickRange+1)*constdrivereg;
 }
 
 void doublejoyDrive() {
