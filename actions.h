@@ -235,8 +235,8 @@ void clampToThreshhold(float& x, float& y){
 ///////////////////
 // Single Joy Drive //
 void singleJoyDrive() {
-	joyX = joystick.joy1_x1;
-	joyY = joystick.joy1_y1;
+	float joyX = joystick.joy1_x1;
+	float joyY = joystick.joy1_y1;
 	clampToThreshhold(joyX, joyY);
 	motor[LeftDr] = (joyY+abs(joyX))*(2*joyX/joystickRange+1)*constdrivereg;
 	motor[RightDr] = (joyY+abs(joyX))*(-2*joyX/joystickRange+1)*constdrivereg;
