@@ -20,5 +20,6 @@
 
 task main()
 {
+	initializeRobot();
 	point(90.0,80);
 }
