@@ -11,7 +11,7 @@ typedef struct {
 
 // Robot's encoder
 typedef struct {
-	float tickes;
+	float ticks;
 } Encoder;
 
 
