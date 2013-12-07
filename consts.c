@@ -35,9 +35,9 @@
 #define DCstop 0 //full DC motor stop
 #define paddleLightThresh 50
 #define paddleratio 14.0/128.0
-#define paddleIntakeTime 6000;//the time in ms the robot takes to intake a block after seeing a block
-#define paddleWaitTime 1000;//the time in ms the robot waits after seeing a block to start the paddle
-#define paddleFastTime 1000;//the time the paddle runs before slowing down for the sensor
+#define paddleIntakeTime 6000//the time in ms the robot takes to intake a block after seeing a block
+#define paddleWaitTime 1000//the time in ms the robot waits after seeing a block to start the paddle
+#define paddleFastTime 1000//the time the paddle runs before slowing down for the sensor
 
 //Tele-Op Bindings
 #define slowButton joy1Btn(btnA)==1

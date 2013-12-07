@@ -234,7 +234,7 @@ void clampToThreshhold(float& x, float& y){
 /*****************/
 ///////////////////
 // Single Joy Drive //
-/*void singleJoyDrive() {
+void singleJoyDrive() {
 	float joyX = joystick.joy1_x1;
 	float joyY = joystick.joy1_y1;
 	clampToThreshhold(joyX, joyY);
@@ -248,13 +248,13 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 }
 
 void paddleStart(){
-	clearTimer(T2);
+	ClearTimer(T2);
 }
 
 // PADDLE + INTAKE //
 void PaddleAndIntake() {
 	if(paddleForwardButton) {
-	onePaddleTurn(slowButton) ? paddlespeedslow : paddlespeedreg);
+	onePaddleTurn((slowButton) ? paddlespeedslow : paddlespeedreg);
 	}
 	else if(paddleBackButton) {
 	onePaddleTurn(-(slowButton) ? paddlespeedslow : paddlespeedreg);
@@ -350,4 +350,4 @@ void onePaddleTurn(int speed) {
 
 void initializeRobotnext() {
 	HTEOPDsetShortRange(PaddleEOPD);
-}*/
+}
