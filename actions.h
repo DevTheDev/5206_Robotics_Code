@@ -234,7 +234,7 @@ void clampToThreshhold(float& x, float& y){
 /*****************/
 ///////////////////
 // Single Joy Drive //
-void singleJoyDrive() {
+/*void singleJoyDrive() {
 	float joyX = joystick.joy1_x1;
 	float joyY = joystick.joy1_y1;
 	clampToThreshhold(joyX, joyY);
@@ -350,4 +350,4 @@ void onePaddleTurn(int speed) {
 
 void initializeRobotnext() {
 	HTEOPDsetShortRange(PaddleEOPD);
-}
+}*/
