@@ -108,7 +108,7 @@ void point(float degrees, int speed)
 		turn(-abs(speed));
 		while(nMotorEncoder[RightDr] < counts) {}
 	}
-	wait1Msec(250)
+	wait1Msec(250);
 	pause(); // Stop movement
 }
 
