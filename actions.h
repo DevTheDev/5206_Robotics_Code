@@ -1,3 +1,5 @@
+#include "robot.c"
+#include "consts.c"
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
@@ -70,7 +72,7 @@ void turn(int speed) {
  */
 void move(float inches, int speed)
 {
-	int rotations = inches * 1440 / robot.wheel.circumference * robot.wheel.dRatio;
+	int rotations = inches * 1440.0 / robot.wheel.circumference * robot.wheel.dRatio;
 
 	reset();
 
@@ -297,7 +299,7 @@ void PaddleAndIntake() {
 			motor[PaddleMtr] = DCstop;
 		}
 	}
-	
+
 	if (autoIntakeButton) {
 		servo[LeftIntake] = leftintakefwd;
 		servo[RightIntake] = rightintakefwd;
