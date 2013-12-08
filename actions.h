@@ -76,12 +76,25 @@ void move(float inches, int speed)
 
 	drive(speed);
 	if (inches > 0) {
-		while (nMotorEncoder[RightDr] < rotations || nMotorEncoder[LeftDr] < rotations) {}
+		while (true) {
+			if (nMotorEncoder[RightDr] < rotations) {
+				motor[RightDr] = 0;
+			}
+			if (nMotorEncoder[LeftDr] < rotations) {
+				motor[LeftDr] = 0;
+			}
+		}
 	}
 	else {
-		while (nMotorEncoder[RightDr] > rotations || nMotorEncoder[LeftDr] > rotations) {}
+		while (true) {
+			if (nMotorEncoder[RightDr] > rotations) {
+				motor[RightDr] = 0;
+			}
+			if (nMotorEncoder[LeftDr] > rotations) {
+				motor[LeftDr] = 0;
+			}
+		}
 	}
-	pause();
 }
 
 /**
@@ -99,16 +112,28 @@ void point(float degrees, int speed)
 	// turn left
 	if (degrees > 0) {
 		turn(abs(speed));
-		while(nMotorEncoder[RightDr] > counts || nMotorEncoder[LeftDr] > counts) {}
+		while(true) {
+			if (nMotorEncoder[RightDr] > counts) {
+				motor[RightDr] = 0;
+			}
+			if (nMotorEncoder[LeftDr] > counts) {
+				motor[LeftDr] = 0;
+			}
+		}
 	}
 
 	// turn right
 	else {
 		turn(-abs(speed));
-		while(nMotorEncoder[RightDr] < counts || nMotorEncoder[LeftDr] < counts) {}
+		while(true) {
+			if (nMotorEncoder[RightDr] < counts) {
+				motor[RightDr] = 0;
+			}
+			if (nMotorEncoder[LeftDr] < counts) {
+				motor[LeftDr] = 0;
+			}
+		}
 	}
-	wait1Msec(250);
-	pause(); // Stop movement
 }
 
 /**
