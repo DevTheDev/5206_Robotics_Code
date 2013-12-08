@@ -1,4 +1,3 @@
-#include "robot.c"
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
