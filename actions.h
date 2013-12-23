@@ -77,50 +77,15 @@ void move(float inches, int speed)
 	reset();
 
 	drive(speed);
-	if (inches > 0) {
-		while (nMotorEncoder[RightDr] < rotations || nMotorEncoder[LeftDr] < rotations) {
-			if (nMotorEncoder[RightDr] > rotations) {
-				motor[RightDr] = 0;
-			}
-			if (nMotorEncoder[LeftDr] > rotations) {
-		while (true) {
-			// Wait for right motor to reach goal
-			if (nMotorEncoder[RightDr] < rotations) {
-				motor[RightDr] = 0;
-			}
-			
-			// Wait for left motor to reach goal
-			if (nMotorEncoder[LeftDr] < rotations) {
-				motor[LeftDr] = 0;
-			}
-			
-			// When both motors have reached goal: stop
-			if (motor[RightDr] == 0 && motor[LeftDr] == 0) {
-				break;
-			}
+	while ((inches > 0) == (nMotorEncoder[RightDr] <= rotations) || (inches>0) == (nMotorEncoder[LeftDr] <= rotations)) {
+		// Wait for right motor to reach goal
+		if ((inches > 0) == (nMotorEncoder[RightDr] >= rotations)) {
+			motor[RightDr] = 0;
 		}
-	}
-	else {
-		while (nMotorEncoder[RightDr] > rotations || nMotorEncoder[LeftDr] > rotations) {
-			if (nMotorEncoder[RightDr] < rotations) {
-				motor[RightDr] = 0;
-			}
-			if (nMotorEncoder[LeftDr] < rotations) {
-		while (true) {
-			// Wait for right motor to reach goal
-			if (nMotorEncoder[RightDr] > rotations) {
-				motor[RightDr] = 0;
-			}
-			
-			// Wait for left motor to reach goal
-			if (nMotorEncoder[LeftDr] > rotations) {
-				motor[LeftDr] = 0;
-			}
-			
-			// When both motors have reached goal: stop
-			if (motor[RightDr] == 0 && motor[LeftDr] == 0) {
-				break;
-			}
+		
+		// Wait for left motor to reach goal
+		if ((inches > 0) == (nMotorEncoder[LeftDr] >= rotations)) {
+			motor[LeftDr] = 0;
 		}
 	}
 }
@@ -137,57 +102,16 @@ void point(float degrees, int speed)
 
 	reset();
 
-	// turn left
-	if (degrees > 0) {
-		turn(speed);
-		while(nMotorEncoder[RightDr] < counts || nMotorEncoder[LeftDr] > -counts) {
-			if (nMotorEncoder[RightDr] > counts) {
-				motor[RightDr] = 0;
-			}
-			if (nMotorEncoder[LeftDr] < -counts) {
-		turn(abs(speed));
-		while(true) {
-			// Wait for right motor to reach goal
-			if (nMotorEncoder[RightDr] > counts) {
-				motor[RightDr] = 0;
-			}
-			
-			// Wait for left motor to reach goal
-			if (nMotorEncoder[LeftDr] > counts) {
-				motor[LeftDr] = 0;
-			}
-			
-			// When both motors have reached goal: stop
-			if (motor[RightDr] == 0 && motor[LeftDr] == 0) {
-				break;
-			}
+	turn(speed);
+	while((degrees > 0) == (nMotorEncoder[RightDr] <= counts) || (degrees > 0) == (nMotorEncoder[LeftDr] >= -counts)) {
+		// Wait for right motor to reach goal
+		if ((degrees > 0) == (nMotorEncoder[RightDr] >= counts)) {
+			motor[RightDr] = 0;
 		}
-	}
-
-	// turn right
-	else {
-		turn(-speed);
-		while(nMotorEncoder[RightDr] > counts || nMotorEncoder[LeftDr] < -counts) {
-			if (nMotorEncoder[RightDr] < counts) {
-				motor[RightDr] = 0;
-			}
-			if (nMotorEncoder[LeftDr] > -counts) {
-		turn(-abs(speed));
-		while(true) {
-			// Wait for right motor to reach goal
-			if (nMotorEncoder[RightDr] < counts) {
-				motor[RightDr] = 0;
-			}
-			
-			// Wait for left motor to reach goal
-			if (nMotorEncoder[LeftDr] < counts) {
-				motor[LeftDr] = 0;
-			}
-			
-			// When both motors have reached goal: stop
-			if (motor[RightDr] == 0 && motor[LeftDr] == 0) {
-				break;
-			}
+		
+		// Wait for left motor to reach goal
+		if ((degrees > 0) == (nMotorEncoder[LeftDr] <= -counts)) {
+			motor[LeftDr] = 0;
 		}
 	}
 }
@@ -224,13 +148,13 @@ void swing(int degrees, int speed)
 	//nMotorEncoderTarget[RightDr] = counts;
 	//nMotorEncoderTarget[LefttDr] = counts;
 
-	if (degrees > 0) {
+	if (degrees >= 0) {
 		motor[RightDr] = -speed;
-		while(nMotorEncoder[RightDr] > counts || nMotorEncoder[LeftDr] > counts) {}
+		while(nMotorEncoder[RightDr] >= counts) {}
 	}
 	else {
-		motor[RightDr] = speed;
-		while(nMotorEncoder[RightDr] < counts || nMotorEncoder[LeftDr] < counts) {}
+		motor[Left] = -speed;
+		while(nMotorEncoder[LeftDr] <= counts) {}
 	}
 
 	pause();
@@ -247,33 +171,6 @@ void scoreBlocks()
 	motor[PaddleMtr] = -10;
 	wait1Msec(2000);
 	motor[PaddleMtr] = DCstop;
-}
-
-/**
-TODO: Give description of what this function does
-This appears to be a function that will shorten, and neaten Tele-op, but is unimplimented, correct me if I'm wrong.
-*/
-bool joy1sector(int type) {
-	switch(type) {
-	case 1:
-		if (joystick.joy1_y1 > abs(joystick.joy1_x1) || joystick.joy1_y1 <- abs(joystick.joy1_x1)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-		break;
-	case 2:
-		if (joystick.joy1_x1 > abs(joystick.joy1_y1) || joystick.joy1_x1<-abs(joystick.joy1_y1)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-		break;
-	default:
-		return false;
-	}
 }
 
 /**
@@ -296,11 +193,17 @@ void onePaddleTurn(int speed);
 /**
  * if the joystick is inside a circle of radius threshhold set x and y to 0
  */
-void clampToThreshhold(float& x, float& y) {
+void filteredJoy(float& x, float& y) {
+	x = joystick.joy1_x1;
+	y = joystick.joy1_y1;
+	//if the joystick is inside a circle of radius threshhold set x and y to 0
 	if(x*x + y*y <= threshhold*threshhold) {
 		x = 0;
 		y = 0;
 	}
+	//keep the values in [-1, 1]
+	x /= joystickRange;
+	y /= joystickRange;
 }
 
 /* DRIVE
@@ -310,11 +213,10 @@ void clampToThreshhold(float& x, float& y) {
  * TODO: Explain what this function does
  */
 void singleJoyDrive() {
-	float joyX = joystick.joy1_x1;
-	float joyY = joystick.joy1_y1;
-	clampToThreshhold(joyX, joyY);
-	motor[LeftDr] = (joyY/*+abs(joyX)*/)*(2*joyX/joystickRange+1)*constdrivereg;
-	motor[RightDr] = (joyY/*+abs(joyX)*/)*(-2*joyX/joystickRange+1)*constdrivereg;
+	float joyX, joyY;
+	filteredJoy(joyX, joyY);
+	motor[LeftDr] = (joyY+joyX)*constdrivereg;
+	motor[RightDr] = (joyY-joyX)*constdrivereg;
 }
 
 /**
