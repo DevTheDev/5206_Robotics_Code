@@ -78,13 +78,11 @@ void move(float inches, int speed)
 
 	drive(speed);
 	if (inches > 0) {
-<<<<<<< HEAD
 		while (nMotorEncoder[RightDr] < rotations || nMotorEncoder[LeftDr] < rotations) {
 			if (nMotorEncoder[RightDr] > rotations) {
 				motor[RightDr] = 0;
 			}
 			if (nMotorEncoder[LeftDr] > rotations) {
-=======
 		while (true) {
 			// Wait for right motor to reach goal
 			if (nMotorEncoder[RightDr] < rotations) {
@@ -93,7 +91,6 @@ void move(float inches, int speed)
 			
 			// Wait for left motor to reach goal
 			if (nMotorEncoder[LeftDr] < rotations) {
->>>>>>> 03d237a18de69f22aee568f2ebdc6f61ab5348fe
 				motor[LeftDr] = 0;
 			}
 			
@@ -104,13 +101,11 @@ void move(float inches, int speed)
 		}
 	}
 	else {
-<<<<<<< HEAD
 		while (nMotorEncoder[RightDr] > rotations || nMotorEncoder[LeftDr] > rotations) {
 			if (nMotorEncoder[RightDr] < rotations) {
 				motor[RightDr] = 0;
 			}
 			if (nMotorEncoder[LeftDr] < rotations) {
-=======
 		while (true) {
 			// Wait for right motor to reach goal
 			if (nMotorEncoder[RightDr] > rotations) {
@@ -119,7 +114,6 @@ void move(float inches, int speed)
 			
 			// Wait for left motor to reach goal
 			if (nMotorEncoder[LeftDr] > rotations) {
->>>>>>> 03d237a18de69f22aee568f2ebdc6f61ab5348fe
 				motor[LeftDr] = 0;
 			}
 			
@@ -145,14 +139,12 @@ void point(float degrees, int speed)
 
 	// turn left
 	if (degrees > 0) {
-<<<<<<< HEAD
 		turn(speed);
 		while(nMotorEncoder[RightDr] < counts || nMotorEncoder[LeftDr] > -counts) {
 			if (nMotorEncoder[RightDr] > counts) {
 				motor[RightDr] = 0;
 			}
 			if (nMotorEncoder[LeftDr] < -counts) {
-=======
 		turn(abs(speed));
 		while(true) {
 			// Wait for right motor to reach goal
@@ -162,7 +154,6 @@ void point(float degrees, int speed)
 			
 			// Wait for left motor to reach goal
 			if (nMotorEncoder[LeftDr] > counts) {
->>>>>>> 03d237a18de69f22aee568f2ebdc6f61ab5348fe
 				motor[LeftDr] = 0;
 			}
 			
@@ -175,14 +166,12 @@ void point(float degrees, int speed)
 
 	// turn right
 	else {
-<<<<<<< HEAD
 		turn(-speed);
 		while(nMotorEncoder[RightDr] > counts || nMotorEncoder[LeftDr] < -counts) {
 			if (nMotorEncoder[RightDr] < counts) {
 				motor[RightDr] = 0;
 			}
 			if (nMotorEncoder[LeftDr] > -counts) {
-=======
 		turn(-abs(speed));
 		while(true) {
 			// Wait for right motor to reach goal
@@ -192,7 +181,6 @@ void point(float degrees, int speed)
 			
 			// Wait for left motor to reach goal
 			if (nMotorEncoder[LeftDr] < counts) {
->>>>>>> 03d237a18de69f22aee568f2ebdc6f61ab5348fe
 				motor[LeftDr] = 0;
 			}
 			
