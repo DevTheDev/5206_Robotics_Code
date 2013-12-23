@@ -23,29 +23,38 @@ task main()
 	bDisplayDiagnostics = false; //Takes control away from FCS
 	bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
 	float dist = -24;
+	int prevButton;
 	
 	while(nNxtButtonPressed != orangebutton){
 		nxtDisplayCenteredTextLine(1, "%d", dist);
 		if(nNxtButtonPressed == leftarrow) {
-			dist--;
-			nxtDisplayCenteredTextLine(1, "%d", dist);
-			wait1Msec(1000);
-			while(nNxtButtonPressed == leftarrow){
-				dist -= 10;
-				nxtDisplayCenteredTextLine(1, "%d", dist);
-				wait1Msec(250);
+			if(prevButton == leftarrow){
+				if(time1[T1] > 1000){
+					dist -= 10;
+					xtDisplayCenteredTextLine(1, "%d", dist);
+					wait1Msec(250);
+				}
+			}else{
+				dist--;
+				ClearTimer(T1);
+				
 			}
+
 		}
 		if(nNxtButtonPressed == rightarrow){
-			dist++;
-			nxtDisplayCenteredTextLine(1, "%d", dist);
-			wait1Msec(1000);
-			while(nNxtButtonPressed == rightarrow){
-				dist += 10;
-				nxtDisplayCenteredTextLine(1, "%d", dist);
-				wait1Msec(250);
+			if(prevButton == rightarrow){
+				if(time1[T1] > 1000){
+					dist += 10;
+					nxtDisplayCenteredTextLine(1, "%d", dist);
+					wait1Msec(250);
+				}
+			}else{
+				dist++;
+				ClearTimer(T1);
+				
 			}
 		}
+		prevButton = nxtButtonPressed
 	}
 	
 	waitForStart();
