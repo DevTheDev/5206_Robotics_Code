@@ -61,8 +61,8 @@ void drive(int speed) {
  */
 
 void turn(int speed) {
-	motor[LeftDr] = speed;
-	motor[RightDr] = -speed;
+	motor[LeftDr] = -speed;
+	motor[RightDr] = speed;
 }
 
 /**
@@ -78,21 +78,21 @@ void move(float inches, int speed)
 
 	drive(speed);
 	if (inches > 0) {
-		while (true) {
-			if (nMotorEncoder[RightDr] < rotations) {
+		while (nMotorEncoder[RightDr] < rotations || nMotorEncoder[LeftDr] < rotations) {
+			if (nMotorEncoder[RightDr] > rotations) {
 				motor[RightDr] = 0;
 			}
-			if (nMotorEncoder[LeftDr] < rotations) {
+			if (nMotorEncoder[LeftDr] > rotations) {
 				motor[LeftDr] = 0;
 			}
 		}
 	}
 	else {
-		while (true) {
-			if (nMotorEncoder[RightDr] > rotations) {
+		while (nMotorEncoder[RightDr] > rotations || nMotorEncoder[LeftDr] > rotations) {
+			if (nMotorEncoder[RightDr] < rotations) {
 				motor[RightDr] = 0;
 			}
-			if (nMotorEncoder[LeftDr] > rotations) {
+			if (nMotorEncoder[LeftDr] < rotations) {
 				motor[LeftDr] = 0;
 			}
 		}
@@ -106,19 +106,19 @@ void move(float inches, int speed)
  */
 void point(float degrees, int speed)
 {
-	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (-robot.encoder.ticks);
+	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
 
 	reset();
 
 	// turn left
 	if (degrees > 0) {
-		turn(abs(speed));
-		while(true) {
+		turn(speed);
+		while(nMotorEncoder[RightDr] < counts || nMotorEncoder[LeftDr] > -counts) {
 			if (nMotorEncoder[RightDr] > counts) {
 				motor[RightDr] = 0;
 			}
-			if (nMotorEncoder[LeftDr] > counts) {
+			if (nMotorEncoder[LeftDr] < -counts) {
 				motor[LeftDr] = 0;
 			}
 		}
@@ -126,12 +126,12 @@ void point(float degrees, int speed)
 
 	// turn right
 	else {
-		turn(-abs(speed));
-		while(true) {
+		turn(-speed);
+		while(nMotorEncoder[RightDr] > counts || nMotorEncoder[LeftDr] < -counts) {
 			if (nMotorEncoder[RightDr] < counts) {
 				motor[RightDr] = 0;
 			}
-			if (nMotorEncoder[LeftDr] < counts) {
+			if (nMotorEncoder[LeftDr] > -counts) {
 				motor[LeftDr] = 0;
 			}
 		}
@@ -259,8 +259,8 @@ void singleJoyDrive() {
 	float joyX = joystick.joy1_x1;
 	float joyY = joystick.joy1_y1;
 	clampToThreshhold(joyX, joyY);
-	motor[LeftDr] = (joyY+abs(joyX))*(2*joyX/joystickRange+1)*constdrivereg;
-	motor[RightDr] = (joyY+abs(joyX))*(-2*joyX/joystickRange+1)*constdrivereg;
+	motor[LeftDr] = (joyY/*+abs(joyX)*/)*(2*joyX/joystickRange+1)*constdrivereg;
+	motor[RightDr] = (joyY/*+abs(joyX)*/)*(-2*joyX/joystickRange+1)*constdrivereg;
 }
 
 /**

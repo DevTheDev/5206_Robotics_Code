@@ -17,6 +17,7 @@
 
 #include "JoystickDriver.c"
 #include "robot.c"
+#include "actions.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
 
@@ -36,7 +37,7 @@
 
 task main() {
 	initializeRobot();
-	initializeRobotnext();
+//	initializeRobotnext();
 
 	waitForStart(); // wait for start of tele-op phase
 

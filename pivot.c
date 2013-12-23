@@ -20,6 +20,9 @@
 
 task main()
 {
+	waitForStart();
 	initializeRobot();
-	point(90.0,20);
+	motor[LeftDr]=75;
+	wait1Msec(1000);
+	pause();
 }
