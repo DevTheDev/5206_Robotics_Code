@@ -82,7 +82,7 @@ void move(float inches, int speed)
 		if ((inches > 0) == (nMotorEncoder[RightDr] >= rotations)) {
 			motor[RightDr] = 0;
 		}
-		
+
 		// Wait for left motor to reach goal
 		if ((inches > 0) == (nMotorEncoder[LeftDr] >= rotations)) {
 			motor[LeftDr] = 0;
@@ -108,7 +108,7 @@ void point(float degrees, int speed)
 		if ((degrees > 0) == (nMotorEncoder[RightDr] >= counts)) {
 			motor[RightDr] = 0;
 		}
-		
+
 		// Wait for left motor to reach goal
 		if ((degrees > 0) == (nMotorEncoder[LeftDr] <= -counts)) {
 			motor[LeftDr] = 0;
