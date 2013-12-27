@@ -51,9 +51,7 @@ task main()
 	// Find IR Beacon5
 
 	// Drive to pendulum
-	turn(-100);
-	wait1Msec(700);
-	pause();
+	turnTime(700, -100);
 	wait1Msec(100);
 	move(10, 40);
 	// Score Block
@@ -63,18 +61,12 @@ task main()
 	move(-7, -40);
 	motor[LiftFlagMtr]=-100;
 	wait1Msec(100);
-	turn(100);
-	wait1Msec(650);
-	pause();
+	turnTime(650, 100);
 	moveRotations(-driveTurns+4, -80);
-	turn(-100);
-	wait1Msec(500);
-	pause();
+	turnTime(500, -100);
 	motor[LiftFlagMtr]=DCstop;
 	move(40, 80);
-	turn(100);
-	wait1Msec(250);
-	pause();
+	turn(250, 100);
 	move(40, 80); // should be 80-20
 
 
