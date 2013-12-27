@@ -191,23 +191,24 @@ void liftandflag();
 void onePaddleTurn(int speed);
 
 /**
- * if the joystick is inside a circle of radius threshhold set x and y to 0
+ * If the joystick is inside a circle of radius threshhold set x and y to 0
+ * x: TODO
+ * y: TODO
  */
 void filteredJoy(float& x, float& y) {
 	x = joystick.joy1_x1;
 	y = joystick.joy1_y1;
-	//if the joystick is inside a circle of radius threshhold set x and y to 0
+	
+	// If the joystick is inside a circle of radius threshhold set x and y to 0
 	if(x*x + y*y <= threshhold*threshhold) {
 		x = 0;
 		y = 0;
 	}
-	//keep the values in [-1, 1]
+	
+	// Keep the values in [-1, 1]
 	x /= joystickRange;
 	y /= joystickRange;
 }
-
-/* DRIVE
- * -----------------------------------------------*/
 
 /**
  * TODO: Explain what this function does
@@ -245,7 +246,7 @@ void PaddleAndIntake() {
 		onePaddleTurn(-(slowButton) ? paddlespeedslow : paddlespeedreg);
 	}
 
-	// INTAKE ALGORITHM
+	// Intake algorithm
 	if (time1[T2] >= paddleWaitTime && time1[T2] < paddleFastTime+paddleWaitTime) {
 		motor[PaddleMtr] = paddlespeedreg;
 	}
@@ -265,7 +266,7 @@ void PaddleAndIntake() {
 		}
 	}
 	else {
-		// INTAKE
+		// Intake
 		if (manualIntakeButton) {
 			servo[LeftIntake] = leftintakefwd;
 			servo[RightIntake] = rightintakefwd;
@@ -281,7 +282,7 @@ void PaddleAndIntake() {
 			servo[RightIntake] = intakestop;
 		}
 
-		// PADDLE
+		// Paddle
 		if (abs(joystick.joy1_y2) > threshhold) {
 			motor[PaddleMtr] = joystick.joy1_y2 * paddleratio;
 		}
