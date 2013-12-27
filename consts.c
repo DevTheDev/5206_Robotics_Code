@@ -1,3 +1,8 @@
+/*!
+ * consts.c
+ * store all the consts used in one place
+ */
+
 // Robot values
 #define OPTIMAL_SPEED 75
 
