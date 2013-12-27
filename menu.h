@@ -1,4 +1,7 @@
-typedef struct{
+/**
+ * TODO
+ */
+typedef struct {
 	int itemCount;//the number of items on the menu
 	int selected;//the item number curent selection
 	string* itemNames;//the names of the items to display
@@ -6,7 +9,10 @@ typedef struct{
 	string* infos;//the strings of information to display, must update manually
 } Menu;
 
-void clearScreen(){
+/**
+ * TODO
+ */
+void clearScreen () {
   eraseDisplay(); //Clear the NXT screen
   bDisplayDiagnostics = false; //Takes control away from FCS
   bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
@@ -14,14 +20,15 @@ void clearScreen(){
 }
 
 /**
-	displays the menu on the nxt screen
-*/
-void displayMenu(Menu menu){
-	for(int i = 0; i < menu.itemCount; i++){
-		if(i == menu.selected){
+ * Displays the menu on the nxt screen
+ * menu: TODO
+ */
+void displayMenu(Menu menu) {
+	for (int i = 0; i < menu.itemCount; i++) {
+		if (i == menu.selected) {
 			nxtDisplayTextLine(i, ">#%s< %s", menu.itemNames[i], menu.infos[i]);
 		}
-		else{
+		else {
 			nxtDisplayTextLine(i, "#%s: %s", menu.itemNames[i], menu.infos[i]);
 		}
 	}
@@ -29,27 +36,31 @@ void displayMenu(Menu menu){
 }
 
 /**
-	selects the previous menu item
-*/
-void selectPrev(Menu menu){
-	menu.selected = (menu.selected - 1 + menu.itemCount) % menu.itemCount;//add item count so selected stays non-negative
+ * Selects the previous menu item
+ * menu: TODO
+ */
+void selectPrev (Menu menu) {
+	// Add item count so selected stays non-negative
+	menu.selected = (menu.selected - 1 + menu.itemCount) % menu.itemCount;
 	return;
 }
+
 /**
-	selects the next menu item
-*/
-void selectNext(Menu menu){
+ * Selects the next menu item
+ * menu: TODO
+ */
+void selectNext(Menu menu) {
 	menu.selected = (menu.selected + 1) % menu.itemCount;
 	return;
 }
 
-int prevButton = -1;
+int prevButton = -1; // Global var? TODO: Delete me
 
 /**
-	must be run in a loop to use button checking functions
-*/
-void updateButtons(){
-	if(prevButton != nNxtButtonPressed){
+ * Must be run in a loop to use button checking functions
+ */
+void updateButtons() {
+	if (prevButton != nNxtButtonPressed) {
 		ClearTimer(T1);
 	}
 	prevButton = nNxtButtonPressed;
@@ -57,30 +68,34 @@ void updateButtons(){
 }
 
 /**
-	returns if the button has been pressed
-*/
-bool pressed(int button){
-	if(prevButton != button && nNxtButtonPressed == button){
+ * Returns if the button has been pressed
+ * button: TODO
+ */
+bool pressed(int button) {
+	if (prevButton != button && nNxtButtonPressed == button) {
 		return true;
 	}
 	return false;
 }
 
 /**
-	returns true if button has been released
-*/
-bool released(int button){
-	if(prevButton == button && nNxtButtonPressed != button){
+ * Returns true if button has been released
+ * button: TODO
+ */
+bool released(int button) {
+	if (prevButton == button && nNxtButtonPressed != button) {
 		return true;
 	}
 	return false;
 }
 
 /**
-	returns if button has been held for time
-*/
-bool held(int button, int time){
-	if(nNxtButtonPressed == button && time1[T1] > time){
+ * Returns if button has been held for time
+ * button: TODO
+ * time: TODO; CHANGE MY NAME: it is a special var in c
+ */
+bool held(int button, int time) {
+	if (nNxtButtonPressed == button && time1[T1] > time) {
 		return true;
 	}
 	return false;
