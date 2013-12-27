@@ -75,14 +75,14 @@ void moveRotations(float rotations, int speed)
 	reset();
 
 	drive(speed);
-	while ((inches > 0) == (nMotorEncoder[RightDr] <= rotations) || (inches>0) == (nMotorEncoder[LeftDr] <= rotations)) {
+	while ((rotations > 0) == (nMotorEncoder[RightDr] <= rotations) || (rotations>0) == (nMotorEncoder[LeftDr] <= rotations)) {
 		// Wait for right motor to reach goal
-		if ((inches > 0) == (nMotorEncoder[RightDr] >= rotations)) {
+		if ((rotations > 0) == (nMotorEncoder[RightDr] >= rotations)) {
 			motor[RightDr] = 0;
 		}
 
 		// Wait for left motor to reach goal
-		if ((inches > 0) == (nMotorEncoder[LeftDr] >= rotations)) {
+		if ((rotations > 0) == (nMotorEncoder[LeftDr] >= rotations)) {
 			motor[LeftDr] = 0;
 		}
 	}
@@ -100,7 +100,7 @@ void move(float inches, int speed)
 	reset();
 
 	drive(speed);
-	while ((inches > 0) == (nMotorEncoder[RightDr] <= rotations) || (inches>0) == (nMotorEncoder[LeftDr] <= rotations)) {
+	while (((inches > 0) == (nMotorEncoder[RightDr] <= rotations)) || ((inches>0) == (nMotorEncoder[LeftDr] <= rotations))) {
 		// Wait for right motor to reach goal
 		if ((inches > 0) == (nMotorEncoder[RightDr] >= rotations)) {
 			motor[RightDr] = 0;
@@ -176,7 +176,7 @@ void swing(int degrees, int speed)
 		while(nMotorEncoder[RightDr] >= counts) {}
 	}
 	else {
-		motor[Left] = -speed;
+		motor[LeftDr] = -speed;
 		while(nMotorEncoder[LeftDr] <= counts) {}
 	}
 
