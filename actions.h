@@ -57,12 +57,25 @@ void drive(int speed) {
 
 /**
  * Set turn speed
- * Speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
+ * speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
  */
 
 void turn(int speed) {
 	motor[LeftDr] = -speed;
 	motor[RightDr] = speed;
+}
+
+/**
+ * turns for the time ms
+ * time: the time in ms for which to turn
+ * speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
+ */
+
+void turnTime(int time, int speed) {
+	motor[LeftDr] = -speed;
+	motor[RightDr] = speed;
+	wait1Msec(time);
+	pause();
 }
 
 /**
