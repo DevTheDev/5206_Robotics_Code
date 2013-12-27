@@ -70,6 +70,29 @@ void turn(int speed) {
  * inches: number of inches to move
  * speed: speed to traval at (negative values will cause the robot to drive backwards)
  */
+void moveRotations(float rotations, int speed)
+{
+	reset();
+
+	drive(speed);
+	while ((inches > 0) == (nMotorEncoder[RightDr] <= rotations) || (inches>0) == (nMotorEncoder[LeftDr] <= rotations)) {
+		// Wait for right motor to reach goal
+		if ((inches > 0) == (nMotorEncoder[RightDr] >= rotations)) {
+			motor[RightDr] = 0;
+		}
+
+		// Wait for left motor to reach goal
+		if ((inches > 0) == (nMotorEncoder[LeftDr] >= rotations)) {
+			motor[LeftDr] = 0;
+		}
+	}
+}
+
+/**
+ * Drive a set distance
+ * inches: number of inches to move
+ * speed: speed to traval at (negative values will cause the robot to drive backwards)
+ */
 void move(float inches, int speed)
 {
 	int rotations = inches * 1440.0 / robot.wheel.circumference * robot.wheel.dRatio;
@@ -198,13 +221,13 @@ void onePaddleTurn(int speed);
 void filteredJoy(float& x, float& y) {
 	x = joystick.joy1_x1;
 	y = joystick.joy1_y1;
-	
+
 	// If the joystick is inside a circle of radius threshhold set x and y to 0
 	if(x*x + y*y <= threshhold*threshhold) {
 		x = 0;
 		y = 0;
 	}
-	
+
 	// Keep the values in [-1, 1]
 	x /= joystickRange;
 	y /= joystickRange;
