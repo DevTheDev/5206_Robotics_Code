@@ -47,7 +47,7 @@ typedef struct {
 Robot robot;
 
 /**
- * Initilizes all the value and get the robot read to go
+ * Initilizes all the values and gets the robot read to go
  */
 void initializeRobot()
 {
