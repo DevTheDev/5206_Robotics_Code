@@ -79,8 +79,8 @@ void turnTime(int time, int speed) {
 }
 
 /**
- * Drive a set distance
- * inches: number of inches to move
+ * Drive a set number of encoder ticks
+ * rotations: number of encoder ticks to rotate
  * speed: speed to traval at (negative values will cause the robot to drive backwards)
  */
 void moveRotations(float rotations, int speed)
@@ -124,6 +124,17 @@ void move(float inches, int speed)
 			motor[LeftDr] = 0;
 		}
 	}
+}
+
+/**
+ * Perform a pivot turn
+ * degrees: number of degrees to turn - positive values turn left, negative values turn right
+ * speed: speed to travel at
+ */
+void pointByTime(float degrees, int speed)
+{
+	int time = timeSpeedPerDegrees*degrees/speed;
+	turnTime(time, speed);
 }
 
 /**
