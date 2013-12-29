@@ -11,7 +11,8 @@
 #define WHEEL_WIDTH 17.75 // width between the wheels on opposite sides of robot
 #define D_RATIO 1 // the gear ratio on the drive motors
 #define encoderticks 1440 //the number of encoder ticks in a rotation
-#define scoredist 20;
+#define scoredist 20
+#define timeSpeedPerDegrees 10 // the time * speed / angle of the robots turns
 
 // Joystick buttons
 #define btnX 1
