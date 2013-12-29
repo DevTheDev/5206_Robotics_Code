@@ -47,11 +47,11 @@ task main()
 	}
 	motor[LiftFlagMtr] = 0;
 	// Find IR Beacon5
-
+	//return;
 	// Drive to pendulum
 	turnTime(700, -100);
 	wait1Msec(100);
-	move(10, 40);
+	move(12, 40);
 	// Score the block
 	scoreBlocks();
 	//return;

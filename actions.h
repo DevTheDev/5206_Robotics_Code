@@ -313,6 +313,8 @@ void PaddleAndIntake() {
 	else {
 		// Intake
 		if (manualIntakeButton) {
+			servoChangeRate[LeftIntake] = 0; // Add constant
+			servoChangeRate[RightIntake] = 0;
 			servo[LeftIntake] = leftintakefwd;
 			servo[RightIntake] = rightintakefwd;
 		}
