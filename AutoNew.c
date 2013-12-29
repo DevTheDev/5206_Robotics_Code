@@ -18,9 +18,6 @@
 // Includes consts.c and robot.c, as well
 // Drivers can be found in Google Drive
 #include "actions.h"
-#include "joystickdriver.c"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
 int driveTurns;
 /**
 * returns true if the robot is aligned with the beacon
@@ -67,7 +64,7 @@ task main()
 	turnTime(500, -100);
 	motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
 	move(40, 80);
-	turn(250, 100);
+	turnTime(250, 100);
 	move(40, 80); // Drive onto the ramp
 
 
