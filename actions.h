@@ -1,3 +1,7 @@
+/* Actions.h
+Library of all functions
+*/
+
 #include "robot.c"
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
