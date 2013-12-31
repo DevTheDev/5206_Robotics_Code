@@ -6,7 +6,8 @@ Library of all functions
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
-
+#include "menu.h"
+//#include "consts.c"
 
 /**
  * Reset the motor encoders
@@ -28,6 +29,7 @@ void pause()
 
 /**
  * Stop the robot and wait for time to end
+ * THIS IS NOT AN ERROR
  */
 void hold()
 {
