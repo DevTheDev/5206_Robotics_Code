@@ -1,5 +1,5 @@
 /**
- * TODO
+ * holds the data for a menu
  */
 typedef struct {
 	int itemCount;//the number of items on the menu
@@ -10,7 +10,7 @@ typedef struct {
 } Menu;
 
 /**
- * TODO
+ * clears the NXT screen
  */
 void clearScreen () {
   eraseDisplay(); //Clear the NXT screen
@@ -21,7 +21,7 @@ void clearScreen () {
 
 /**
  * Displays the menu on the nxt screen
- * menu: TODO
+ * menu: the menu to display
  */
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
@@ -29,7 +29,7 @@ void displayMenu(Menu menu) {
 			nxtDisplayTextLine(i, ">#%s< %s", menu.itemNames[i], menu.infos[i]);
 		}
 		else {
-			nxtDisplayTextLine(i, "#%s: %s", menu.itemNames[i], menu.infos[i]);
+			nxtDisplayTextLine(i, " #%s: %s", menu.itemNames[i], menu.infos[i]);
 		}
 	}
 	return;
@@ -37,7 +37,7 @@ void displayMenu(Menu menu) {
 
 /**
  * Selects the previous menu item
- * menu: TODO
+ * menu: the menu to modify
  */
 void selectPrev (Menu menu) {
 	// Add item count so selected stays non-negative
@@ -47,14 +47,14 @@ void selectPrev (Menu menu) {
 
 /**
  * Selects the next menu item
- * menu: TODO
+ * menu: the menu to modify
  */
 void selectNext(Menu menu) {
 	menu.selected = (menu.selected + 1) % menu.itemCount;
 	return;
 }
 
-int prevButton = -1; // Global var? TODO: Delete me
+int prevButton = -1; // Global var? TODO: Delete me// Where do I put this; the NXT buttons are global, and robot c does not have namespaces?
 
 /**
  * Must be run in a loop to use button checking functions
@@ -68,8 +68,8 @@ void updateButtons() {
 }
 
 /**
- * Returns if the button has been pressed
- * button: TODO
+ * Returns if button has been pressed
+ * button: the button being tested
  */
 bool pressed(int button) {
 	if (prevButton != button && nNxtButtonPressed == button) {
@@ -80,7 +80,7 @@ bool pressed(int button) {
 
 /**
  * Returns true if button has been released
- * button: TODO
+ * button: the button being tested
  */
 bool released(int button) {
 	if (prevButton == button && nNxtButtonPressed != button) {
@@ -91,11 +91,11 @@ bool released(int button) {
 
 /**
  * Returns if button has been held for time
- * button: TODO
- * time: TODO; CHANGE MY NAME: it is a special var in c
+ * button: the button being tested
+ * holdTime: the time required for the button to have been held
  */
-bool held(int button, int time) {
-	if (nNxtButtonPressed == button && time1[T1] > time) {
+bool held(int button, int holdTime) {
+	if (nNxtButtonPressed == button && time1[T1] > holdTime) {
 		return true;
 	}
 	return false;
