@@ -13,6 +13,7 @@
 #define encoderticks 1440 //the number of encoder ticks in a rotation
 #define scoredist 20
 #define timeSpeedPerDegrees 10 // the time * speed / angle of the robots turns
+#define maxAccel 10
 
 // Joystick buttons
 #define btnX 1

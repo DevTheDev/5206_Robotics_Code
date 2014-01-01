@@ -150,6 +150,10 @@ void point(float degrees, int speed)
 {
 	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
+	
+	if(abs(counts) * maxAccel <= .5 * speed * speed){
+		speed = ((degrees > 0) ? 1 : -1) * sqrt(2 * abs(counts) * maxAccel);
+	}
 
 	reset();
 
@@ -159,10 +163,16 @@ void point(float degrees, int speed)
 		if ((degrees > 0) == (nMotorEncoder[RightDr] >= counts)) {
 			motor[RightDr] = 0;
 		}
+		else if((abs(counts) - abs(nMotorEncoder[RightDr])) * maxAccel <= .5 * speed * speed){
+			motor[RightDr] = ((speed > 0) ? -1: 1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[RightDr])));
+		}
 
 		// Wait for left motor to reach goal
 		if ((degrees > 0) == (nMotorEncoder[LeftDr] <= -counts)) {
 			motor[LeftDr] = 0;
+		}
+		else if((abs(counts) - abs(nMotorEncoder[LeftDr])) * maxAccel <= .5 * speed * speed){
+			motor[LeftDr] = ((speed > 0) ? 1: -1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[LeftDr])));
 		}
 	}
 }
