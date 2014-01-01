@@ -19,12 +19,13 @@
 Menu resetMenu;
 
 #define options 4
-void initResetMenu(){
+/**
+ * The menus constructor
+*/
+void initResetMenu(string itemNames[options], string infos[options]){
 	resetMenu.itemCount = options;
 	resetMenu.selected = 0;
-	string itemNames[options] = {"Lift", "Hopper", "Intake", "Test All"};
 	resetMenu.itemNames = &itemNames;
-	string infos[options] = {"", "", "", ""};
 	resetMenu.infos = &infos;
 }
 
@@ -35,6 +36,9 @@ void activateResetMenu(int f){
 	switch(resetMenu.selected){
 		case 0:
 			switch(f){
+				default:
+					motor[LiftFlagMtr] = 0;
+					break;
 				case 0:
 					motor[LiftFlagMtr]=-80;
 					break;
@@ -45,7 +49,9 @@ void activateResetMenu(int f){
 			break;
 
 		case 1:
-			switch(f){
+			switch(f){default:
+					motor[Paddle] = 0;
+					break;
 				case 0:
 					motor[PaddleMtr]=-20;
 					break;
@@ -54,38 +60,50 @@ void activateResetMenu(int f){
 					break;
 			}
 			break;
+			
 		case 2:
 			switch(f){
+				default:
+					servo[LeftIntake] = intakestop;
+					servo[RightIntake] = intakestop;
+					break;
 				case 0:
-					motor[LeftIntake] = -20;
-					motor[RightIntake] = -20;
+					servo[LeftIntake] = -255;
+					servo[RightIntake] = -255;
 					break;
 				case 1:
-					motor[LeftIntake] = 20;
-					motor[RightIntake] = 20;
-					break;
-			case 3:
-					motor[PaddleMtr] = -20;
-					//motor[LiftFlagMtr] = -50;
-					motor[LeftIntake] = -20;
-					motor[RightIntake] = -20;
-					wait1Msec(1000);
-					motor[PaddleMtr] = 20;
-					//motor[LiftFlagMtr] = 50;
-					motor[LeftIntake] = 20;
-					motor[RightIntake] = 20;
-					wait1Msec(1000);
+					servo[LeftIntake] = 255;
+					servo[RightIntake] = 255;
 					break;
 
-			break;
 			}
+			break;
+			
+		case 3:
+			if(f == -1){
+				stopRobot();
+				break;
+			}	
+			motor[PaddleMtr] = -20;
+			//motor[LiftFlagMtr] = -50;
+			servo[LeftIntake] = -255;
+			servo[RightIntake] = -255;
+			wait1Msec(1000);
+			motor[PaddleMtr] = 20;
+			//motor[LiftFlagMtr] = 50;
+			servo[LeftIntake] = 255;
+			servo[RightIntake] = 255;
+			wait1Msec(1000);
+			stopRobot();
 			break;
 	}
 }
 
 task main()
 {
-	initResetMenu();
+	string itemNames[options] = {"Lift", "Hopper", "Intake", "Test All"};
+	string infos[options] = {"", "", "", ""};
+	initResetMenu(itemNames, infos);
 	clearScreen();
 	while(true){
 		displayMenu(resetMenu);
@@ -97,8 +115,11 @@ task main()
 			activateResetMenu(0);
 		}
 
-		if(held(rightarrow, 1)){
+		else if(held(rightarrow, 1)){
 			activateResetMenu(1);
+		}
+		else {
+			activateResetMenu(-1);
 		}
 
 		updateButtons();
