@@ -22,12 +22,12 @@ task main()
 {
 	waitForStart();
 	initializeRobot();
-	point(360, 50);
-	int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
+	point(90, 80);
+	/*int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	eraseDisplay();
 	bDisplayDiagnostics = false;
 	nxtDisplayCenteredTextLine(3, "%d", degreesmoved);
-	nxtDisplayCenteredTextLine(2, "%d,%d", nMotorEncoder[LeftDr], nMotorEncoder[RightDr]);
+	nxtDisplayCenteredTextLine(2, "%d,%d", nMotorEncoder[LeftDr], nMotorEncoder[RightDr]);*/
 	pause();
 	wait1Msec(100000);
 }

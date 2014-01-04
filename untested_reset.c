@@ -22,11 +22,11 @@ Menu resetMenu;
 /**
  * The menus constructor
 */
-void initResetMenu(string itemNames[options], string infos[options]){
+void initResetMenu(string * itemNames, string * infos){
 	resetMenu.itemCount = options;
 	resetMenu.selected = 0;
-	resetMenu.itemNames = &itemNames;
-	resetMenu.infos = &infos;
+	resetMenu.itemNames = itemNames;
+	resetMenu.infos = infos;
 }
 
 /**
@@ -40,17 +40,17 @@ void activateResetMenu(int f){
 					motor[LiftFlagMtr] = 0;
 					break;
 				case 0:
-					motor[LiftFlagMtr]=-80;
+					motor[LiftFlagMtr]=-100;
 					break;
 				case 1:
-					motor[LiftFlagMtr]=80;
+					motor[LiftFlagMtr]=100;
 					break;
 			}
 			break;
 
 		case 1:
 			switch(f){default:
-					motor[Paddle] = 0;
+					motor[PaddleMtr] = 0;
 					break;
 				case 0:
 					motor[PaddleMtr]=-20;
@@ -60,7 +60,7 @@ void activateResetMenu(int f){
 					break;
 			}
 			break;
-			
+
 		case 2:
 			switch(f){
 				default:
@@ -78,12 +78,12 @@ void activateResetMenu(int f){
 
 			}
 			break;
-			
+
 		case 3:
 			if(f == -1){
 				stopRobot();
 				break;
-			}	
+			}
 			motor[PaddleMtr] = -20;
 			//motor[LiftFlagMtr] = -50;
 			servo[LeftIntake] = -255;

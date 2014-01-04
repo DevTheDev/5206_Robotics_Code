@@ -26,10 +26,10 @@ void clearScreen () {
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
 		if (i == menu.selected) {
-			nxtDisplayTextLine(i, ">#%s< %s", menu.itemNames[i], menu.infos[i]);
+			nxtDisplayTextLine(i, ">#SWAG<");//">%s< %s", menu.itemNames[i], menu.infos[i]);
 		}
 		else {
-			nxtDisplayTextLine(i, " #%s: %s", menu.itemNames[i], menu.infos[i]);
+			nxtDisplayTextLine(i, " #SWAG");//" %s\: %s", menu.itemNames[i], menu.infos[i]);
 		}
 	}
 	return;
