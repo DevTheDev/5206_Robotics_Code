@@ -34,7 +34,7 @@ void initResetMenu(string * itemNames, string * infos){
 */
 void activateResetMenu(int f){
 	switch(resetMenu.selected){
-		case 0:
+		case 0: //lift
 			switch(f){
 				default:
 					motor[LiftFlagMtr] = 0;
@@ -48,7 +48,7 @@ void activateResetMenu(int f){
 			}
 			break;
 
-		case 1:
+		case 1: //hopper
 			switch(f){default:
 					motor[PaddleMtr] = 0;
 					break;
@@ -61,7 +61,7 @@ void activateResetMenu(int f){
 			}
 			break;
 
-		case 2:
+		case 2: //intake
 			switch(f){
 				default:
 					servo[LeftIntake] = intakestop;
@@ -69,11 +69,11 @@ void activateResetMenu(int f){
 					break;
 				case 0:
 					servo[LeftIntake] = -255;
-					servo[RightIntake] = -255;
+					servo[RightIntake] = 255;
 					break;
 				case 1:
 					servo[LeftIntake] = 255;
-					servo[RightIntake] = 255;
+					servo[RightIntake] = -255;
 					break;
 
 			}
