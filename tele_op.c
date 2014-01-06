@@ -6,7 +6,7 @@
 #pragma config(Motor,  mtr_S1_C1_1,     LiftFlagMtr,   tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     PaddleMtr,     tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_1,     RightDr,       tmotorTetrix, openLoop, encoder)
-#pragma config(Motor,  mtr_S1_C3_2,     LeftDr,        tmotorTetrix, openLoop, reversed)
+#pragma config(Motor,  mtr_S1_C3_2,     LeftDr,        tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Servo,  srvo_S1_C2_1,    LeftIntake,           tServoContinuousRotation)
 #pragma config(Servo,  srvo_S1_C2_2,    RightIntake,          tServoContinuousRotation)
 #pragma config(Servo,  srvo_S1_C2_3,    servo3,               tServoNone)
@@ -42,6 +42,7 @@ task main() {
 	waitForStart(); // wait for start of tele-op phase
 
 	ClearTimer(T1);
+
 	while(true) {
 		getJoystickSettings(joystick);
 		singleJoyDrive();

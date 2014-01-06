@@ -27,9 +27,9 @@
 #define btnRT 8
 
 // Tele-op constants
-#define joystickRange 128 // ?
+#define joystickRange 128.0 // ?
 #define threshhold 10
-#define constdrivereg 80.0/128.0
+#define constdrivereg 80.0//80.0/128.0
 #define nearblockconst 36
 #define farblockconst 20
 #define leftintakefwd 255

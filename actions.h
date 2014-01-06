@@ -246,7 +246,7 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
  * -----------------------------------------------*/
 
 void singleJoyDrive();
-void doublejoyDrive();
+void doubleJoyDrive();
 void PaddleAndIntake();
 void liftandflag();
 void onePaddleTurn(int speed);
@@ -284,7 +284,7 @@ void singleJoyDrive() {
 /**
  * TODO: Explain what this function does
  */
-void doublejoyDrive() {
+void doubleJoyDrive() {
 	motor[LeftDr] = (abs(joystick.joy1_y1) > threshhold) ? joystick.joy1_y1*constdrivereg : DCstop;
 	motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdrivereg : DCstop;
 }
