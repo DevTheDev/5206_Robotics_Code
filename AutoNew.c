@@ -72,7 +72,7 @@ task main()
 // Drive to pendulum
 turnTime(700, -100);
 wait1Msec(100);
-move(12, 40);
+move(7, 40);
 // Score the block
 scoreBlocks();
 //return;
