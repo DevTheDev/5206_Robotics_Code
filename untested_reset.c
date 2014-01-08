@@ -96,12 +96,27 @@ void activateResetMenu(int f){
 			wait1Msec(1000);
 			stopRobot();
 			break;
+			case 4: //IR
+			switch(f){default:
+				case 0:
+					int actualIR;
+					actualIR = SensorValue[AutoIR];
+					clearScreen();
+					nxtDisplayCenteredTextLine(2, %d%, actualIR);
+					break;
+				case 1:
+					int actualIR;
+					actualIR = SensorValue[AutoIR];
+					clearScreen();
+					nxtDisplayCenteredTextLine(2, %d%, actualIR);
+					break;
+			}
 	}
 }
 
 task main()
 {
-	string itemNames[options] = {"Lift", "Hopper", "Intake", "Test All"};
+	string itemNames[options] = {"Lift", "Hopper", "Intake", "IR"};
 	string infos[options] = {"", "", "", ""};
 	initResetMenu(itemNames, infos);
 	clearScreen();
