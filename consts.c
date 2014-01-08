@@ -63,3 +63,4 @@
 // Autonomous
 #define distToPend 6.0
 #define distToBridge 24.0
+#define irZone 4.0
