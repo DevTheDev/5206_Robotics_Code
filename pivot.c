@@ -17,13 +17,24 @@
 
 //#include "robot.c"
 #include "actions.h"
-
+task LeftDrive (){
+	motor(LeftDr) = 100;
+	wait1Msec(100);
+	EndTimeSlice();
+}
+task RightDrive (){
+	motor(RightDr) = 100;
+	wait1Msec(100);
+	EndTimeSlice();
+}
 task main()
 {
 	waitForStart();
 	initializeRobot();
-	point(90, 80);
-	/*int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
+	StartTask(LeftDrive);
+	StartTask(RightDrive);
+	//point(90, 80);
+	*int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	eraseDisplay();
 	bDisplayDiagnostics = false;
 	nxtDisplayCenteredTextLine(3, "%d", degreesmoved);
