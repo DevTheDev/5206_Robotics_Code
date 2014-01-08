@@ -99,16 +99,12 @@ void activateResetMenu(int f){
 			case 4: //IR
 			switch(f){default:
 				case 0:
-					int actualIR;
-					actualIR = SensorValue[AutoIR];
 					clearScreen();
-					nxtDisplayCenteredTextLine(2, %d%, actualIR);
+					nxtDisplayCenteredTextLine(2, %d%, SensorValue[AutoIR]);
 					break;
 				case 1:
-					int actualIR;
-					actualIR = SensorValue[AutoIR];
 					clearScreen();
-					nxtDisplayCenteredTextLine(2, %d%, actualIR);
+					nxtDisplayCenteredTextLine(2, %d%, SensorValue[AutoIR]);
 					break;
 			}
 	}
