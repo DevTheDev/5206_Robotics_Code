@@ -34,7 +34,7 @@ task main()
 	StartTask(LeftDrive);
 	StartTask(RightDrive);
 	//point(90, 80);
-	*int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
+	int degreesmoved = (360/360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	eraseDisplay();
 	bDisplayDiagnostics = false;
 	nxtDisplayCenteredTextLine(3, "%d", degreesmoved);
