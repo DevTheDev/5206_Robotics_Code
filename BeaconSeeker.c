@@ -19,46 +19,50 @@ void sit ();
 
 task main ()
 {
-	//waitForStart();
+   //waitForStart();
   
-	//drive in front of goals until beacon found
-  drive(50,50);
-	
-	while(SensorValue[AutoIR]!=8)
-	 {
-		
-   }
-  
-   sit();
-   drive(-50,50);
-  
-  while(SensorValue[AutoIR]!=5)
-	 {
-		
-   }
-  
-   sit();
+   //drive in front of goals until beacon found
    drive(50,50);
+	
+   while(SensorValue[AutoIR]!=8)
+    {
+		
+    }
   
-  while(SensorValue[Sonar]>=10)
-  {
+    sit();
+    drive(-50,50);
+   
+   //turn until facing toward goal with IR beacon
+   while(SensorValue[AutoIR]!=5)
+    {
+		
+    }
+  
+    sit();
+    drive(50,50);
+  
+   //move until less than 10cm from goal
+   while(SensorValue[Sonar]>=10)
+    {
   	
-  }
-  sit();
+    }
+   sit();
   
-  //drop block into goal
+   //drop block into goal
   
-  //backup and go to bridge
+   //backup and go to bridge
 }
 
+//takes two motor powers and makes the robot drive
 void drive(int rightSpeed, int leftSpeed)
-{
- motor[RightDr]=rightSpeed;
- motor[LeftDr]=leftSpeed;
-}
+ {
+  motor[RightDr]=rightSpeed;
+  motor[LeftDr]=leftSpeed;
+ }
 
+//stops both drive motors
 void sit()
-{
- motor[RightDr]=0;
- motor[LeftDr]=0;
+ {
+  motor[RightDr]=0;
+  motor[LeftDr]=0;
 }
