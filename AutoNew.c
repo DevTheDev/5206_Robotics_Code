@@ -60,18 +60,20 @@ task main()
 		}
 	}
 	if (autoCount <= 2){
+		turnTime(700, 100);
 		move(-distToMove*10, 50);
 	}
 	else{
+		turnTime(700, 100);
 		move((distToMove*10), 50);
 	}
 //return;
 // Drive to pendulum
-turnTime(700, -100);
-wait1Msec(100);
-move(12, 40);
-// Score the block
-scoreBlocks();
+//turnTime(700, -100);
+//wait1Msec(100);
+//move(12, 40);
+//// Score the block
+//scoreBlocks();
 //return;
 // Drive to ramp
 move(-7, -40);// Back away from the goal
