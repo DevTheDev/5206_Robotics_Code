@@ -100,11 +100,11 @@ void activateResetMenu(int f){
 			switch(f){default:
 				case 0:
 					clearScreen();
-					nxtDisplayCenteredTextLine(2, %d%, SensorValue[AutoIR]);
+					nxtDisplayCenteredTextLine(2, "%d", SensorValue[AutoIR]);
 					break;
 				case 1:
 					clearScreen();
-					nxtDisplayCenteredTextLine(2, %d%, SensorValue[AutoIR]);
+					nxtDisplayCenteredTextLine(2, "%d", SensorValue[AutoIR]);
 					break;
 			}
 	}
