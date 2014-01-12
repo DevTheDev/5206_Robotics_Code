@@ -402,6 +402,22 @@ void onePaddleTurn(int speed) {
 	motor[PaddleMtr] = DCstop;
 }
 
+void turnPaddleOnce(int speed)
+{
+	motor[PaddleMtr]=speed;
+	
+	ClearTimer(T4)
+	
+	while(time1(T4)<350)
+	{
+		singleJoyDrive();
+	}
+	
+	while(SensorValue[eopd1]>35);
+	
+	motor[PaddleMtr]=0;
+}
+
 /**
  * TODO: Explain what this function does
  */
