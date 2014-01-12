@@ -406,7 +406,7 @@ void turnPaddleOnce(int speed)
 {
 	motor[PaddleMtr]=speed;
 	
-	ClearTimer(T4)
+	ClearTimer(T4);
 	
 	while(time1(T4)<350)
 	{
