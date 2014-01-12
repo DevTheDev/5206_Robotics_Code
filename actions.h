@@ -413,8 +413,11 @@ void turnPaddleOnce(int speed)
 		singleJoyDrive();
 	}
 
-	while(SensorValue[PaddleEOPD]>35);
-
+	while(SensorValue[PaddleEOPD]>35) 
+	{
+		singleJoyDrive();
+	}
+	
 	motor[PaddleMtr]=0;
 }
 
