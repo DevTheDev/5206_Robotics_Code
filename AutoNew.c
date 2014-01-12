@@ -19,56 +19,74 @@
 #include "actions.h"
 int driveTurns;
 #define options 3
-int numberOfGoals;
-int
+int numberOfGoals = 0;
+int bridgeSpot = 0;
+bool forwardBackward = false; //back = false
 /**
 * returns true if the robot is aligned with the beacon
 */
 bool aligned(){
-	return SensorValue[AutoIR] == irZone;
+	return SensorValue[AutoIR] == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*(numberOfGoals + 1);
 }
-Menu autoChoser;
+Menu autoChooser;
 /**
  * The menus constructor
 */
-void initautoChoser(string * itemNames, string * infos){
-	autoChoser.itemCount = options;
-	autoChoser.selected = 0;
-	autoChoser.itemNames = itemNames;
-	autoChoser.infos = infos;
+void initautoChooser(string * itemNames, string * infos){
+	autoChooser.itemCount = options;
+	autoChooser.selected = 0;
+	autoChooser.itemNames = itemNames;
+	autoChooser.infos = infos;
 }
 
 /**
 	workaround to robot c not having function pointers
 */
-void activateautoChoser(int f){
-	switch(autoChoser.selected){
+void activateautoChooser(int f){
+	switch(autoChooser.selected){
 		case 0:
+			if (f){
+				numberOfGoals --;
+			}
+			else {
+				numberOfGoals ++;
+			}
+			numberOfGoals %= 4;
+			autoChooser.infos[0] = char(int('0')+numberOfGoals + 1);
 		case 1:
+				forwardBackward = !forwardBackward;
+			autoChooser.infos[0] = forwardBackward ? "Forward" : "Backward";
 		case 2:
+			if (f){
+				bridgeSpot --;
+			}
+			else {
+				bridgeSpot ++;
+			}
+			autoChooser.infos[0] = char(int('0')+bridgeSpot);
 task main()
 {
 	// Wait for start
 	initializeRobot();
 	string itemNames[options] = {"# of goals", "Forward/Back", "Bridge Park"};
 	string infos[options] = {"", "", "", ""};
-	initautoChoser(itemNames, infos);
+	initautoChooser(itemNames, infos);
 	clearScreen();
 	while(true){
-		displayMenu(autoChoser);
+		displayMenu(autoChooser);
 		if(pressed(orangebutton)){
-			selectNext(autoChoser);
+			selectNext(autoChooser);
 		}
 
 		if(held(leftarrow, 1)){
-			activateautoChoser(0);
+			activateautoChooser(0);
 		}
 
 		else if(held(rightarrow, 1)){
-			activateautoChoser(1);
+			activateautoChooser(1);
 		}
 		else {
-			activateautoChoser(-1);
+			activateautoChooser(-1);
 		}
 
 		updateButtons();

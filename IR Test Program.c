@@ -20,5 +20,7 @@ clearScreen();
 while (true){
 int IRValue = SensorValue[AutoIR];
 nxtDisplayTextLine(3, "%d", IRValue);
+nxtDisplayTextLine(4, "%d", SensorValue[PaddleEOPD]);
+nxtDisplayTextLine(5, "%s", "swag");
 }
 }
