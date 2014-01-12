@@ -405,16 +405,16 @@ void onePaddleTurn(int speed) {
 void turnPaddleOnce(int speed)
 {
 	motor[PaddleMtr]=speed;
-	
+
 	ClearTimer(T4);
-	
+
 	while(time1(T4)<350)
 	{
 		singleJoyDrive();
 	}
-	
-	while(SensorValue[eopd1]>35);
-	
+
+	while(SensorValue[PaddleEOPD]>35);
+
 	motor[PaddleMtr]=0;
 }
 

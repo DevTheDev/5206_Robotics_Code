@@ -19,6 +19,8 @@
 #include "actions.h"
 int driveTurns;
 #define options 3
+int numberOfGoals;
+int
 /**
 * returns true if the robot is aligned with the beacon
 */
@@ -48,7 +50,7 @@ task main()
 {
 	// Wait for start
 	initializeRobot();
-	string itemNames[options] = {"Lift", "Hopper", "Intake", "IR"};
+	string itemNames[options] = {"# of goals", "Forward/Back", "Bridge Park"};
 	string infos[options] = {"", "", "", ""};
 	initautoChoser(itemNames, infos);
 	clearScreen();
