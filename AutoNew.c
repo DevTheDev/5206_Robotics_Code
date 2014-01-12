@@ -18,16 +18,59 @@
 // Drivers can be found in Google Drive
 #include "actions.h"
 int driveTurns;
+#define options 3
 /**
 * returns true if the robot is aligned with the beacon
 */
 bool aligned(){
 	return SensorValue[AutoIR] == irZone;
 }
+Menu autoChoser;
+/**
+ * The menus constructor
+*/
+void initautoChoser(string * itemNames, string * infos){
+	autoChoser.itemCount = options;
+	autoChoser.selected = 0;
+	autoChoser.itemNames = itemNames;
+	autoChoser.infos = infos;
+}
+
+/**
+	workaround to robot c not having function pointers
+*/
+void activateautoChoser(int f){
+	switch(autoChoser.selected){
+		case 0:
+		case 1:
+		case 2:
 task main()
 {
 	// Wait for start
 	initializeRobot();
+	string itemNames[options] = {"Lift", "Hopper", "Intake", "IR"};
+	string infos[options] = {"", "", "", ""};
+	initautoChoser(itemNames, infos);
+	clearScreen();
+	while(true){
+		displayMenu(autoChoser);
+		if(pressed(orangebutton)){
+			selectNext(autoChoser);
+		}
+
+		if(held(leftarrow, 1)){
+			activateautoChoser(0);
+		}
+
+		else if(held(rightarrow, 1)){
+			activateautoChoser(1);
+		}
+		else {
+			activateautoChoser(-1);
+		}
+
+		updateButtons();
+	}
 	waitForStart();
 	//int autoCount;
 	//int distToMove;
