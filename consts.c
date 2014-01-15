@@ -64,3 +64,4 @@
 #define distToPend 6.0
 #define distToBridge 24.0
 #define irZone 6
+#define distanceBetweenPend 0
