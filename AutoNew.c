@@ -44,27 +44,27 @@ workaround to robot c not having function pointers
 */
 void activateautoChooser(int f){
 	switch(autoChooser.selected){
-	case 0:
-		if (f){
+		case 0:
+			if (f){
 			numberOfGoals --;
-		}
-		else {
+			}
+			else {
 			numberOfGoals ++;
-		}
-		numberOfGoals %= 4;
-		autoChooser.infos[0] = char(int('0')+numberOfGoals + 1);
+			}
+			numberOfGoals %= 4;
+			StringFormat(autoChooser.infos[0], "%d", numberOfGoals);
+		case 1:
+			forwardBackward = !forwardBackward;
+			autoChooser.infos[0] = forwardBackward ? "Forward" : "Backward";
+		case 2:
+			if (f){
+				bridgeSpot --;
+			}
+			else {
+				bridgeSpot ++;
+			}
+			StringFormat(autoChooser.infos[0], "%d", bridgeSpot);
 	}
-	case 1:
-		forwardBackward = !forwardBackward;
-		autoChooser.infos[0] = forwardBackward ? "Forward" : "Backward";
-	case 2:
-		if (f){
-			bridgeSpot --;
-		}
-		else {
-			bridgeSpot ++;
-		}
-		autoChooser.infos[0] = char(int('0')+bridgeSpot);
 }
 		task main()
 		{
