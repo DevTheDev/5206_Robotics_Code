@@ -67,5 +67,8 @@ void initializeRobot()
 	// TODO: Sensors are automatically configured and setup by ROBOTC. They may need a brief time to stabilize.
 	// Maybe wait1Msec(100)?
 
+	HTEOPDsetShortRange(PaddleEOPD);
+	HTEOPDsetShortRange(BlockEOPD);
+
 	return;
 }
