@@ -40,7 +40,7 @@
 #define paddlespeedreg 18
 #define paddlespeedslow 8
 #define DCstop 0 // full DC motor stop
-#define paddleLightThresh 50
+#define paddleEOPDThresh 50
 #define paddleratio 14.0/128.0
 #define paddleIntakeTime 6000 // the time in ms the robot takes to intake a block after seeing a block
 #define paddleWaitTime 1000 // the time in ms the robot waits after seeing a block to start the paddle
