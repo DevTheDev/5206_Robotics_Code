@@ -54,6 +54,8 @@
 #define autoIntakeButton joy1Btn(btnY)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
+#define paddleFwd 1
+#define paddleBck 0
 
 // NXT buttons
 #define leftarrow 2
