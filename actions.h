@@ -244,17 +244,19 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 * Use to multitask the lift
 * Up = True
 */
-task lift(bool upDown, int liftTime){
-	if (upDown){
-		motor(LiftFlagMtr) = 100;
-		wait1Msec(3000);
-	}
-	else{
-		motor(LiftFlagMtr) = -100;
-		wait1Msec(3000);
-	}
-
-
+//void liftTask(bool upDown, int liftTime){
+//	task lift(){
+//		if (upDown){
+//			motor(LiftFlagMtr) = 100;
+//			wait1Msec(liftTime);
+//		}
+//		else{
+//			motor(LiftFlagMtr) = -100;
+//			wait1Msec(liftTime);
+//		}
+//	StartTask (lift);
+//	}
+//}
 
 /* TELE-OP
  * -----------------------------------------------*/
