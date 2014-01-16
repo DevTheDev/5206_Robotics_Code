@@ -48,45 +48,69 @@ workaround to robot c not having function pointers
 void activateautoChooser(int f){
 	switch(autoChooser.selected){
 		case 0:
-			if (f){
-				numberOfGoals++;
-			}
-			else {
-				numberOfGoals--;
+			switch (f){
+				case 0:
+					numberOfGoals--;
+					break;
+				case 1:
+					numberOfGoals++;
+					break;
 			}
 			numberOfGoals %= 4;
 			if(numberOfGoals < 0){
 				numberOfGoals += 4;
 			}
 			//*autoChooser.infos = numberOfGoals+1;
-			StringFormat(autoChooser.infos[0], "%d", numberOfGoals);
+			StringFormat(autoChooser.infos[0], "%d", numberOfGoals+1);
 			break;
 		case 1:
 			forwardBackward = !forwardBackward;
 			autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
 			break;
 		case 2:
-			if (f){
-				bridgeSpot++;
-			}
-			else {
-				bridgeSpot--;
+			switch (f){
+				case 0:
+					bridgeSpot--;
+					break;
+				case 1:
+					bridgeSpot++;
+					break;
+				case 2:
+					bridgeSpot -= 10;
+					break;
+				case 3:
+					bridgeSpot += 10;
+					break;
 			}
 			StringFormat(autoChooser.infos[2], "%d", bridgeSpot);
 			break;
 	}
 }
 
+/**
+	raises the lift
+*/
+task raiseLift(){
+	lift(100, 3500);
+}
+
+/**
+	lowers the lift
+*/
+task lowerLift(){
+	lift(100, 4500);
+}
+
 task main()
 {
 	// Wait for start
 	initializeRobot();
-	string itemNames[options] = {"# of goals", "Forward/Back", "Bridge Park"};
-	string infos[options] = {"", "", ""};
+	string itemNames[options] = {"Max Goals", "Dir", "Bridge Park"};
+	string infos[options] = {"1", "Backward", "0"};
 	initautoChooser(itemNames, infos);
 
 	clearScreen();
-	while(!held(orangebutton, 3000)){
+	while(!held(orangebutton, 2000)){
 		displayMenu(autoChooser);
 		if(pressed(orangebutton)){
 			selectNext(autoChooser);
@@ -100,10 +124,24 @@ task main()
 			activateautoChooser(1);
 		}
 
+		else if(held(leftarrow, 1000)){
+			wait1Msec(500);
+			if(held(leftarrow, 1000)){
+				activateautoChooser(2);
+			}
+		}
+
+		else if(held(rightarrow, 1000)){
+			wait1Msec(500);
+			if(held(rightarrow, 1000)){
+				activateautoChooser(3);
+			}
+		}
+
 		updateButtons();
 	}
 	clearScreen();
-	nxtDisplayCenteredBigTextLine(4, "Ready!");
+	nxtDisplayCenteredBigTextLine(3, "Ready!");
 	waitForStart();
 	//int autoCount;
 	//int distToMove;
@@ -131,13 +169,12 @@ task main()
 	scoreBlocks();
 	// Drive to ramp
 	move(-7, -40);// Back away from the goal
-	motor[LiftFlagMtr] = -100;// Begin to lower the BSM
+	StartTask(lowerLift);// Begin to lower the BSM
 	wait1Msec(100);
 	turnTime(650, 100);
-	moveRotations(-driveTurns+4, -80);
+	moveRotations((forwardBackward ? pendulumLength : 4)-driveTurns, -80);
 	turnTime(500, -100);
-	motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
-	move(40, 80);
+	move(40+bridgeSpot, 80);
 	turnTime(250, 100);
-	move(40, 80); // Drive onto the ramp
+	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
 }

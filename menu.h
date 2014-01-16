@@ -25,14 +25,8 @@ void clearScreen () {
  */
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
-		if (i == menu.selected) {
-			nxtDisplayTextLine(i, ">%s< %s", menu.itemNames[i], menu.infos[i]);
-		}
-		else {
-			nxtDisplayTextLine(i, " %s: %s", menu.itemNames[i], menu.infos[i]);
-		}
+		nxtDisplayTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s: %s", menu.itemNames[i], menu.infos[i]);
 	}
-	return;
 }
 
 /**
@@ -42,7 +36,6 @@ void displayMenu(Menu menu) {
 void selectPrev (Menu menu) {
 	// Add item count so selected stays non-negative
 	menu.selected = (menu.selected - 1 + menu.itemCount) % menu.itemCount;
-	return;
 }
 
 /**
@@ -51,7 +44,6 @@ void selectPrev (Menu menu) {
  */
 void selectNext(Menu menu) {
 	menu.selected = (menu.selected + 1) % menu.itemCount;
-	return;
 }
 
 int prevButton = -1; // Global var? TODO: Delete me// Where do I put this; the NXT buttons are global, and robot c does not have namespaces?
@@ -64,7 +56,6 @@ void updateButtons() {
 		ClearTimer(T1);
 	}
 	prevButton = nNxtButtonPressed;
-	return;
 }
 
 /**

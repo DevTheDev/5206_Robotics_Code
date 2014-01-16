@@ -10,11 +10,11 @@ Library of all functions
 //#include "consts.c"
 
 /**
- * Task: Turn paddle one carriage 
+ * Task: Turn paddle one carriage
  */
- 
+
 int paddleDir=1
- 
+
 task TurnPaddle()
 {
 	motor[PaddleMtr]=paddleDir * paddlespeedreg;
@@ -99,10 +99,10 @@ void turn(int speed) {
  * speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
  */
 
-void turnTime(int time, int speed) {
+void turnTime(int waitTime, int speed) {
 	motor[LeftDr] = -speed;
 	motor[RightDr] = speed;
-	wait1Msec(time);
+	wait1Msec(waitTime);
 	pause();
 }
 
@@ -161,8 +161,8 @@ void move(float inches, int speed)
  */
 void pointByTime(float degrees, int speed)
 {
-	int time = timeSpeedPerDegrees*degrees/speed;
-	turnTime(time, speed);
+	int pointTime = timeSpeedPerDegrees*degrees/speed;
+	turnTime(pointTime, speed);
 }
 
 /**
@@ -264,6 +264,17 @@ void scoreBlocks()
 bool EOPDDetect(tSensors EOPD, int eopdetect) {
 	return(HTEOPDreadProcessed(EOPD) >= eopdetect);
 }
+
+/**
+* Raises the lift
+* speed: the speed at which to lift; negative values lower the lift
+* liftTime: the time for which to lift; if it is greater thab maxLiftTime, then it will lift for maxLiftTime
+*/
+void lift(int speed, int liftTime){
+	motor(LiftFlagMtr) = speed;
+	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
+}
+
 /**
 * Use to multitask the lift
 * Up = True
@@ -320,8 +331,8 @@ void filteredJoy(float& x, float& y) {
 void singleJoyDrive() {
 	float joyX, joyY;
 	filteredJoy(joyX, joyY);
-	motor[LeftDr] = (joyY+joyX)*constdrivereg;
-	motor[RightDr] = (joyY-joyX)*constdrivereg;
+	motor[LeftDr] = (joyY+joyX*turnSensitivity)*constdrivereg;
+	motor[RightDr] = (joyY-joyX*turnSensitivity)*constdrivereg;
 }
 
 /**
@@ -438,14 +449,14 @@ void turnIntake(int dir)
 	if(dir==1) {
 		servoChangeRate[LeftIntake] = intakeFast;
 		servo[LeftIntake] = leftintakefwd;
-		
+
 		servoChangeRate[RightIntake] = intakeFast;
 		servo[RightIntake] = rightintakefwd;
 	}
 	else if(dir==-1) {
 		servoChangeRate[LeftIntake] = intakeFast;
 		servo[LeftIntake] = leftintakebck;
-		
+
 		servoChangeRate[RightIntake] = intakeFast;
 		servo[RightIntake] = rightintakebck;
 	}
@@ -454,4 +465,3 @@ void turnIntake(int dir)
 		servo[RightIntake] = intakestop;
 	}
 }
-
