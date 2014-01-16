@@ -12,9 +12,12 @@ Library of all functions
 /**
  * Task: Turn paddle one carriage 
  */
-task TurnPaddle(int initspeed, int finalspeed)
+ 
+int paddleDir=1
+ 
+task TurnPaddle()
 {
-	motor[PaddleMtr]=initspeed;
+	motor[PaddleMtr]=paddleDir * paddlespeedreg;
 
 	ClearTimer(T4);
 
@@ -22,7 +25,7 @@ task TurnPaddle(int initspeed, int finalspeed)
 
 	while(HTEOPDreadProcessed(PaddleEOPD)>paddleEOPDThresh && time1[T4]<4000) {}
 
-	motor[PaddleMtr]=finalspeed;
+	motor[PaddleMtr]=paddleDir * paddlespeedslow;
 
 	while(HTEOPDreadProcessed(PaddleEOPD)<paddleEOPDThresh && time1[T4]<4000) {}
 
@@ -62,7 +65,7 @@ void hold()
  * Bring the robot to a complete stop
  */
 void stopRobot() {
-	StopAllTasks();
+	StopTask( TurnPaddle );
 	motor[LeftDr] = DCstop;
 	motor[RightDr] = DCstop;
 	motor[PaddleMtr] = DCstop;
@@ -405,11 +408,12 @@ void Paddle()
  */
 void turnPaddleOnce(int initspeed, int finalspeed, int dir)
 {
+	PaddleDir=dir;
 	if(dir==1) {
-		StartTask( TurnPaddle(initspeed, finalspeed) );
+		StartTask( TurnPaddle );
 	}
-	else {
-		StartTask( TurnPaddle(-initspeed, -finalspeed) );
+	else if(dir==-1) {
+		StartTask( TurnPaddle );
 	}
 	endTimeSlice();
 }
@@ -438,7 +442,7 @@ void turnIntake(int dir)
 		servoChangeRate[RightIntake] = intakeFast;
 		servo[RightIntake] = rightintakefwd;
 	}
-	else if(dir==0) {
+	else if(dir==-1) {
 		servoChangeRate[LeftIntake] = intakeFast;
 		servo[LeftIntake] = leftintakebck;
 		
