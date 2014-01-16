@@ -240,6 +240,20 @@ void scoreBlocks()
 bool EOPDDetect(tSensors EOPD, int eopdetect) {
 	return(HTEOPDreadProcessed(EOPD) >= eopdetect);
 }
+/**
+* Use to multitask the lift
+* Up = True
+*/
+task lift(bool upDown, int liftTime){
+	if (upDown){
+		motor(LiftFlagMtr) = 100;
+		wait1Msec(3000);
+	}
+	else{
+		motor(LiftFlagMtr) = -100;
+		wait1Msec(3000);
+	}
+
 
 
 /* TELE-OP
@@ -413,11 +427,11 @@ void turnPaddleOnce(int speed)
 		singleJoyDrive();
 	}
 
-	while(SensorValue[PaddleEOPD]>35) 
+	while(SensorValue[PaddleEOPD]>35)
 	{
 		singleJoyDrive();
 	}
-	
+
 	motor[PaddleMtr]=0;
 }
 

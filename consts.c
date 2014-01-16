@@ -45,6 +45,7 @@
 #define paddleIntakeTime 6000 // the time in ms the robot takes to intake a block after seeing a block
 #define paddleWaitTime 1000 // the time in ms the robot waits after seeing a block to start the paddle
 #define paddleFastTime 1000 // the time the paddle runs before slowing down for the sensor
+#define maxLiftTime 3000 //The time it takes the lift to go all the way up or down
 
 // Tele-op bindings
 #define slowButton joy1Btn(btnA)==1
