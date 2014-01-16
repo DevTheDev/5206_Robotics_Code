@@ -10,6 +10,26 @@ Library of all functions
 //#include "consts.c"
 
 /**
+ * Task: Turn paddle one carriage 
+ */
+task TurnPaddle(int initspeed, int finalspeed)
+{
+	motor[PaddleMtr]=initspeed;
+
+	ClearTimer(T4);
+
+	wait1Msec(100);
+
+	while(HTEOPDreadProcessed(PaddleEOPD)>paddleEOPDThresh && time1[T4]<4000) {}
+
+	motor[PaddleMtr]=finalspeed;
+
+	while(HTEOPDreadProcessed(PaddleEOPD)<paddleEOPDThresh && time1[T4]<4000) {}
+
+	motor[PaddleMtr]=DCstop;
+}
+
+/**
  * Reset the motor encoders
  */
 void reset()
@@ -42,6 +62,7 @@ void hold()
  * Bring the robot to a complete stop
  */
 void stopRobot() {
+	StopAllTasks();
 	motor[LeftDr] = DCstop;
 	motor[RightDr] = DCstop;
 	motor[PaddleMtr] = DCstop;
@@ -222,7 +243,7 @@ void swing(int degrees, int speed)
 }
 
 /**
- * Score the blocks that the robot is carring
+ * Score the blocks that the robot is carrying
  */
 void scoreBlocks()
 {
@@ -258,8 +279,11 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 //	}
 //}
 
-/* TELE-OP
- * -----------------------------------------------*/
+/* -----------------------------------------------
+ * -----------------------------------------------
+ * TELE-OPERATED PERIOD
+ * -----------------------------------------------
+ * ----------------------------------------------- */
 
 void singleJoyDrive();
 void doubleJoyDrive();
@@ -298,7 +322,7 @@ void singleJoyDrive() {
 }
 
 /**
- * TODO: Explain what this function does
+ * Arcade (double joystick) drive
  */
 void doubleJoyDrive() {
 	motor[LeftDr] = (abs(joystick.joy1_y1) > threshhold) ? joystick.joy1_y1*constdrivereg : DCstop;
@@ -306,79 +330,35 @@ void doubleJoyDrive() {
 }
 
 /**
- * TODO: Explain what this function does
- */
-void paddleStart() {
-	ClearTimer(T2);
-}
-
-/**
- * TODO: Explain what this function does
+ * Joystick Controls for Paddle and Intake
  */
 void PaddleAndIntake() {
-	if (paddleForwardButton) {
-		onePaddleTurn((slowButton) ? paddlespeedslow : paddlespeedreg);
-	}
-	else if (paddleBackButton) {
-		onePaddleTurn(-(slowButton) ? paddlespeedslow : paddlespeedreg);
-	}
-
 	// Intake algorithm
-	if (time1[T2] >= paddleWaitTime && time1[T2] < paddleFastTime+paddleWaitTime) {
-		motor[PaddleMtr] = paddlespeedreg;
-	}
-	else if (time1[T2] >= paddleFastTime+paddleWaitTime && time1[T2] < paddleIntakeTime) {
-		motor[PaddleMtr] = paddlespeedslow;
-		if(SensorValue[PaddleLIGHT] < paddleLightThresh) {
-			motor[PaddleMtr] = DCstop;
-		}
-	}
+//	if (time1[T2] >= paddleWaitTime && time1[T2] < paddleFastTime+paddleWaitTime) {
+//		motor[PaddleMtr] = paddlespeedreg;
+//	}
+//	else if (time1[T2] >= paddleFastTime+paddleWaitTime && time1[T2] < paddleIntakeTime) {
+//		motor[PaddleMtr] = paddlespeedslow;
+//		if(SensorValue[PaddleLIGHT] < paddleLightThresh) {
+//			motor[PaddleMtr] = DCstop;
+//		}
+//	}
 
 	if (autoIntakeButton) {
-		servo[LeftIntake] = leftintakefwd;
-		servo[RightIntake] = rightintakefwd;
+		turnIntake(FORWARD);
 
-		if(EOPDDetect(PaddleEOPD,farblockconst) == 1 && time1[T2] > paddleIntakeTime) {
-			paddleStart();
+		if(EOPDDetect(BlockEOPD,nearblockconst) == 1) {
+			turnPaddleOnce(paddlespeedreg, paddlespeedslow, FORWARD);
 		}
 	}
 	else {
-		// Intake
-		if (manualIntakeButton) {
-			servoChangeRate[LeftIntake] = 0; // Add constant
-			servoChangeRate[RightIntake] = 0;
-			servo[LeftIntake] = leftintakefwd;
-			servo[RightIntake] = rightintakefwd;
-		}
-
-		else if (manualOuttakeButton) {
-			servo[LeftIntake] = leftintakebck;
-			servo[RightIntake] = rightintakebck;
-		}
-
-		else {
-			servo[LeftIntake] = intakestop;
-			servo[RightIntake] = intakestop;
-		}
-
-		// Paddle
-		if (abs(joystick.joy1_y2) > threshhold) {
-			motor[PaddleMtr] = joystick.joy1_y2 * paddleratio;
-		}
-		else if (joy1Btn(btnRB) == 1) {
-			motor[PaddleMtr] = paddlespeedreg;
-		}
-		else if (joy1Btn(btnLB) == 1) {
-			motor[PaddleMtr] = -paddlespeedreg;
-		}
-		else {
-			motor[PaddleMtr] = DCstop;
-		}
+		Intake();
+		Paddle();
 	}
 }
 
 /**
- * TODO: Explain what this function does
+ * Tele-op routine for lift motor
  */
 void liftandflag()
 {
@@ -396,50 +376,78 @@ void liftandflag()
 }
 
 /**
- * TODO: Explain what this function does
+ * Tele-op routine for paddle
  */
-void onePaddleTurn(int speed) {
-	motor[PaddleMtr] = speed;
-	wait1Msec(250);
-	ClearTimer(T2);
-	while (SensorValue[PaddleLIGHT] < paddleLightThresh && time1[T2] < 2000) {
-		singleJoyDrive();
-		liftandflag();
-	}
-	ClearTimer(T2);
-	while (SensorValue[PaddleLIGHT] > paddleLightThresh && time1[T2] < 2000) {
-		singleJoyDrive();
-		liftandflag();
-	}
-	motor[PaddleMtr] = DCstop;
-	wait1Msec(100);
-	motor[PaddleMtr] = -paddlespeedreg;
-	wait1Msec(50);
-	motor[PaddleMtr] = DCstop;
-}
-
-void turnPaddleOnce(int speed)
+void Paddle()
 {
-	motor[PaddleMtr]=speed;
-
-	ClearTimer(T4);
-
-	while(time1(T4)<350)
-	{
-		singleJoyDrive();
+	if (abs(joystick.joy1_y2) > threshhold) {
+		motor[PaddleMtr] = joystick.joy1_y2 * paddleratio;
 	}
-
-	while(SensorValue[PaddleEOPD]>35)
-	{
-		singleJoyDrive();
+	else if (joy1Btn(btnRB) == 1) {
+		motor[PaddleMtr] = paddlespeedreg;
 	}
-
-	motor[PaddleMtr]=0;
+	else if (joy1Btn(btnLB) == 1) {
+		motor[PaddleMtr] = -paddlespeedreg;
+	}
+	else if (paddleForwardButton) {
+		turnPaddleOnce(paddlespeedreg, paddlespeedslow, FORWARD);
+	}
+	else if (paddleBackButton) {
+		turnPaddleOnce(paddlespeedreg, paddlespeedslow, BACKWARD);
+	}
+	else {
+		motor[PaddleMtr] = DCstop;
+	}
 }
 
 /**
- * TODO: Explain what this function does
+ * Turn paddle one carriage
  */
-void initializeRobotnext() {
-	HTEOPDsetShortRange(PaddleEOPD);
+void turnPaddleOnce(int initspeed, int finalspeed, int dir)
+{
+	if(dir==1) {
+		StartTask( TurnPaddle(initspeed, finalspeed) );
+	}
+	else {
+		StartTask( TurnPaddle(-initspeed, -finalspeed) );
+	}
+	endTimeSlice();
 }
+
+/**
+ * Tele-op routine for intake
+ */
+void Intake()
+{
+	if (manualIntakeButton) {turnIntake(FORWARD);}
+
+	else if (manualOuttakeButton) {turnIntake(BACKWARD);}
+
+	else {turnIntake(STOP);}
+}
+
+/**
+ * Turn intake forward or backward
+ */
+void turnIntake(int dir)
+{
+	if(dir==1) {
+		servoChangeRate[LeftIntake] = intakeFast;
+		servo[LeftIntake] = leftintakefwd;
+		
+		servoChangeRate[RightIntake] = intakeFast;
+		servo[RightIntake] = rightintakefwd;
+	}
+	else if(dir==0) {
+		servoChangeRate[LeftIntake] = intakeFast;
+		servo[LeftIntake] = leftintakebck;
+		
+		servoChangeRate[RightIntake] = intakeFast;
+		servo[RightIntake] = rightintakebck;
+	}
+	else {
+		servo[LeftIntake] = intakestop;
+		servo[RightIntake] = intakestop;
+	}
+}
+
