@@ -52,10 +52,10 @@ void activateautoChooser(int f){
 			numberOfGoals ++;
 			}
 			numberOfGoals %= 4;
-			StringFormat(autoChooser.infos[0], "%d", numberOfGoals);
+			StringFormat(*autoChooser.infos, "%d", numberOfGoals);
 		case 1:
 			forwardBackward = !forwardBackward;
-			autoChooser.infos[0] = forwardBackward ? "Forward" : "Backward";
+			*(autoChooser.infos++) = forwardBackward ? "Forward" : "Backward";
 		case 2:
 			if (f){
 				bridgeSpot --;
@@ -63,7 +63,7 @@ void activateautoChooser(int f){
 			else {
 				bridgeSpot ++;
 			}
-			StringFormat(autoChooser.infos[0], "%d", bridgeSpot);
+			StringFormat(*autoChooser.infos, "%d", bridgeSpot);
 	}
 }
 		task main()
