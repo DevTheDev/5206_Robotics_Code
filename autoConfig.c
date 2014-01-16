@@ -19,6 +19,7 @@
 #include "actions.h"
 int driveTurns;
 #define options 3
+typedef string strArray[options];
 int numberOfGoals = 0;
 int bridgeSpot = 0;
 bool forwardBackward = false; //back = false
@@ -32,11 +33,13 @@ Menu autoChooser;
 /**
 * The menus constructor
 */
-void initautoChooser(string * itemNames, string * infos){
+void initautoChooser(strArray itemNames, strArray infos){
 	autoChooser.itemCount = options;
 	autoChooser.selected = 0;
-	autoChooser.itemNames = itemNames;
-	autoChooser.infos = infos;
+	for(int i = 0; i < options; i++){
+		autoChooser.itemNames[i] = itemNames[i];
+		autoChooser.infos[i] = infos[i];
+	}
 }
 
 /**
@@ -46,90 +49,95 @@ void activateautoChooser(int f){
 	switch(autoChooser.selected){
 		case 0:
 			if (f){
-			numberOfGoals --;
+				numberOfGoals++;
 			}
 			else {
-			numberOfGoals ++;
+				numberOfGoals--;
 			}
 			numberOfGoals %= 4;
-			StringFormat(*autoChooser.infos, "%d", numberOfGoals);
+			if(numberOfGoals < 0){
+				numberOfGoals += 4;
+			}
+			//*autoChooser.infos = numberOfGoals+1;
+			StringFormat(autoChooser.infos[0], "%d", numberOfGoals);
+			break;
 		case 1:
 			forwardBackward = !forwardBackward;
-			*(autoChooser.infos++) = forwardBackward ? "Forward" : "Backward";
+			autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
+			break;
 		case 2:
 			if (f){
-				bridgeSpot --;
+				bridgeSpot++;
 			}
 			else {
-				bridgeSpot ++;
+				bridgeSpot--;
 			}
-			StringFormat(*autoChooser.infos, "%d", bridgeSpot);
+			StringFormat(autoChooser.infos[2], "%d", bridgeSpot);
+			break;
 	}
 }
-		task main()
-		{
-			// Wait for start
-			initializeRobot();
-			string itemNames[options] = {"# of goals", "Forward/Back", "Bridge Park"};
-			string infos[options] = {"", "", ""};
-			initautoChooser(itemNames, infos);
-			clearScreen();
-			while(true){
-				displayMenu(autoChooser);
-				if(pressed(orangebutton)){
-					selectNext(autoChooser);
-				}
 
-				if(held(leftarrow, 1)){
-					activateautoChooser(0);
-				}
+task main()
+{
+	// Wait for start
+	initializeRobot();
+	string itemNames[options] = {"# of goals", "Forward/Back", "Bridge Park"};
+	string infos[options] = {"", "", ""};
+	initautoChooser(itemNames, infos);
 
-				else if(held(rightarrow, 1)){
-					activateautoChooser(1);
-				}
-				else {
-					activateautoChooser(-1);
-				}
-
-				updateButtons();
-			}
-			waitForStart();
-			//int autoCount;
-			//int distToMove;
-			// Drive to pendulum goal
-			motor[LiftFlagMtr] = 100; //Raise the BSM
-			ClearTimer(T1);
-			reset();
-			drive(60);
-
-			while(!aligned() || time1[T1] <= 3500){
-				if(aligned()){
-					driveTurns = nMotorEncoder[RightDr];
-					pause();
-				}
-				if(time1[T1] >= 3500){
-					motor[LiftFlagMtr] = 0;
-				}
-			}
-			motor[LiftFlagMtr] = 0;
-			// Drive to pendulum
-			turnTime(700, -100);
-			wait1Msec(100);
-			move(7, 40);
-			// Score the block
-			scoreBlocks();
-			// Drive to ramp
-			move(-7, -40);// Back away from the goal
-			motor[LiftFlagMtr] = -100;// Begin to lower the BSM
-			wait1Msec(100);
-			turnTime(650, 100);
-			moveRotations(-driveTurns+4, -80);
-			turnTime(500, -100);
-			motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
-			move(40, 80);
-			turnTime(250, 100);
-			move(40, 80); // Drive onto the ramp
-
-
-
+	clearScreen();
+	while(!held(orangebutton, 3000)){
+		displayMenu(autoChooser);
+		if(pressed(orangebutton)){
+			selectNext(autoChooser);
 		}
+
+		if(pressed(leftarrow)){
+			activateautoChooser(0);
+		}
+
+		else if(pressed(rightarrow)){
+			activateautoChooser(1);
+		}
+
+		updateButtons();
+	}
+	clearScreen();
+	nxtDisplayCenteredBigTextLine(4, "Ready!");
+	waitForStart();
+	//int autoCount;
+	//int distToMove;
+	// Drive to pendulum goal
+	motor[LiftFlagMtr] = 100; //Raise the BSM
+	ClearTimer(T1);
+	reset();
+	drive(60);
+
+	while(!aligned() || time1[T1] <= 3500){
+		if(aligned()){
+			driveTurns = nMotorEncoder[RightDr];
+			pause();
+		}
+		if(time1[T1] >= 3500){
+			motor[LiftFlagMtr] = 0;
+		}
+	}
+	motor[LiftFlagMtr] = 0;
+	// Drive to pendulum
+	turnTime(700, -100);
+	wait1Msec(100);
+	move(7, 40);
+	// Score the block
+	scoreBlocks();
+	// Drive to ramp
+	move(-7, -40);// Back away from the goal
+	motor[LiftFlagMtr] = -100;// Begin to lower the BSM
+	wait1Msec(100);
+	turnTime(650, 100);
+	moveRotations(-driveTurns+4, -80);
+	turnTime(500, -100);
+	motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
+	move(40, 80);
+	turnTime(250, 100);
+	move(40, 80); // Drive onto the ramp
+}

@@ -4,9 +4,9 @@
 typedef struct {
 	int itemCount;//the number of items on the menu
 	int selected;//the item number curent selection
-	string* itemNames;//the names of the items to display
+	string itemNames[8];//the names of the items to display
 	/*robotc does not support function pointers, so you must create a custom activaton function for each menu*///void (*actions)();//the functions to call when each menu item is selected
-	string* infos;//the strings of information to display, must update manually
+	string infos[8];//the strings of information to display, must update manually
 } Menu;
 
 /**
@@ -26,10 +26,10 @@ void clearScreen () {
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
 		if (i == menu.selected) {
-			nxtDisplayString(i, ">%s< %s", menu.itemNames[i], menu.infos[i]);
+			nxtDisplayTextLine(i, ">%s< %s", menu.itemNames[i], menu.infos[i]);
 		}
 		else {
-			nxtDisplayString(i, " %s: %s", menu.itemNames[i], menu.infos[i]);
+			nxtDisplayTextLine(i, " %s: %s", menu.itemNames[i], menu.infos[i]);
 		}
 	}
 	return;
