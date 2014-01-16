@@ -57,6 +57,7 @@
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define FORWARD 1
 #define BACKWARD 0
+#define STOP -1
 
 // NXT buttons
 #define leftarrow 2
