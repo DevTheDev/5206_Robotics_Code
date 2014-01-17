@@ -19,7 +19,9 @@
 //#pragma config(Servo,  srvo_S1_C2_5,    servo5,               tServoNone)
 //#pragma config(Servo,  srvo_S1_C2_6,    servo6,               tServoNone)
 #include "consts.c"
-
+#include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"
+#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
+#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
 
 // Robot's wheel
 typedef struct {
