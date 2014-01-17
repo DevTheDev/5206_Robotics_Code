@@ -25,7 +25,7 @@ void clearScreen () {
  */
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
-		nxtDisplayTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s: %s", menu.itemNames[i], menu.infos[i]);
+		nxtDisplayCenteredTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s %s", menu.itemNames[i], menu.infos[i]);
 	}
 }
 
