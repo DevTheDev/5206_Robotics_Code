@@ -425,14 +425,14 @@ void Paddle()
  */
 void turnPaddleOnce(int initspeed, int finalspeed, int dir)
 {
-	PaddleDir=dir;
+	paddleDir=dir;
 	if(dir==1) {
 		StartTask( TurnPaddle );
 	}
 	else if(dir==-1) {
 		StartTask( TurnPaddle );
 	}
-	endTimeSlice();
+	EndTimeSlice();
 }
 
 /**
