@@ -14,7 +14,7 @@ typedef struct {
  */
 void clearScreen () {
   eraseDisplay(); //Clear the NXT screen
-  bDisplayDiagnostics = false; //Takes control away from FCS
+  disableDiagnosticsDisplay(); //Takes control away from FCS
   bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
   wait1Msec(100);
 }

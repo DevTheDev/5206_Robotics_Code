@@ -110,11 +110,11 @@ void turnPaddle(int initspeed, int finalspeed, int dir)
 
 	wait1Msec(100);
 
-	while(HTEOPDreadProcessed(PaddleEOPD)>paddleEOPDThresh && time1[T4]<4000) {}
+	while(HTEOPDreadProcessed(PaddleEOPD)>paddleEOPDThresh && time1[T4]<3000) {}
 
 	motor[PaddleMtr] = dir * finalspeed;
 
-	while(HTEOPDreadProcessed(PaddleEOPD)<paddleEOPDThresh && time1[T4]<4000) {}
+	while(HTEOPDreadProcessed(PaddleEOPD)<paddleEOPDThresh && time1[T4]<3000) {}
 
 	motor[PaddleMtr] = DCstop;
 }
