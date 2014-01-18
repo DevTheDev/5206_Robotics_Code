@@ -1,7 +1,7 @@
 #pragma config(Hubs,  S1, HTMotor,  HTServo,  HTMotor,  none)
 #pragma config(Sensor, S2,     PaddleEOPD,     sensorAnalogActive)
-#pragma config(Sensor, S3,     AutoIR,         sensorHiTechnicIRSeeker1200)
-#pragma config(Sensor, S4,     BlockEOPD,      sensorAnalogActive)
+#pragma config(Sensor, S3,     BlockEOPD,      sensorAnalogActive)
+#pragma config(Sensor, S4,     AutoIR,         sensorHiTechnicIRSeeker1200)
 #pragma config(Motor,  mtr_S1_C1_1,     LiftFlagMtr,   tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     PaddleMtr,     tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_1,     RightDr,       tmotorTetrix, openLoop, encoder)
@@ -18,9 +18,6 @@
 // Drivers can be found in Google Drive
 #include "actions.h"
 int driveTurns;
-const tMUXSensor Light = msensor_S4_1;
-const tMUXSensor Light2 = msensor_S4_2;
-const tMUXSensor AutoIR = msensor_S4_3;
 /**
 * returns true if the robot is aligned with the beacon
 */
@@ -29,17 +26,16 @@ bool aligned(){
 }
 task main()
 {
-	// Wait for start
-	initializeRobot();
-	waitForStart();
-	int autoCount;
-	int distToMove;
-	//Drive to pendulum goal
-	motor[LiftFlagMtr] = 100; //Raise the BSM
-	ClearTimer(T1);
+// Wait for start
+initializeRobot();
+waitForStart();
+int autoCount;
+int distToMove;
+//Drive to pendulum goal
+motor[LiftFlagMtr] = 100; //Raise the BSM
+ClearTimer(T1);
 	reset();
 	drive(50);
-
 	bool seenIR = false;
 
 	while(!seenIR || time1[T1] <= 3500){
@@ -51,33 +47,33 @@ task main()
 		if(time1[T1] >= 3500){
 			motor[LiftFlagMtr] = 0;
 		}
-	}
-	motor[LiftFlagMtr] = 0;
-	// Drive to pendulum
-	turnTime(650, -100);
-  //motor[LeftDr] = 50;
-  //wait1Msec(100);
-  //motor[LeftDr] = DCstop;
-	wait1Msec(100);
-	move(10, 40);
-	wait1Msec(100);
-	// Score the block
-	scoreBlocks();
-	// Drive to ramp
-	move(-9, -40);// Back away from the goal
-	motor[LiftFlagMtr] = -100;// Begin to lower the BSM
-	wait1Msec(100);
-	//motor[LeftDr] = -50;
- // wait1Msec(100);
- // motor[LeftDr] = DCstop;
-  turn(40);
-	while (!aligned()){}
-	pause();
-	moveRotations(-driveTurns + 720, -80);
-	wait1Msec(100);
-	turnTime(720, -100);
-	motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
-	move(40, 80);
-	turnTime(450, 100);
-	move(60, 80); // Drive onto the ramp
+}
+motor[LiftFlagMtr] = 0;
+// Drive to pendulum
+turnTime(650, -100);
+//motor[LeftDr] = 50;
+//wait1Msec(100);
+//motor[LeftDr] = DCstop;
+wait1Msec(100);
+move(10, 40);
+wait1Msec(100);
+// Score the block
+scoreBlocks();
+// Drive to ramp
+move(-9, -40);// Back away from the goal
+motor[LiftFlagMtr] = -100;// Begin to lower the BSM
+wait1Msec(100);
+//motor[LeftDr] = -50;
+// wait1Msec(100);
+// motor[LeftDr] = DCstop;
+turn(40);
+while (!aligned()){}
+pause();
+moveRotations(-driveTurns + 720, -80);
+wait1Msec(100);
+turnTime(720, -100);
+motor[LiftFlagMtr] = DCstop;// Stop lowering the BSM
+move(40, 80);
+turnTime(450, 100);
+move(60, 80); // Drive onto the ramp
 }

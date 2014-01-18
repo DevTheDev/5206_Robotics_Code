@@ -1,6 +1,7 @@
 /**
  * holds the data for a menu
  */
+#include "joystickdriver.c"
 typedef struct {
 	int itemCount;//the number of items on the menu
 	int selected;//the item number curent selection

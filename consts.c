@@ -76,3 +76,4 @@
 #define distanceBetweenPend 12
 #define pendulumLength 60
 #define lightZone 50 //BASH
+#define lightPivotZone 50 //BASH

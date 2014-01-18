@@ -33,10 +33,10 @@ bool aligned(){
 	return SensorValue[AutoIR] == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*(numberOfGoals + 1);
 }
 bool lightSense(){
-	return SensorValue[Light] == lightZone && SensorValue[Light2] == lightZone);
+	return SensorValue[Light] == lightZone && SensorValue[Light2] == lightZone;
 }
 bool lightAligned(){
-	return SensorValue[Light] == lightZone2 && SensorValue[Light2] == lightZone2);
+	return SensorValue[Light] == lightPivotZone && SensorValue[Light2] == lightPivotZone;
 }
 Menu autoChooser;
 /**
@@ -56,55 +56,55 @@ workaround to robot c not having function pointers
 */
 void activateautoChooser(int f){
 	switch(autoChooser.selected){
+	case 0:
+		switch (f){
 		case 0:
-			switch (f){
-				case 0:
-					numberOfGoals--;
-					break;
-				case 1:
-					numberOfGoals++;
-					break;
-			}
-			numberOfGoals %= 4;
-			if(numberOfGoals < 0){
-				numberOfGoals += 4;
-			}
-			//*autoChooser.infos = numberOfGoals+1;
-			StringFormat(autoChooser.infos[0], "%d", numberOfGoals+1);
+			numberOfGoals--;
 			break;
 		case 1:
-			forwardBackward = !forwardBackward;
-			autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
+			numberOfGoals++;
+			break;
+		}
+		numberOfGoals %= 4;
+		if(numberOfGoals < 0){
+			numberOfGoals += 4;
+		}
+		//*autoChooser.infos = numberOfGoals+1;
+		StringFormat(autoChooser.infos[0], "%d", numberOfGoals+1);
+		break;
+	case 1:
+		forwardBackward = !forwardBackward;
+	autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
+		break;
+	case 2:
+		switch (f){
+		case 0:
+			bridgeSpot--;
+			break;
+		case 1:
+			bridgeSpot++;
 			break;
 		case 2:
-			switch (f){
-				case 0:
-					bridgeSpot--;
-					break;
-				case 1:
-					bridgeSpot++;
-					break;
-				case 2:
-					bridgeSpot -= 10;
-					break;
-				case 3:
-					bridgeSpot += 10;
-					break;
-			}
-			StringFormat(autoChooser.infos[2], "%d", bridgeSpot);
+			bridgeSpot -= 10;
 			break;
+		case 3:
+			bridgeSpot += 10;
+			break;
+		}
+		StringFormat(autoChooser.infos[2], "%d", bridgeSpot);
+		break;
 	}
 }
 
 /**
-	raises the lift
+raises the lift
 */
 task raiseLift(){
 	lift(100, 3500);
 }
 
 /**
-	lowers the lift
+lowers the lift
 */
 task lowerLift(){
 	lift(100, 4500);
@@ -155,7 +155,7 @@ task main()
 	//int autoCount;
 	//int distToMove;
 	// Drive to pendulum goal
-	motor[LiftFlagMtr] = 100; //Raise the BSM
+	StartTask(raiseLift); //Raise the BSM
 	ClearTimer(T1);
 	reset();
 	drive(60);
@@ -165,11 +165,7 @@ task main()
 			driveTurns = nMotorEncoder[RightDr];
 			pause();
 		}
-		if(time1[T1] >= 3500){
-			motor[LiftFlagMtr] = 0;
-		}
 	}
-	motor[LiftFlagMtr] = 0;
 	// Drive to pendulum
 	turnTime(700, -100);
 	wait1Msec(100);
@@ -185,13 +181,17 @@ task main()
 	turnTime(500, -100);
 	drive(60);
 	while(!lightSense()){
-		pause();
+		if (lightSense()){
+			pause();
+		}
 	}
 	turn(60);
 	while(!lightAligned()){
-		pause();
+		if (lightAligned()){
+			pause();
+		}
 	}
 	move(40+bridgeSpot, 80);
 	turnTime(250, 100);
-	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
+move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
 }
