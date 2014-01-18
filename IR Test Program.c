@@ -18,6 +18,7 @@
 #include "consts.c"
 #include "robot.c"
 #include "actions.h"
+#include "lego-light.h"
 
 const tMUXSensor AutoIR = msensor_S4_3;
 const tMUXSensor Light = msensor_S4_1;
@@ -25,14 +26,17 @@ const tMUXSensor Light2 = msensor_S4_2;
 
 task main()
 {
-
-clearScreen();
-while (true){
-int IRValue = SensorValue[AutoIR];
-nxtDisplayTextLine(3, "%d", IRValue);
-nxtDisplayTextLine(4, "%d", SensorValue[PaddleEOPD]);
-nxtDisplayTextLine(5, "%s", "swag");
-nxtDisplayTextLine(6, "%d", SensorValue[Light]);
-nxtDisplayTextLine(7, "%d", SensorValue[Light2]);
-}
+	SensorValue(Light) = true;
+	SensorValue(Light2) = true;
+	LSsetActive(Light);
+	LSsetActive(Light2);
+	clearScreen();
+	while (true){
+		int IRValue = SensorValue[AutoIR];
+		nxtDisplayTextLine(1, "IR = %d", IRValue);
+		nxtDisplayTextLine(2, "PaddleEOPD = %d", HTEOPDreadProcessed(PaddleEOPD));
+		nxtDisplayTextLine(3, "BlockEOPD = %d", HTEOPDreadProcessed(BlockEOPD));
+		nxtDisplayTextLine(4, "Light = %d", LSvalNorm(Light));
+		nxtDisplayTextLine(5, "Light2 = %d", LSvalNorm(Light2));
+	}
 }
