@@ -92,7 +92,7 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 void liftAndFlag()
 {
 	if (abs(joystick.joy2_y2) > threshhold) {
-		motor[LiftFlagMtr] = joystick.joy2_y2*constdrivereg;
+		motor[LiftFlagMtr] = (joystick.joy2_y2-(joystick.joy2_y2 > 0 ? 1 : -1)*threshhold)/(joystickRange-threshhold)*constdrivereg;
 	}
 	else {
 		motor[LiftFlagMtr] = DCstop;

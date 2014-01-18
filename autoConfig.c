@@ -25,14 +25,14 @@ const tMUXSensor AutoIR = msensor_S4_3;
 int driveTurns;
 #define options 3
 typedef string strArray[options];
-int numberOfGoals = 0;
+int numberOfGoals = 2;
 int bridgeSpot = 0;
 bool forwardBackward = false; //back = false
 /**
 * returns true if the robot is aligned with the beacon
 */
 bool aligned(){
-	return HTIRS2readDCDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*(numberOfGoals + 1);
+	return HTIRS2readDCDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*encoderticks*(numberOfGoals + 1);
 }
 
 bool seeRed(tMUXSensor light){
@@ -123,13 +123,15 @@ raises the lift
 */
 task raiseLift(){
 	lift(100, 3500);
+	EndTimeSlice();
 }
 
 /**
 lowers the lift
 */
 task lowerLift(){
-	lift(100, 4500);
+	lift(-100, 3000);
+	EndTimeSlice();
 }
 
 task main()
@@ -137,11 +139,11 @@ task main()
 	// Wait for start
 	initializeRobot();
 	string itemNames[options] = {"Max Goals", "Dir", "Bridge Park"};
-	string infos[options] = {"1", "Backward", "0"};
+	string infos[options] = {"3", "Backward", "0"};
 	initautoChooser(itemNames, infos);
 
 	clearScreen();
-	while(!held(orangebutton, 2000)){
+	while(!held(orangebutton, 1000)){
 		displayMenu(autoChooser);
 		if(pressed(orangebutton)){
 			selectNext(autoChooser);
@@ -174,38 +176,56 @@ task main()
 	clearScreen();
 	nxtDisplayCenteredBigTextLine(3, "Ready!");
 	waitForStart();
+	HTSMUXsetAnalogueActive(msensor_S4_1);
+	HTSMUXsetAnalogueActive(msensor_S4_2);
 	//int autoCount;
 	//int distToMove;
 	// Drive to pendulum goal
-	/*StartTask(raiseLift); //Raise the BSM
+	//StartTask(raiseLift); //Raise the BSM
+	motor[LiftFlagMtr] = 100; //Raise the BSM
 	ClearTimer(T1);
 	reset();
-	drive(60);
+	drive(50);
 
-	while(!aligned() || time1[T1] <= 3500){
+	bool seenIR = false;
+
+	while(!seenIR || time1[T1] <= 3000){
 		if(aligned()){
+			seenIR = true;
 			driveTurns = nMotorEncoder[RightDr];
 			pause();
 		}
+		if(time1[T1] >= 3000){
+			motor[LiftFlagMtr] = 0;
+		}
 	}
+	motor[LiftFlagMtr] = 0;
+
 	// Drive to pendulum
-	turnTime(700, -100);
+	turnTime(600, -100);
+  //motor[LeftDr] = 50;
+  //wait1Msec(100);
+  //motor[LeftDr] = DCstop;
 	wait1Msec(100);
-	move(7, 40);
+	move(10, 40);
+	wait1Msec(100);
 	// Score the block
 	scoreBlocks();
 	// Drive to ramp
-	move(-7, -40);// Back away from the goal
+	move(-9, -40);// Back away from the goal
 	StartTask(lowerLift);// Begin to lower the BSM
 	wait1Msec(100);
-	turnTime(650, 100);
-	moveRotations((forwardBackward ? pendulumLength : 4)-driveTurns, -80);
-	turnTime(500, -100);*/
+
+  turn(40);
+	while (!aligned()){}
+	pause();
+
+	moveRotations((forwardBackward ? pendulumLength : 720)-driveTurns, -80);
+	turnTime(720, -100);
 	reset();
+
 	drive(60);
-
 	while(!lightAligned()){}
-
 	pause();
 
 	move(bridgeSpot, (bridgeSpot > 0 ? 1 : -1) * 80);
@@ -221,6 +241,6 @@ task main()
 	//	}
 	//}
 	//move(40+bridgeSpot, 80);
-	/*turnTime(250, 100);
+	turnTime(450, 100);
 	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
-*/}
+}

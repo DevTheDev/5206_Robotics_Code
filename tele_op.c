@@ -35,6 +35,7 @@ task main() {
 	waitForStart(); // wait for start of tele-op phase
 	StartTask(Paddle);
 	while(true){
+		getJoystickSettings(joystick);
 		liftAndFlag();
 		singleJoyDrive();
 		Intake();

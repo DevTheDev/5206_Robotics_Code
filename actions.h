@@ -249,7 +249,7 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 */
 void lift(int speed, int liftTime){
 	motor(LiftFlagMtr) = speed;
-wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
+	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
 }
 
 /**
