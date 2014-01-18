@@ -23,9 +23,9 @@
 const tMUXSensor AutoIR = msensor_S4_3;
 const tMUXSensor Light = msensor_S4_1;
 const tMUXSensor Light2 = msensor_S4_2;
-
 task main()
 {
+	HTSMUXsetAnalogueActive(msensor_S4_1);
 	SensorValue(Light) = true;
 	SensorValue(Light2) = true;
 	LSsetActive(Light);
@@ -38,5 +38,7 @@ task main()
 		nxtDisplayTextLine(3, "BlockEOPD = %d", HTEOPDreadProcessed(BlockEOPD));
 		nxtDisplayTextLine(4, "Light = %d", LSvalNorm(Light));
 		nxtDisplayTextLine(5, "Light2 = %d", LSvalNorm(Light2));
+		nxtDisplayTextLine(4, "Light = %d", LSvalRaw(Light));
+		nxtDisplayTextLine(5, "Light2 = %d", LSvalRaw(Light2));
 	}
 }
