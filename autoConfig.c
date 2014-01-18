@@ -213,7 +213,7 @@ task main()
 	scoreBlocks();
 	// Drive to ramp
 	move(-9, -40);// Back away from the goal
-	StartTask(lowerLift);// Begin to lower the BSM
+	//StartTask(lowerLift);// Begin to lower the BSM
 	wait1Msec(100);
 
   turn(40);
