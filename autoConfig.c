@@ -16,8 +16,8 @@
 #include "actions.h"
 #include "3rd Party Sensor Drivers/drivers/lego-light.h"
 
-const tMUXSensor Light = msensor_S4_1;
-const tMUXSensor Light2 = msensor_S4_2;
+const tMUXSensor LightBack = msensor_S4_1;
+const tMUXSensor LightFront = msensor_S4_2;
 const tMUXSensor AutoIR = msensor_S4_3;
 
 // Includes consts.c and robot.c, as well
@@ -35,24 +35,31 @@ bool aligned(){
 	return HTIRS2readDCDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*(numberOfGoals + 1);
 }
 
-/**
-* returns true if both light sensors see red or blue
-*/
-bool lightSense(){
-	return LSvalNorm(Light) >= lightZoneLower && LSvalNorm(Light) <= lightZoneUpper &&
-				 LSvalNorm(Light2) >= lightZoneLower && LSvalNorm(Light2) <= lightZoneUpper;
+bool seeRed(tMUXSensor light){
+	return LSvalNorm(light) >= lightRedLower && LSvalNorm(light) <= lightRedUpper;
 }
+
+bool seeBlu(tMUXSensor light){
+	return LSvalNorm(light) >= lightBlueLower && LSvalNorm(light) <= lightBlueUpper;
+}
+
+///**
+//* returns true if both light sensors see red or blue
+//*/
+//bool lightSense(){
+//	return LSvalNorm(Light) >= lightZoneLower && LSvalNorm(Light) <= lightZoneUpper &&
+//				 LSvalNorm(Light2) >= lightZoneLower && LSvalNorm(Light2) <= lightZoneUpper;
+//}
 
 /**
 * returns true if both light sensors see red or both see blue
 */
 bool lightAligned(){
-	return (LSvalNorm(Light) >= lightBlueLower && LSvalNorm(Light) <= lightBlueUpper &&
-				 LSvalNorm(Light2) >= lightBlueLower && LSvalNorm(Light2) <= lightBlueUpper)
-				 ||
-				 (LSvalNorm(Light) >= lightRedLower && LSvalNorm(Light) <= lightRedUpper &&
-				 LSvalNorm(Light2) >= lightRedLower && LSvalNorm(Light2) <= lightRedUpper);
+	return (seeRed(LightBack) && seeBlu(LightFront)) ||
+				 (seeBlu(LightBack) && seeRed(LightFront)) ||
+				 nMotorEncoder[RightDr] > maxBridgeDistance;
 }
+
 Menu autoChooser;
 /**
 * The menus constructor
@@ -80,9 +87,9 @@ void activateautoChooser(int f){
 			numberOfGoals++;
 			break;
 		}
-		numberOfGoals %= 4;
+		numberOfGoals %= 5;
 		if(numberOfGoals < 0){
-			numberOfGoals += 4;
+			numberOfGoals += 5;
 		}
 		//*autoChooser.infos = numberOfGoals+1;
 		StringFormat(autoChooser.infos[0], "%d", numberOfGoals+1);
@@ -170,7 +177,7 @@ task main()
 	//int autoCount;
 	//int distToMove;
 	// Drive to pendulum goal
-	StartTask(raiseLift); //Raise the BSM
+	/*StartTask(raiseLift); //Raise the BSM
 	ClearTimer(T1);
 	reset();
 	drive(60);
@@ -193,20 +200,27 @@ task main()
 	wait1Msec(100);
 	turnTime(650, 100);
 	moveRotations((forwardBackward ? pendulumLength : 4)-driveTurns, -80);
-	turnTime(500, -100);
+	turnTime(500, -100);*/
+	reset();
 	drive(60);
-	while(!lightSense()){
-		if (lightSense()){
-			pause();
-		}
-	}
-	turn(60);
-	while(!lightAligned()){
-		if (lightAligned()){
-			pause();
-		}
-	}
-	move(40+bridgeSpot, 80);
-	turnTime(250, 100);
-move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
-}
+
+	while(!lightAligned()){}
+
+	pause();
+
+	move(bridgeSpot, (bridgeSpot > 0 ? 1 : -1) * 80);
+	//while(!lightSense()){
+	//	if (lightSense()){
+	//		pause();
+	//	}
+	//}
+	//turn(60);
+	//while(!lightAligned()){
+	//	if (lightAligned()){
+	//		pause();
+	//	}
+	//}
+	//move(40+bridgeSpot, 80);
+	/*turnTime(250, 100);
+	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
+*/}

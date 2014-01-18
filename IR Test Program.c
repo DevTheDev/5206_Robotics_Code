@@ -26,13 +26,12 @@ task main()
 	clearScreen();
 	while (true){
 		HTSMUXsetAnalogueActive(msensor_S4_1);
-		int IRValue = SensorValue[AutoIR];
-		nxtDisplayTextLine(1, "IR = %d", IRValue);
+		HTSMUXsetAnalogueActive(msensor_S4_2);
+		nxtDisplayTextLine(1, "IR = %d", HTIRS2readDCDir(AutoIR));
 		nxtDisplayTextLine(2, "PaddleEOPD = %d", HTEOPDreadProcessed(PaddleEOPD));
 		nxtDisplayTextLine(3, "BlockEOPD = %d", HTEOPDreadProcessed(BlockEOPD));
-		nxtDisplayTextLine(4, "Light = %d", LSvalNorm(Light));
-		nxtDisplayTextLine(5, "Light2 = %d", LSvalNorm(Light2));
-		nxtDisplayTextLine(6, "LightRaw = %d", LSvalRaw(Light));
-		nxtDisplayTextLine(7, "Light2Raw = %d", LSvalRaw(Light2));
+		LSsetActive(Light);
+		nxtDisplayTextLine(4, "LightBack = %d", LSvalNorm(Light));
+		nxtDisplayTextLine(5, "LightFront = %d", LSvalNorm(Light2));
 	}
 }
