@@ -16,10 +16,9 @@
 
 //#include "consts.c", "robot.c"
 #include "actions.h"
+#include "joystickdriver.c"
 
 const tMUXSensor AutoIR = msensor_S4_1;
-const tMUXSensor Light = msensor_S4_3;
-const tMUXSensor Light2 = msensor_S4_4;
 
 Menu resetMenu;
 

@@ -39,9 +39,10 @@
 #define intakestop 127
 #define intakeFast 0
 #define paddlespeedreg 18
-#define paddlespeedslow 8
+#define paddlespeedslow 4
 #define DCstop 0 // full DC motor stop
-#define paddleEOPDThresh 50
+#define paddleEOPDThresh 30
+#define blockEOPDThresh 50
 #define paddleratio 14.0/128.0
 #define paddleIntakeTime 6000 // the time in ms the robot takes to intake a block after seeing a block
 #define paddleWaitTime 1000 // the time in ms the robot waits after seeing a block to start the paddle
@@ -51,6 +52,8 @@
 
 // Tele-op bindings
 #define slowButton joy1Btn(btnA)==1
+#define paddleAutoForwardButton joy1Btn(btnRB) == 1
+#define paddleAutoBackButton joy1Btn(btnLB) == 1
 #define paddleBackButton joystick.joy1_TopHat==6
 #define paddleForwardButton joystick.joy1_TopHat==2
 #define autoIntakeButton joy1Btn(btnY)==1
