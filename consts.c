@@ -72,3 +72,4 @@
 #define irZone 6
 #define distanceBetweenPend 12
 #define pendulumLength 60
+#define lightZone 50 //BASH
