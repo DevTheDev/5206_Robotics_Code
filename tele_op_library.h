@@ -126,7 +126,7 @@ task Paddle()
 {
 	while(true){
 		if (autoIntakeButton && HTEOPDreadProcessed(BlockEOPD) > blockEOPDThresh){
-			turnPaddleOnce(paddlespeedreg, paddlespeedslow, FORWARD);
+			turnPaddle(paddlespeedreg, paddlespeedslow, FORWARD);
 		}
 		else if (abs(joystick.joy1_y2) > threshhold) {
 			motor[PaddleMtr] = joystick.joy1_y2 * paddleratio;
