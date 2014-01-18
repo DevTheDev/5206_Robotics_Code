@@ -15,8 +15,8 @@ const tMUXSensor Light2 = msensor_S4_2;
 const tMUXSensor AutoIR = msensor_S4_3;
 
 /**
- * Task: Turn paddle one carriage
- */
+* Task: Turn paddle one carriage
+*/
 
 int paddleDir=1;//Global variables are evil
 
@@ -38,8 +38,8 @@ task TurnPaddle()
 }
 
 /**
- * Reset the motor encoders
- */
+* Reset the motor encoders
+*/
 void reset()
 {
 	nMotorEncoder[RightDr] = 0;
@@ -47,8 +47,8 @@ void reset()
 }
 
 /**
- * Pause the robot in one spot
- */
+* Pause the robot in one spot
+*/
 void pause()
 {
 	motor[LeftDr] = 0;
@@ -56,9 +56,9 @@ void pause()
 }
 
 /**
- * Stop the robot and wait for time to end
- * THIS IS NOT AN ERROR
- */
+* Stop the robot and wait for time to end
+* THIS IS NOT AN ERROR
+*/
 void hold()
 {
 	pause();
@@ -67,8 +67,8 @@ void hold()
 }
 
 /**
- * Bring the robot to a complete stop
- */
+* Bring the robot to a complete stop
+*/
 void stopRobot() {
 	StopTask( TurnPaddle );
 	motor[LeftDr] = DCstop;
@@ -80,18 +80,18 @@ void stopRobot() {
 }
 
 /**
- * Drive until told elsewhere to stop
- * speed: the speed to drive at (negative speed will cause the robot to go backwards)
- */
+* Drive until told elsewhere to stop
+* speed: the speed to drive at (negative speed will cause the robot to go backwards)
+*/
 void drive(int speed) {
 	motor[LeftDr] = speed;
 	motor[RightDr] = speed;
 }
 
 /**
- * Set turn speed
- * speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
- */
+* Set turn speed
+* speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
+*/
 
 void turn(int speed) {
 	motor[LeftDr] = -speed;
@@ -99,10 +99,10 @@ void turn(int speed) {
 }
 
 /**
- * turns for the time ms
- * time: the time in ms for which to turn
- * speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
- */
+* turns for the time ms
+* time: the time in ms for which to turn
+* speed: the speed to drive at (Positive speed will turn left, negative speed will turn right)
+*/
 
 void turnTime(int waitTime, int speed) {
 	motor[LeftDr] = -speed;
@@ -112,10 +112,10 @@ void turnTime(int waitTime, int speed) {
 }
 
 /**
- * Drive a set number of encoder ticks
- * rotations: number of encoder ticks to rotate
- * speed: speed to traval at (negative values will cause the robot to drive backwards)
- */
+* Drive a set number of encoder ticks
+* rotations: number of encoder ticks to rotate
+* speed: speed to traval at (negative values will cause the robot to drive backwards)
+*/
 void moveRotations(float rotations, int speed)
 {
 	reset();
@@ -135,10 +135,10 @@ void moveRotations(float rotations, int speed)
 }
 
 /**
- * Drive a set distance
- * inches: number of inches to move
- * speed: speed to traval at (negative values will cause the robot to drive backwards)
- */
+* Drive a set distance
+* inches: number of inches to move
+* speed: speed to traval at (negative values will cause the robot to drive backwards)
+*/
 void move(float inches, int speed)
 {
 	int rotations = inches * 1440.0 / robot.wheel.circumference * robot.wheel.dRatio;
@@ -160,10 +160,10 @@ void move(float inches, int speed)
 }
 
 /**
- * Perform a pivot turn
- * degrees: number of degrees to turn - positive values turn left, negative values turn right
- * speed: speed to travel at
- */
+* Perform a pivot turn
+* degrees: number of degrees to turn - positive values turn left, negative values turn right
+* speed: speed to travel at
+*/
 void pointByTime(float degrees, int speed)
 {
 	int pointTime = timeSpeedPerDegrees*degrees/speed;
@@ -171,17 +171,17 @@ void pointByTime(float degrees, int speed)
 }
 
 /**
- * Perform a pivot turn
- * degrees: number of degrees to turn - positive values turn left, negative values turn right
- * speed: speed to travel at
- */
+* Perform a pivot turn
+* degrees: number of degrees to turn - positive values turn left, negative values turn right
+* speed: speed to travel at
+*/
 void point(float degrees, int speed)
 {
 	int counts = (degrees / 360.0) * (robot.wheel.dRatio * robot.wheel.around / robot.wheel.circumference) * (robot.encoder.ticks);
 	// counts = (proportion of circle turned) * (number of rotations per full turn) * (encoderticks per wheel rotation)
 
 	if(abs(counts) * maxAccel <= .5 * speed * speed){
-		speed = ((degrees > 0) ? 1 : -1) * sqrt(2 * abs(counts) * maxAccel);
+	speed = ((degrees > 0) ? 1 : -1) * sqrt(2 * abs(counts) * maxAccel);
 	}
 
 	reset();
@@ -193,7 +193,7 @@ void point(float degrees, int speed)
 			motor[RightDr] = 0;
 		}
 		else if((abs(counts) - abs(nMotorEncoder[RightDr])) * maxAccel <= .5 * speed * speed){
-			motor[RightDr] = ((speed > 0) ? 1: -1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[RightDr])));
+		motor[RightDr] = ((speed > 0) ? 1: -1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[RightDr])));
 		}
 
 		// Wait for left motor to reach goal
@@ -201,34 +201,34 @@ void point(float degrees, int speed)
 			motor[LeftDr] = 0;
 		}
 		else if((abs(counts) - abs(nMotorEncoder[LeftDr])) * maxAccel <= .5 * speed * speed){
-			motor[LeftDr] = ((speed > 0) ? -1: 1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[LeftDr])));
+		motor[LeftDr] = ((speed > 0) ? -1: 1)*sqrt(2 * maxAccel * (abs(counts) - abs(nMotorEncoder[LeftDr])));
 		}
 	}
 }
 
 /**
- * Moves the robot relative to it's current position
- * y: the distance in inches if front of the robot to move
- * x: the distance in inches left of the robot to move
- * speed: the driving speed
- * turnSpeed: the turning speed
- */
+* Moves the robot relative to it's current position
+* y: the distance in inches if front of the robot to move
+* x: the distance in inches left of the robot to move
+* speed: the driving speed
+* turnSpeed: the turning speed
+*/
 void moveTo(float y, float x, int speed, int turnSpeed){
 	if (y == 0) {
-		point((x > 0) ? 90:-90, turnSpeed);
+	point((x > 0) ? 90:-90, turnSpeed);
 		move(x*x, speed);
 	}
 	else {
 		point(radiansToDegrees(atan(x/y)), 100);
-		move((y > 0)? sqrt(y*y+x*x):-sqrt(y*y+x*x), (y > 0)? speed:-speed);
+	move((y > 0)? sqrt(y*y+x*x):-sqrt(y*y+x*x), (y > 0)? speed:-speed);
 	}
 }
 
 /**
- * Perform a swing turn
- * degrees: number of degrees to turn - positive values turn right, negative values turn left
- * speed: speed to travel at
- */
+* Perform a swing turn
+* degrees: number of degrees to turn - positive values turn right, negative values turn left
+* speed: speed to travel at
+*/
 void swing(int degrees, int speed)
 {
 	int counts = 2 * -encoderticks * robot.wheel.around * robot.wheel.dRatio * degrees / (robot.wheel.circumference*360.0);
@@ -251,8 +251,8 @@ void swing(int degrees, int speed)
 }
 
 /**
- * Score the blocks that the robot is carrying
- */
+* Score the blocks that the robot is carrying
+*/
 void scoreBlocks()
 {
 	// TODO: Optimize time
@@ -264,8 +264,8 @@ void scoreBlocks()
 }
 
 /**
- * Checks if a block is in front of the EOPD
- */
+* Checks if a block is in front of the EOPD
+*/
 bool EOPDDetect(tSensors EOPD, int eopdetect) {
 	return(HTEOPDreadProcessed(EOPD) >= eopdetect);
 }
@@ -277,7 +277,7 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 */
 void lift(int speed, int liftTime){
 	motor(LiftFlagMtr) = speed;
-	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
+wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
 }
 
 /**
@@ -299,10 +299,10 @@ void lift(int speed, int liftTime){
 //}
 
 /* -----------------------------------------------
- * -----------------------------------------------
- * TELE-OPERATED PERIOD
- * -----------------------------------------------
- * ----------------------------------------------- */
+* -----------------------------------------------
+* TELE-OPERATED PERIOD
+* -----------------------------------------------
+* ----------------------------------------------- */
 
 /*void singleJoyDrive();
 void doubleJoyDrive();
@@ -311,10 +311,10 @@ void liftandflag();
 void onePaddleTurn(int speed);
 */
 /**
- * If the joystick is inside a circle of radius threshhold set x and y to 0
- * x: TODO
- * y: TODO
- */
+* If the joystick is inside a circle of radius threshhold set x and y to 0
+* x: TODO
+* y: TODO
+*/
 void filteredJoy(float& x, float& y) {
 	x = joystick.joy1_x1;
 	y = joystick.joy1_y1;
@@ -331,31 +331,28 @@ void filteredJoy(float& x, float& y) {
 }
 
 /**
- * Drive from the right joystick
- */
-task singleJoyDrive() {
+* Drive from the right joystick
+*/
+void singleJoyDrive() {
 	float joyX, joyY;
-	while(true){
-		filteredJoy(joyX, joyY);
-		motor[LeftDr] = (joyY+joyX*turnSensitivity)*constdrivereg;
-		motor[RightDr] = (joyY-joyX*turnSensitivity)*constdrivereg;
-	}
-	EndTimeSlice();
+	filteredJoy(joyX, joyY);
+	motor[LeftDr] = (joyY+joyX*turnSensitivity)*constdrivereg;
+	motor[RightDr] = (joyY-joyX*turnSensitivity)*constdrivereg;
 }
 
 /**
- * Arcade (double joystick) drive
- */
+* Arcade (double joystick) drive
+*/
 void doubleJoyDrive() {
-	motor[LeftDr] = (abs(joystick.joy1_y1) > threshhold) ? joystick.joy1_y1*constdrivereg : DCstop;
-	motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdrivereg : DCstop;
+motor[LeftDr] = (abs(joystick.joy1_y1) > threshhold) ? joystick.joy1_y1*constdrivereg : DCstop;
+motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdrivereg : DCstop;
 }
 
 /**
- * Joystick Controls for Paddle and Intake
- */
+* Joystick Controls for Paddle and Intake
+*/
 //void PaddleAndIntake() {
-	// Intake algorithm
+// Intake algorithm
 //	if (time1[T2] >= paddleWaitTime && time1[T2] < paddleFastTime+paddleWaitTime) {
 //		motor[PaddleMtr] = paddlespeedreg;
 //	}
@@ -380,19 +377,16 @@ void doubleJoyDrive() {
 //}
 
 /**
- * Tele-op routine for lift motor
- */
-task liftAndFlag()
+* Tele-op routine for lift motor
+*/
+void liftAndFlag()
 {
-	while(true){
-		if (abs(joystick.joy2_y2) > threshhold) {
-			motor[LiftFlagMtr] = joystick.joy2_y2*constdrivereg;
-		}
-		else {
-			motor[LiftFlagMtr] = DCstop;
-		}
+	if (abs(joystick.joy2_y2) > threshhold) {
+		motor[LiftFlagMtr] = joystick.joy2_y2*constdrivereg;
 	}
-	EndTimeSlice();
+	else {
+		motor[LiftFlagMtr] = DCstop;
+	}
 }
 
 
@@ -414,16 +408,16 @@ void turnPaddle(int initspeed, int finalspeed, int dir)
 }
 
 /**
- * Turn paddle one carriage
- */
+* Turn paddle one carriage
+*/
 void turnPaddleOnce(int initspeed, int finalspeed, int dir)
 {
 	turnPaddle(initspeed, finalspeed, dir);
 }
 
 /**
- * Tele-op routine for paddle
- */
+* Tele-op routine for paddle
+*/
 task Paddle()
 {
 	while(true){
@@ -454,8 +448,8 @@ task Paddle()
 
 
 /**
- * Turn intake forward or backward
- */
+* Turn intake forward or backward
+*/
 void turnIntake(int dir)
 {
 	if(dir==1) {
@@ -479,20 +473,17 @@ void turnIntake(int dir)
 }
 
 /**
- * Tele-op routine for intake
- */
-task Intake()
+* Tele-op routine for intake
+*/
+void Intake()
 {
-	while(true){
-		if (manualIntakeButton || autoIntakeButton) {
-			turnIntake(FORWARD);
-		}
-		else if (manualOuttakeButton) {
-			turnIntake(BACKWARD);
-		}
-		else {
-			turnIntake(STOP);
-		}
+	if (manualIntakeButton || autoIntakeButton) {
+		turnIntake(FORWARD);
 	}
-	EndTimeSlice();
+	else if (manualOuttakeButton) {
+		turnIntake(BACKWARD);
+	}
+	else {
+		turnIntake(STOP);
+	}
 }

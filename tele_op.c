@@ -38,10 +38,11 @@ task main() {
 //	initializeRobotnext();
 
 	waitForStart(); // wait for start of tele-op phase
-
-	StartTask(singleJoyDrive);
-	StartTask(liftAndFlag);
+	//StartTask(liftAndFlag);
 	StartTask(Paddle);
-	StartTask(Intake);
-	hold();
+	while(true){
+		liftAndFlag();
+		singleJoyDrive();
+		Intake();
+	}
 }
