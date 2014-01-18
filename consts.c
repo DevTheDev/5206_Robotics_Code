@@ -47,7 +47,7 @@
 #define paddleWaitTime 1000 // the time in ms the robot waits after seeing a block to start the paddle
 #define paddleFastTime 1000 // the time the paddle runs before slowing down for the sensor
 #define maxLiftTime 10000 //The time it takes the lift to go all the way up or down
-#define turnSensitivity 1.68033989 //the sensitivity of turning
+#define turnSensitivity 1 //the sensitivity of turning
 
 // Tele-op bindings
 #define slowButton joy1Btn(btnA)==1

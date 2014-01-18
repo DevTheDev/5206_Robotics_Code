@@ -10,10 +10,6 @@ Library of all functions
 #include "robot.c"
 #include "menu.h"
 
-const tMUXSensor Light = msensor_S4_1;
-const tMUXSensor Light2 = msensor_S4_2;
-const tMUXSensor AutoIR = msensor_S4_3;
-
 /**
 * Task: Turn paddle one carriage
 */
@@ -319,15 +315,21 @@ void filteredJoy(float& x, float& y) {
 	x = joystick.joy1_x1;
 	y = joystick.joy1_y1;
 
+	float threshOffset = sqrt(x*x + y*y);
+
 	// If the joystick is inside a circle of radius threshhold set x and y to 0
-	if(x*x + y*y <= threshhold*threshhold) {
+	if(threshOffset <= threshhold) {
 		x = 0;
 		y = 0;
 	}
+	else {
+		x -= x * threshhold / threshOffset;
+		y -= y * threshhold / threshOffset;
+		// Keep the values in [-1, 1]
+		x /= (joystickRange-threshhold);
+		y /= (joystickRange-threshhold);
+	}
 
-	// Keep the values in [-1, 1]
-	x /= joystickRange;
-	y /= joystickRange;
 }
 
 /**
