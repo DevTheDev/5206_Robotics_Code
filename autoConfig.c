@@ -32,6 +32,12 @@ bool forwardBackward = false; //back = false
 bool aligned(){
 	return SensorValue[AutoIR] == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*(numberOfGoals + 1);
 }
+bool lightSense(){
+	return SensorValue[Light] == lightZone && SensorValue[Light2] == lightZone);
+}
+bool lightAligned(){
+	return SensorValue[Light] == lightZone2 && SensorValue[Light2] == lightZone2);
+}
 Menu autoChooser;
 /**
 * The menus constructor
@@ -177,6 +183,14 @@ task main()
 	turnTime(650, 100);
 	moveRotations((forwardBackward ? pendulumLength : 4)-driveTurns, -80);
 	turnTime(500, -100);
+	drive(60);
+	while(!lightSense()){
+		pause();
+	}
+	turn(60);
+	while(!lightAligned()){
+		pause();
+	}
 	move(40+bridgeSpot, 80);
 	turnTime(250, 100);
 	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
