@@ -77,3 +77,9 @@
 #define pendulumLength 60
 #define lightZone 50 //BASH
 #define lightPivotZone 50 //BASH
+#define lightZoneLower 33
+#define lightZoneUpper 67
+#define lightBlueLower 33
+#define lightBlueUpper 67
+#define lightRedLower 33
+#define lightRedUpper 67
