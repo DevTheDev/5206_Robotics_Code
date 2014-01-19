@@ -32,7 +32,7 @@ bool forwardBackward = false; //back = false
 * returns true if the robot is aligned with the beacon
 */
 bool aligned(){
-	return HTIRS2readDCDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*encoderticks*(numberOfGoals + 1);
+	return HTIRS2readACDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*encoderticks*(numberOfGoals + 1);
 }
 
 bool seeRed(tMUXSensor light){
@@ -130,7 +130,7 @@ task raiseLift(){
 lowers the lift
 */
 task lowerLift(){
-	lift(-100, 3000);
+	lift(-100, 1200);
 	EndTimeSlice();
 }
 
@@ -176,6 +176,7 @@ task main()
 	clearScreen();
 	nxtDisplayCenteredBigTextLine(3, "Ready!");
 	waitForStart();
+	wait1Msec(7000);
 	HTSMUXsetAnalogueActive(msensor_S4_1);
 	HTSMUXsetAnalogueActive(msensor_S4_2);
 	//int autoCount;
@@ -189,13 +190,15 @@ task main()
 
 	bool seenIR = false;
 
-	while(!seenIR || time1[T1] <= 3000){
+#define liftRaiseTime 2000
+
+	while(!seenIR || time1[T1] <= liftRaiseTime){
 		if(aligned()){
 			seenIR = true;
 			driveTurns = nMotorEncoder[RightDr];
 			pause();
 		}
-		if(time1[T1] >= 3000){
+		if(time1[T1] >= liftRaiseTime){
 			motor[LiftFlagMtr] = 0;
 		}
 	}
@@ -220,13 +223,14 @@ task main()
 	while (!aligned()){}
 	pause();
 
-	moveRotations((forwardBackward ? pendulumLength : 720)-driveTurns, -80);
+	int direction = forwardBackward ? 1 : -1;
+	moveRotations(((forwardBackward ? pendulumLength : 720)-driveTurns), direction*80);
 	turnTime(720, -100);
 	reset();
 
-	drive(60);
-	while(!lightAligned()){}
-	pause();
+	//drive(60);
+	//while(!lightAligned()){}
+	//pause();
 
 	move(bridgeSpot, (bridgeSpot > 0 ? 1 : -1) * 80);
 	//while(!lightSense()){
@@ -241,6 +245,9 @@ task main()
 	//	}
 	//}
 	//move(40+bridgeSpot, 80);
+	//turnTime(450, 100);
+	//move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
+	move(40, 80);
 	turnTime(450, 100);
-	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
+	move(60, 80); // Drive onto the ramp
 }

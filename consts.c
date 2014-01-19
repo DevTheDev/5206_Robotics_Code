@@ -73,7 +73,7 @@
 #define distToPend 6.0
 #define maxBridgeDistance encoderticks*120.0
 #define irZone 6
-#define distanceBetweenPend 10
+#define distanceBetweenPend 12
 #define pendulumLength 48
 #define lightBlueLower 19
 #define lightBlueUpper 28
