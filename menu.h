@@ -1,7 +1,8 @@
 /**
  * holds the data for a menu
  */
-#include "joystickdriver.c"
+#include "joystickdriver.c"// disableDiagnosticsDisplay
+
 typedef struct {
 	int itemCount;//the number of items on the menu
 	int selected;//the item number curent selection
@@ -26,7 +27,7 @@ void clearScreen () {
  */
 void displayMenu(Menu menu) {
 	for (int i = 0; i < menu.itemCount; i++) {
-		nxtDisplayCenteredTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s %s", menu.itemNames[i], menu.infos[i]);
+		nxtDisplayCenteredTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s  %s", menu.itemNames[i], menu.infos[i]);
 	}
 }
 
