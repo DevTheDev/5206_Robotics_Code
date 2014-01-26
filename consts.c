@@ -38,7 +38,7 @@
 #define rightintakebck 255
 #define intakestop 127
 #define intakeFast 0
-#define paddlespeedreg 18
+#define paddlespeedreg 21
 #define paddlespeedslow 4
 #define DCstop 0 // full DC motor stop
 #define paddleEOPDThresh 30
