@@ -5,8 +5,8 @@ Library of all functions
 #include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
 #include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
-#include "consts.c"
-#include "robot.c"
+#include "consts.h"
+#include "robot.h"
 #include "menu.h"
 
 

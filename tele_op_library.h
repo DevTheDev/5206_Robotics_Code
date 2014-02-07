@@ -1,6 +1,6 @@
 #include "joystickdriver.c"
-#include "consts.c"
-#include "robot.c"
+#include "consts.h"
+#include "robot.h"
 
 /* -----------------------------------------------
 * -----------------------------------------------
