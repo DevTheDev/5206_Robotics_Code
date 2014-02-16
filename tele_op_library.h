@@ -224,11 +224,11 @@ void manualPaddle()
   }
   else if(paddle2Loaded)
   {
-  	servo[Turbofan] = 127;		
+  	servo[Turbofan] = 153;		
   }
   else if (paddle4Loaded)
   {
-  	servo[Turbofan] = 0;	
+  	servo[Turbofan] = 51;	
   }
 }
 
