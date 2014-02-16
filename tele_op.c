@@ -45,7 +45,7 @@ task main() {
 		getJoystickSettings(joystick);
 		liftAndFlag();
 		singleJoyDrive();
-		Intake();
-		DeployIntake();
+		paddleIntake();
+		deployIntake();
 	}
 }
