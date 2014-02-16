@@ -65,7 +65,7 @@
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
-#define manualPaddleChange 25                               //this needs to be checked
+#define manualPaddleChange 51                               //this needs to be checked
 #define paddleServoLineup 0                                 //this must be checked
 #define joyIntake joystick.joy1_y2
 #define intakeOffset 10                                     //this constant need to be bashed
