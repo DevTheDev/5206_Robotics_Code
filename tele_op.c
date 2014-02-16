@@ -8,7 +8,7 @@
 #pragma config(Motor,  mtr_S1_C3_2,     FlagMtr,       tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     Intake,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     MotorE,        tmotorTetrix, openLoop)                      //no current motor here
-#pragma config(Servo,  srvo_S1_C2_1,    Turbofan,             tServoContinuousRotation)
+#pragma config(Servo,  srvo_S1_C2_1,    Turbofan,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_2,    LeftIntake,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_3,    RightIntake,          tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_4,    servo4,               tServoNone)
