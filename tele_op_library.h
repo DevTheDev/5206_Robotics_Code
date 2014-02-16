@@ -212,11 +212,11 @@ void manualPaddle()
 {
   if(paddleAutoForwardButton)
   {
-  	servo[Turbofan] += 25;	
+  	servo[Turbofan] += 25;	         //can I use += for servos?
   }
   else if(paddleAutoBackwardButton)
   {
-  	servo[Turbofan] -= 25;
+  	servo[Turbofan] -= 25;		//can I use -= for servos?
   }
   else if(paddle0Loaded)
   {
@@ -240,7 +240,7 @@ void paddleIntake()
   if(autoIntakeButton)
   {
   	turnIntake(FORWARD);
-  	//auto paddle routine
+  	//auto paddle routine THIS NEEDS TO BE WRITTEN
   }
   else
   {
