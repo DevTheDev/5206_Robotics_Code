@@ -150,28 +150,23 @@ task Paddle()
 */
 void turnIntake(int dir)
 {
-	if(dir==1) {
-		servoChangeRate[LeftIntake] = intakeFast;
-		servo[LeftIntake] = leftintakefwd;
-
-		servoChangeRate[RightIntake] = intakeFast;
-		servo[RightIntake] = rightintakefwd;
+	if(dir==1) 
+	{
+		motor[Intake] = intakeFast;
 	}
-	else if(dir==-1) {
-		servoChangeRate[LeftIntake] = intakeFast;
-		servo[LeftIntake] = leftintakebck;
-
-		servoChangeRate[RightIntake] = intakeFast;
-		servo[RightIntake] = rightintakebck;
+	else if(dir==-1) 
+	{
+		motor[Intake] = -intakeFast;
 	}
-	else {
-		servo[LeftIntake] = intakestop;
-		servo[RightIntake] = intakestop;
+	else 
+	{
+		motor[Intake] = intakestop;
 	}
 }
 
 /**
 * Tele-op routine for intake
+* DOES THIS FUNCTION SERVE ANY USE ANYMORE? -PARKER
 */
 void Intake()
 {
@@ -187,32 +182,73 @@ void Intake()
 }
 
 /*
-   Turn the turbofan
+  manual intake control
 */
-void Turbofan()
+void manualIntake()
 {
-  if(autoInatkeButton)
+	if (manualIntakeButton) 
+	{
+		turnIntake(FORWARD);
+	}
+	else if (manualOuttakeButton) 
+	{
+		turnIntake(BACKWARD);
+	}
+	else if(abs(joystick.joy1_y2>threshold))
+	{
+		motor[Intake]=joyIntake*intakeSpeedRatio;	
+	}
+	else 
+	{
+		turnIntake(STOP);
+	}
+	
+}
+
+/*
+  manual paddle control
+*/
+void manualPaddle()
+{
+  if()
   {
-  	//do auto turbofan control
+    //manually control the paddle	
   }
   else if(paddle0Loaded)
   {
-  	servo[turbofan] = 255;
+  	servo[Turbofan] = 255;		
   }
   else if(paddle2Loaded)
   {
-  	servo[turbofan] = 127;
+  	servo[Turbofan] = 127;		
   }
-  else if(paddle4Loaded)
+  else if (paddle4Loaded)
   {
-  	servo[turbofan] = 0;
+  	servo[Turbofan] = 0;	
+  }
+}
+
+/*
+   Turn the turbofan
+*/
+void paddleIntake()
+{
+  if(autoIntakeButton)
+  {
+  	turnIntake(FORWARD);
+  	//auto paddle routine
+  }
+  else
+  {
+  	manualIntake();
+  	manualPaddle();
   }
 }
 
 /*
   Deploy the intake
 */
-void DeployIntake()
+void deployIntake()
 {
  if(manualDeployIntake)
  {
