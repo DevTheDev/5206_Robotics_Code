@@ -46,5 +46,6 @@ task main() {
 		liftAndFlag();
 		singleJoyDrive();
 		Intake();
+		DeployIntake();
 	}
 }
