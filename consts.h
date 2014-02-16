@@ -57,6 +57,9 @@
 #define paddleBackButton joystick.joy1_TopHat==6
 #define paddleForwardButton joystick.joy1_TopHat==2
 #define autoIntakeButton joy1Btn(btnY)==1
+#define paddle0Loaded joy1Btn(btnB)==1
+#define paddle2Loaded joy1Btn(btnA)==1
+#define paddle4Loaded joy1Btn(btnX)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
