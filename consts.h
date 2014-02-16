@@ -36,8 +36,8 @@
 #define rightintakefwd 0
 #define leftintakebck 0
 #define rightintakebck 255
-#define intakestop 127
-#define intakeFast 0
+#define intakestop 0
+#define intakeFast 50
 #define intakeSpeedRatio (1.00/128)*50
 #define paddlespeedreg 21
 #define paddlespeedslow 4
@@ -65,8 +65,9 @@
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
+#define manualPaddleChange 25                               //this needs to be checked
 #define joyIntake joystick.joy1_y2
-#define intakeOffset 10
+#define intakeOffset 10                                     //this constant need to be bashed
 #define FORWARD 1
 #define BACKWARD -1
 #define STOP 0
