@@ -212,11 +212,11 @@ void manualPaddle()
 {
   if(paddleAutoForwardButton)
   {
-  	servo[Turbofan] += 25;	         //can I use += for servos?
+  	servo[Turbofan] += manualPaddleChange;	         //can I use += for servos?
   }
   else if(paddleAutoBackwardButton)
   {
-  	servo[Turbofan] -= 25;		//can I use -= for servos?
+  	servo[Turbofan] -= manualPaddleChange;		//can I use -= for servos?
   }
   else if(paddle0Loaded)
   {
@@ -239,8 +239,21 @@ void paddleIntake()
 {
   if(autoIntakeButton)
   {
+  	//auto intake routine
   	turnIntake(FORWARD);
-  	//auto paddle routine THIS NEEDS TO BE WRITTEN
+  	
+  	//auto paddle routine
+  	if (turboTouch)
+  	{
+		ClearTimer(T1);
+		
+		while(time1[T1] < 500){}  		//is this necessary?
+		
+		if(turboTouch)
+		{
+			servo[Turbofan] += 51;			
+		}
+	}
   }
   else
   {
