@@ -38,6 +38,7 @@
 #define rightintakebck 255
 #define intakestop 127
 #define intakeFast 0
+#define intakeSpeedRatio (1.00/128)*50
 #define paddlespeedreg 21
 #define paddlespeedslow 4
 #define DCstop 0 // full DC motor stop
@@ -64,6 +65,7 @@
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
+#define joyIntake joystick.joy1_y2
 #define intakeOffset 10
 #define FORWARD 1
 #define BACKWARD -1
