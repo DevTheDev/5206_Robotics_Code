@@ -1,6 +1,6 @@
 #pragma config(Hubs,  S1, HTMotor,  HTServo,  HTMotor,  HTMotor)
 #pragma config(Sensor, S2,     WannaBeTouch,  sensorAnalogActive) 
-#pragma config(Sensor, S3,     blank,         sensorTouch)                                        //currently no sensor here
+#pragma config(Sensor, S3,     blank,         sensorTouch)                                         //currently no sensor here
 #pragma config(Sensor, S4,     HTSMUX,        sensorI2CCustom)
 #pragma config(Motor,  mtr_S1_C1_1,     LiftFlagMtr,   tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     LeftDr,        tmotorTetrix, openLoop, encoder, reversed)
