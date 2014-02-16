@@ -185,3 +185,19 @@ void Intake()
 		turnIntake(STOP);
 	}
 }
+/*
+  Deploy the intake
+*/
+void DeployIntake()
+{
+ if(manualDeployIntake)
+ {
+ 	servo[RightIntake]=255;
+ 	servo[LeftIntake]=0;
+ }
+ if(manualRetractIntake)
+ {
+ 	servo[RightIntake]=127-intakeOffset;
+ 	servo[LeftIntake]=127+intakeOffset;
+ }
+}
