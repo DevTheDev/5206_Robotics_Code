@@ -182,7 +182,7 @@ void Intake()
 }
 
 /*
-  manual intake control
+* manual intake control
 */
 void manualIntake()
 {
@@ -206,13 +206,17 @@ void manualIntake()
 }
 
 /*
-  manual paddle control
+* manual paddle control
 */
 void manualPaddle()
 {
-  if()
+  if(paddleAutoForwardButton)
   {
-    //manually control the paddle	
+  	servo[Turbofan] += 25;	
+  }
+  else if(paddleAutoBackwardButton)
+  {
+  	servo[Turbofan] -= 25;
   }
   else if(paddle0Loaded)
   {
@@ -229,7 +233,7 @@ void manualPaddle()
 }
 
 /*
-   Turn the turbofan
+* Turn the turbofan
 */
 void paddleIntake()
 {
@@ -246,7 +250,7 @@ void paddleIntake()
 }
 
 /*
-  Deploy the intake
+* Deploy the intake
 */
 void deployIntake()
 {
