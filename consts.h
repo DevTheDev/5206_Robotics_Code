@@ -59,8 +59,8 @@
 #define autoIntakeButton joy1Btn(btnY)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
-#define manualDeployIntake joystick.joy1_TopHat==0
-#define manualRetractIntake joystick.joy1_TopHat==4
+#define manualDeployIntake joystick.joy2_TopHat==0
+#define manualRetractIntake joystick.joy2_TopHat==4
 #define intakeOffset 10
 #define FORWARD 1
 #define BACKWARD -1
