@@ -185,6 +185,30 @@ void Intake()
 		turnIntake(STOP);
 	}
 }
+
+/*
+   Turn the turbofan
+*/
+void Turbofan()
+{
+  if(autoInatkeButton)
+  {
+  	//do auto turbofan control
+  }
+  else if(paddle0Loaded)
+  {
+  	servo[turbofan] = 255;
+  }
+  else if(paddle2Loaded)
+  {
+  	servo[turbofan] = 127;
+  }
+  else if(paddle4Loaded)
+  {
+  	servo[turbofan] = 0;
+  }
+}
+
 /*
   Deploy the intake
 */
