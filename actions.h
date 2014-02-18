@@ -45,8 +45,9 @@ void hold()
 void stopRobot() {
 	motor[LeftDr] = DCstop;
 	motor[RightDr] = DCstop;
-	motor[PaddleMtr] = DCstop;
-	motor[LiftFlagMtr] = DCstop;
+	motor[Turbofan] = DCstop;
+	motor[FlagMtr] = DCstop;
+	motor[LiftMtr] = DCstop;
 	servo[LeftIntake] = intakestop;
 	servo[RightIntake] = intakestop;
 }
@@ -222,17 +223,29 @@ void swing(int degrees, int speed)
 	pause();
 }
 
+/*
+	turn the paddle by the specified amount
+*/
+void turnPaddle(int amount)
+{
+	servo[Turbofan] += amount;
+	if(servo[Turbofan] > 255){
+		servo[Turbofan] = 255;
+	}
+	if(servo[Turbofan] < 0){
+		servo[Turbofan] = 0;
+	}
+}
+
 /**
 * Score the blocks that the robot is carrying
 */
 void scoreBlocks()
 {
 	// TODO: Optimize time
-	motor[PaddleMtr] = 10;
-	wait1Msec(2000);
-	motor[PaddleMtr] = -10;
-	wait1Msec(2000);
-	motor[PaddleMtr] = DCstop;
+	turnPaddle(255);
+	wait1Msec(1000);
+	turnPaddle(-255);
 }
 
 /**
@@ -248,7 +261,7 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 * liftTime: the time for which to lift; if it is greater thab maxLiftTime, then it will lift for maxLiftTime
 */
 void lift(int speed, int liftTime){
-	motor(LiftFlagMtr) = speed;
+	motor(LiftMtr) = speed;
 	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
 }
 

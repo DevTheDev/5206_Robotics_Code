@@ -29,7 +29,7 @@
 // Tele-op constants
 #define joystickRange 128.0 // ?
 #define threshhold 6
-#define constdrivereg 80.0//80.0/128.0
+#define constdrivereg 100.0//80.0/128.0
 #define nearblockconst 36
 #define farblockconst 20
 #define leftintakefwd 255
@@ -37,7 +37,7 @@
 #define leftintakebck 0
 #define rightintakebck 255
 #define intakestop 0
-#define intakeFast 50
+#define intakeFast 100
 #define intakeSpeedRatio (1.00/128)*50
 #define paddlespeedreg 21
 #define paddlespeedslow 4
@@ -52,7 +52,11 @@
 #define turnSensitivity 1 //the sensitivity of turning
 
 // Tele-op bindings
+#define turboButton1 joy1Btn(btnX)==1
+#define turboButton2 joy1Btn(btnA)==1
+#define turboButton3 joy1Btn(btnB)==1
 #define slowButton joy1Btn(btnA)==1
+#define flagButton joy2Btn(btnY)==1
 #define paddleAutoForwardButton joy1Btn(btnRB) ==1
 #define paddleAutoBackButton joy1Btn(btnLB) ==1
 #define paddleBackButton joystick.joy1_TopHat==6
@@ -65,7 +69,7 @@
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
-#define manualPaddleChange 51                               //this needs to be checked
+#define manualPaddleChange 1                               //this needs to be checked
 #define paddleServoLineup 0                                 //this must be checked
 #define joyIntake joystick.joy1_y2
 #define intakeOffset 10                                     //this constant need to be bashed

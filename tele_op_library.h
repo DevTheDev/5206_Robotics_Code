@@ -9,7 +9,7 @@
 * ----------------------------------------------- */
 
 /*void singleJoyDrive();
-void doubleJoyDrive();
+//void doubleJoyDrive();
 void PaddleAndIntake();
 void liftandflag();
 void onePaddleTurn(int speed);
@@ -19,10 +19,7 @@ void onePaddleTurn(int speed);
 * x: TODO
 * y: TODO
 */
-void filteredJoy(float& x, float& y) {
-	x = joystick.joy1_x1;
-	y = joystick.joy1_y1;
-
+void filterJoy(float& x, float& y) {
 	float threshOffset = sqrt(x*x + y*y);
 
 	// If the joystick is inside a circle of radius threshhold set x and y to 0
@@ -38,14 +35,16 @@ void filteredJoy(float& x, float& y) {
 		y /= (joystickRange-threshhold);
 	}
 
+	PlayImmediateTone(y*500*(sinDegrees(time1[T1]/10)+1), 10);
 }
 
 /**
 * Drive from the right joystick
 */
 void singleJoyDrive() {
-	float joyX, joyY;
-	filteredJoy(joyX, joyY);
+	float joyX = joystick.joy1_x1;
+	float joyY = joystick.joy1_y1;
+	filterJoy(joyX, joyY);
 	motor[LeftDr] = (joyY+joyX*turnSensitivity)*constdrivereg;
 	motor[RightDr] = (joyY-joyX*turnSensitivity)*constdrivereg;
 }
@@ -89,177 +88,140 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 /**
 * Tele-op routine for lift motor
 */
-void liftAndFlag()
+void lift()
 {
 	if (abs(joystick.joy2_y2) > threshhold) {
-		motor[LiftFlagMtr] = (joystick.joy2_y2-(joystick.joy2_y2 > 0 ? 1 : -1)*threshhold)/(joystickRange-threshhold)*constdrivereg;
+		motor[LiftMtr] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
 	}
 	else {
-		motor[LiftFlagMtr] = DCstop;
+		motor[LiftMtr] = DCstop;
+	}
+}
+
+void flag(){
+	if (flagButton) {
+		motor[FlagMtr] = 100;
+	}
+	else {
+		motor[FlagMtr] = DCstop;
 	}
 }
 
 /**
-* Turn paddle one carriage
+* Turn paddle the given amount
 */
-void turnPaddle(int initspeed, int finalspeed, int dir)
+void turnPaddle(int amount)
 {
-	motor[PaddleMtr] = dir * initspeed;
+	servo[Turbofan] += amount;
+	if(servo[Turbofan] > 255){
+		servo[Turbofan] = 255;
+	}
+	if(servo[Turbofan] < 0){
+		servo[Turbofan] = 0;
+	}
+}
 
-	ClearTimer(T4);
-
-	wait1Msec(100);
-
-	while(HTEOPDreadProcessed(PaddleEOPD)>paddleEOPDThresh && time1[T4]<3000) {}
-
-	motor[PaddleMtr] = dir * finalspeed;
-
-	while(HTEOPDreadProcessed(PaddleEOPD)<paddleEOPDThresh && time1[T4]<3000) {}
-
-	motor[PaddleMtr] = DCstop;
+int requestedPosition(){
+	if(turboButton1){
+		return 0;
+	}
+	if(turboButton2){
+		return 1;
+	}
+	if(turboButton3){
+		return 2;
+	}
+	return -1;
 }
 
 /**
 * Tele-op routine for paddle
 */
-task Paddle()
+const int positions[3] = {0, 127, 255};
+float turboPos;
+bool autoIntakeOn = false;
+bool autoIntakePressed = false;
+int turboSlot = 0;
+
+void updateButtons(){
+	if(autoIntakeButton){
+		if(!autoIntakePressed){
+			autoIntakeOn = !autoIntakeOn;
+			for(int k = 0; k < 3; k++){
+				if(abs(positions[k] - servo[Turbofan]) < abs(positions[turboSlot] - servo[Turbofan])){
+					turboSlot = k;
+				}
+			}
+		}
+		autoIntakePressed = true;
+	}
+	else{
+		autoIntakePressed = false;
+	}
+}
+
+void paddle()
 {
-	while(true){
-		if (autoIntakeButton && HTEOPDreadProcessed(BlockEOPD) > blockEOPDThresh){
-			turnPaddle(paddlespeedreg, paddlespeedslow, FORWARD);
+	if(!SensorValue[turboTouch]){
+		ClearTimer(T3);
+	}
+	if(autoIntakeOn){
+		servo[Turbofan] = positions[turboSlot];
+	}
+	if (autoIntakeOn && time1[T3] >= 100){
+		PlaySound(soundFastUpwardTones);
+		turboSlot++;
+		turnPaddle(51);
+		ClearTimer(T3);
+	}
+	else{
+		if (paddleAutoForwardButton) {
+			turnPaddle(manualPaddleChange);
 		}
-		else if (abs(joystick.joy1_y2) > threshhold) {
-			motor[PaddleMtr] = joystick.joy1_y2 * paddleratio;
+		if (paddleAutoBackButton) {
+			turnPaddle(-manualPaddleChange);
 		}
-		else if (paddleAutoForwardButton) {
-			turnPaddle(paddlespeedreg, paddlespeedslow, FORWARD);
+		float joyY = joystick.joy1_y2;
+		if(abs(joyY) > threshhold){
+			turboPos += joyY*.01;
+			servo[Turbofan] = turboPos;
 		}
-		else if (paddleAutoBackButton) {
-			turnPaddle(paddlespeedreg, paddlespeedslow, BACKWARD);
+		else{
+			turboPos = servo[Turbofan];
 		}
-		else {
-			motor[PaddleMtr] = DCstop;
+
+		if(requestedPosition() != -1){
+			servo[Turbofan] = positions[requestedPosition()];
 		}
 	}
-	EndTimeSlice();
 }
 
 
 /**
 * Turn intake forward or backward
 */
-void turnIntake(int dir)
+void turnIntake(int speed)
 {
-	if(dir==1) 
-	{
-		motor[Intake] = intakeFast;
-	}
-	else if(dir==-1) 
-	{
-		motor[Intake] = -intakeFast;
-	}
-	else 
-	{
-		motor[Intake] = intakestop;
-	}
+	motor[Intake] = speed;
 }
 
 /**
 * Tele-op routine for intake
 * DOES THIS FUNCTION SERVE ANY USE ANYMORE? -PARKER
+*
+* I updated it for the new hardware - Kyler
 */
-void Intake()
+void intakeBlocks()
 {
-	if (manualIntakeButton || autoIntakeButton) {
-		turnIntake(FORWARD);
+	if (manualIntakeButton || autoIntakeOn) {
+		turnIntake(intakeFast);
 	}
 	else if (manualOuttakeButton) {
-		turnIntake(BACKWARD);
+		turnIntake(-intakeFast);
 	}
 	else {
-		turnIntake(STOP);
+		turnIntake(0);
 	}
-}
-
-/*
-* manual intake control
-*/
-void manualIntake()
-{
-	if (manualIntakeButton) 
-	{
-		turnIntake(FORWARD);
-	}
-	else if (manualOuttakeButton) 
-	{
-		turnIntake(BACKWARD);
-	}
-	else if(abs(joystick.joy1_y2>threshold))
-	{
-		motor[Intake]=joyIntake*intakeSpeedRatio;	
-	}
-	else 
-	{
-		turnIntake(STOP);
-	}
-	
-}
-
-/*
-* manual paddle control
-*/
-void manualPaddle()
-{
-  if(paddleAutoForwardButton)
-  {
-  	servo[Turbofan] += manualPaddleChange;	         //can I use += for servos?
-  }
-  else if(paddleAutoBackwardButton)
-  {
-  	servo[Turbofan] -= manualPaddleChange;		//can I use -= for servos?
-  }
-  else if(paddle0Loaded)
-  {
-  	servo[Turbofan] = 255;		
-  }
-  else if(paddle2Loaded)
-  {
-  	servo[Turbofan] = 153;		
-  }
-  else if (paddle4Loaded)
-  {
-  	servo[Turbofan] = 51;	
-  }
-}
-
-/*
-* Turn the turbofan
-*/
-void paddleIntake()
-{
-  if(autoIntakeButton)
-  {
-  	//auto intake routine
-  	turnIntake(FORWARD);
-  	
-  	//auto paddle routine
-  	if (turboTouch)
-  	{
-		ClearTimer(T1);
-		
-		while(time1[T1] < 500){}  		//is this necessary?
-		
-		if(turboTouch)
-		{
-			servo[Turbofan] += 51;			
-		}
-	}
-  }
-  else
-  {
-  	manualIntake();
-  	manualPaddle();
-  }
 }
 
 /*
