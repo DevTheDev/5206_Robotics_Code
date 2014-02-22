@@ -1,14 +1,15 @@
 #pragma config(Hubs,  S1, HTMotor,  HTServo,  HTMotor,  HTMotor)
-#pragma config(Sensor, S2,     turboTouch,  sensorTouch)
-#pragma config(Sensor, S3,     blank,         sensorTouch)                                         //currently no sensor here
-#pragma config(Sensor, S4,     HTSMUX,        sensorI2CCustom)
-#pragma config(Motor,  mtr_S1_C1_1,     LiftMtr,   tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C3_2,     LeftDr,        tmotorTetrix, openLoop, encoder, reversed)
-#pragma config(Motor,  mtr_S1_C3_1,     RightDr,       tmotorTetrix, openLoop, encoder)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S2,     turboTouch,     sensorTouch)
+#pragma config(Sensor, S3,     blank,          sensorTouch)
+#pragma config(Sensor, S4,     HTSMUX,         sensorI2CCustom)
+#pragma config(Motor,  mtr_S1_C1_1,     LiftMtr1,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     FlagMtr,       tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C3_1,     RightDr,       tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C3_2,     LeftDr,        tmotorTetrix, openLoop, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C4_1,     LiftMtr2,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     Intake,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     MotorE,        tmotorTetrix, openLoop)                      //no current motor here
-#pragma config(Servo,  srvo_S1_C2_1,    Turbofan,            tServoStandard)
+#pragma config(Servo,  srvo_S1_C2_1,    Turbofan,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_2,    LeftIntake,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_3,    RightIntake,          tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_4,    servo4,               tServoNone)
@@ -50,13 +51,16 @@ void activateResetMenu(int f){
 		case 0: //lift
 			switch(f){
 				default:
-					motor[LiftMtr] = 0;
+					motor[LiftMtr1] = 0;
+					motor[LiftMtr2] = 0;
 					break;
 				case 0:
-					motor[LiftMtr]=-100;
+					motor[LiftMtr1] = -100;
+					motor[LiftMtr2] = -100;
 					break;
 				case 1:
-					motor[LiftMtr]=100;
+					motor[LiftMtr1] = 100;
+					motor[LiftMtr2] = 100;
 					break;
 			}
 			break;

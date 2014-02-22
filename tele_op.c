@@ -2,12 +2,12 @@
 #pragma config(Sensor, S2,     turboTouch,  sensorTouch)
 #pragma config(Sensor, S3,     blank,         sensorTouch)                                         //currently no sensor here
 #pragma config(Sensor, S4,     HTSMUX,        sensorI2CCustom)
-#pragma config(Motor,  mtr_S1_C1_1,     LiftMtr,   tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C1_1,     LiftMtr1,   tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     LeftDr,        tmotorTetrix, openLoop, encoder, reversed)
 #pragma config(Motor,  mtr_S1_C3_1,     RightDr,       tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     FlagMtr,       tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     Intake,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     MotorE,        tmotorTetrix, openLoop)                      //no current motor here
+#pragma config(Motor,  mtr_S1_C4_1,     LiftMtr2,        tmotorTetrix, openLoop)                      //no current motor here
 #pragma config(Servo,  srvo_S1_C2_1,    Turbofan,            tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_2,    LeftIntake,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_3,    RightIntake,          tServoStandard)

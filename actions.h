@@ -47,7 +47,8 @@ void stopRobot() {
 	motor[RightDr] = DCstop;
 	motor[Turbofan] = DCstop;
 	motor[FlagMtr] = DCstop;
-	motor[LiftMtr] = DCstop;
+	motor[LiftMtr1] = DCstop;
+	motor[LiftMtr2] = DCstop;
 	servo[LeftIntake] = intakestop;
 	servo[RightIntake] = intakestop;
 }
@@ -261,7 +262,8 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 * liftTime: the time for which to lift; if it is greater thab maxLiftTime, then it will lift for maxLiftTime
 */
 void lift(int speed, int liftTime){
-	motor(LiftMtr) = speed;
+	motor[LiftMtr1] = speed;
+	motor[LiftMtr2] = speed;
 	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
 }
 

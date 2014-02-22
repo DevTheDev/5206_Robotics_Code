@@ -91,10 +91,12 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 void lift()
 {
 	if (abs(joystick.joy2_y2) > threshhold) {
-		motor[LiftMtr] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
+		motor[LiftMtr1] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
+		motor[LiftMtr2] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
 	}
 	else {
-		motor[LiftMtr] = DCstop;
+		motor[LiftMtr1] = DCstop;
+		motor[LiftMtr2] = DCstop;
 	}
 }
 
