@@ -17,7 +17,7 @@ void loadSong(const string &fileName, song &s){
 	TFileHandle file;
 	TFileIOResult result;
 	word fileSize;
-	OpenRead(file, result, fileName, realFileSize);
+	OpenRead(file, result, fileName, fileSize);
 	for(int i = 0; i < fileSize/(1+4+4); i++){
 		ReadByte(file, result, s.keys[i]);
 		ReadLong(file, result, s.times[i]);

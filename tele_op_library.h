@@ -170,7 +170,7 @@ void paddle()
 	if(autoIntakeOn){
 		servo[Turbofan] = positions[turboSlot];
 	}
-	if (autoIntakeOn && time1[T3] >= 100){
+	if (autoIntakeOn && time1[T3] >= 50){
 		PlaySound(soundFastUpwardTones);
 		turboSlot++;
 		turnPaddle(51);

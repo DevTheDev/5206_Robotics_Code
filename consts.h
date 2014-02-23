@@ -37,7 +37,7 @@
 #define leftintakebck 0
 #define rightintakebck 255
 #define intakestop 0
-#define intakeFast 100
+#define intakeFast 42
 #define intakeSpeedRatio (1.00/128)*50
 #define paddlespeedreg 21
 #define paddlespeedslow 4
@@ -93,3 +93,4 @@
 #define lightBlueUpper 28
 #define lightRedLower 40
 #define lightRedUpper 50
+#define lightFileName "Aaaaarrrrrrggghhh.config"
