@@ -35,7 +35,7 @@ void filterJoy(float& x, float& y) {
 		y /= (joystickRange-threshhold);
 	}
 
-	PlayImmediateTone(y*500*(sinDegrees(time1[T1]/10)+1), 10);
+	//PlayImmediateTone((y+1.0)*440*(sinDegrees(time1[T1]/5)+2), 10);
 }
 
 /**
@@ -102,7 +102,10 @@ void lift()
 
 void flag(){
 	if (flagButton) {
-		motor[FlagMtr] = 100;
+		motor[FlagMtr] = flagSpeed;
+	}
+	else if (flagBackButton){
+		motor[FlagMtr] = -flagSpeed;
 	}
 	else {
 		motor[FlagMtr] = DCstop;
@@ -162,21 +165,31 @@ void updateButtons(){
 	}
 }
 
+bool touched = false;
+
 void paddle()
 {
 	if(!SensorValue[turboTouch]){
 		ClearTimer(T3);
 	}
 	if(autoIntakeOn){
+		writeDebugStreamLine("NOM: %d", turboSlot);
 		servo[Turbofan] = positions[turboSlot];
 	}
-	if (autoIntakeOn && time1[T3] >= 50){
-		PlaySound(soundFastUpwardTones);
-		turboSlot++;
-		turnPaddle(51);
-		ClearTimer(T3);
+	if (autoIntakeOn && time1[T3] >= nomWait){
+		if(!touched && time1[T4] >= omWait){
+			PlaySound(soundFastUpwardTones);
+			if (turboSlot < 3-1){
+				turboSlot++;
+			}
+			turnPaddle(51);
+			ClearTimer(T3);
+			ClearTimer(T4);
+		}
+		touched = true;
 	}
 	else{
+		touched = false;
 		if (paddleAutoForwardButton) {
 			turnPaddle(manualPaddleChange);
 		}
@@ -233,12 +246,12 @@ void deployIntake()
 {
  if(manualDeployIntake)
  {
- 	servo[RightIntake]=255;
- 	servo[LeftIntake]=0;
+ 	servo[RightIntake]=255 - intakeOffset;
+ 	servo[LeftIntake]=0 + intakeOffset;
  }
  if(manualRetractIntake)
  {
- 	servo[RightIntake]=127-intakeOffset;
- 	servo[LeftIntake]=127+intakeOffset;
+ 	servo[RightIntake]= 0;
+ 	servo[LeftIntake]= 255;
  }
 }

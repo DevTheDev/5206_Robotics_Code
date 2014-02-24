@@ -26,27 +26,26 @@ const tMUXSensor AutoIR = msensor_S4_3;
 // Includes consts.c and robot.c, as well
 // Drivers can be found in Google Drive
 int driveTurns;
-int waittime = 0;
-#define options 5
+#define options 4
 typedef string strArray[options];
+int waittime = 0;
 int numberOfGoals = 4;
 int bridgeSpot = 0;
 bool forwardBackward = false; //back = false
-bool leftRight = true; //back = false
-bool noIR = false;
 /**
 * returns true if the robot is aligned with the beacon
 */
 bool aligned(){
-	noIR = nMotorEncoder[RightDr] >= distanceBetweenPend*encodersPerInch*(numberOfGoals + 1);
-	return HTIRS2readACDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*encodersPerInch*(numberOfGoals + 1);
+	return HTIRS2readACDir(AutoIR) == irZone || nMotorEncoder[RightDr] > distanceBetweenPend*encoderticks*(numberOfGoals + 1);
 }
 
-bool seeWhite(tMUXSensor light, float lightThrash){
-	return LSvalNorm(light) >= lightThrash; //White is the greatest - Kyler Natividad
+bool seeRed(tMUXSensor light){
+	return LSvalNorm(light) >= lightRedLower && LSvalNorm(light) <= lightRedUpper;
 }
 
-
+bool seeBlu(tMUXSensor light){
+	return LSvalNorm(light) >= lightBlueLower && LSvalNorm(light) <= lightBlueUpper;
+}
 
 ///**
 //* returns true if both light sensors see red or blue
@@ -59,12 +58,10 @@ bool seeWhite(tMUXSensor light, float lightThrash){
 /**
 * returns true if both light sensors see red or both see blue
 */
-
-typedef float floatarr[2];
-
-bool lightAligned(floatarr threshs){
-	return (!seeWhite(LightBack, threshs[0]) && seeWhite(LightFront, threshs[1])) ||
-				 nMotorEncoder[RightDr] > maxBridgeDistance;
+bool lightAligned(){
+	return (seeRed(LightBack) && seeBlu(LightFront)) ||
+	(seeBlu(LightBack) && seeRed(LightFront)) ||
+	nMotorEncoder[RightDr] > maxBridgeDistance;
 }
 
 Menu autoChooser;
@@ -103,13 +100,9 @@ void activateautoChooser(int f){
 		break;
 	case 1:
 		forwardBackward = !forwardBackward;
-		autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
+	autoChooser.infos[1] = forwardBackward ? "Forward" : "Backward";
 		break;
 	case 2:
-		leftRight = !leftRight;
-		autoChooser.infos[2] = leftRight ? "Forward" : "Backward";
-		break;
-	case 3:
 		switch (f){
 		case 0:
 			bridgeSpot--;
@@ -118,19 +111,15 @@ void activateautoChooser(int f){
 			bridgeSpot++;
 			break;
 		case 2:
-			bridgeSpot -= 3;
+			bridgeSpot -= 10;
 			break;
 		case 3:
-			bridgeSpot += 3;
+			bridgeSpot += 10;
 			break;
 		}
-		numberOfGoals %= nBS;
-		if(numberOfGoals < 0){
-			numberOfGoals += nBS;
-		}
-		StringFormat(autoChooser.infos[3], "%d", bridgeSpot+1);
+		StringFormat(autoChooser.infos[2], "%d", bridgeSpot);
 		break;
-	case 4:
+	case 3:
 		switch (f){
 		case 0:
 			waittime--;
@@ -145,7 +134,7 @@ void activateautoChooser(int f){
 			waittime += 10;
 			break;
 		}
-		StringFormat(autoChooser.infos[4], "%d", waittime);
+		StringFormat(autoChooser.infos[3], "%d", waittime);
 		break;
 	}
 }
@@ -166,22 +155,15 @@ task lowerLift(){
 	EndTimeSlice();
 }
 
-//returns true unless noIR is true and the robot has turned 90 deg
-bool stuff(){
-	return !noIR || time1[T2] <= 720;
-}
-
 task main()
 {
-	servo[RightIntake] = 127 - intakeOffset;
-	servo[LeftIntake] = 127 + intakeOffset;
+	servo[RightIntake] = 0 + intakeOffset;
+	servo[LeftIntake] = 255 - intakeOffset;
 	servo[Turbofan] = 127;
-	float heavyHolds[2];
-	heavyHolds = lightSet();
 	// Wait for start
 	initializeRobot();
-	string itemNames[options] = {"Max Goals", "Ford Bkrd", "Left Right", "Bridge Park", "Wait"};
-	string infos[options] = {"5", "Backward", "Forward", "1", "0"};
+	string itemNames[options] = {"Max Goals", "Dir", "Bridge Park", "Wait"};
+	string infos[options] = {"5", "Backward", "0", "0"};
 	initautoChooser(itemNames, infos);
 
 	clearScreen();
@@ -218,8 +200,8 @@ task main()
 	clearScreen();
 	nxtDisplayCenteredBigTextLine(3, "Ready!");
 	waitForStart();
-	wait1Msec(waittime*1000);
-	//wait1Msec(7000);
+	wait1Msec(1000*waittime);
+	//wait1Msec(0);
 	HTSMUXsetAnalogueActive(msensor_S4_1);
 	HTSMUXsetAnalogueActive(msensor_S4_2);
 	//int autoCount;
@@ -227,17 +209,15 @@ task main()
 	// Drive to pendulum goal
 	//StartTask(raiseLift); //Raise the BSM
 	motor[LiftMtr1] = 100; //Raise the BSM
-	motor[LiftMtr2] = 100;
+	motor[LiftMtr2] = 100; //Raise the BSM
 	ClearTimer(T1);
 	reset();
-	writeDebugStreamLine("pre-drive pass");
-	drive((leftRight ? 1 : -1)*50);
+	drive(50);
 
 	bool seenIR = false;
 
 #define liftRaiseTime 4000
-	writeDebugStreamLine("%d",HTIRS2readACDir(AutoIR));
-	writeDebugStreamLine("%d",numberOfGoals);
+
 	while(!seenIR || time1[T1] <= liftRaiseTime){
 		if(aligned()){
 			seenIR = true;
@@ -253,51 +233,51 @@ task main()
 	motor[LiftMtr2] = 0;
 
 	// Drive to pendulum
-	turnTime(800, -100);
-  //motor[LeftDr] = 50;
-  //wait1Msec(100);
-  //motor[LeftDr] = DCstop;
+	turnTime(650, -100);
+	//motor[LeftDr] = 50;
+	//wait1Msec(100);
+	//motor[LeftDr] = DCstop;
 	wait1Msec(100);
-	move(13, 40);
+	move(10, 40);
 	wait1Msec(100);
 	// Score the block
 	scoreBlocks();
-	wait1Msec(100);
+	// Drive to ramp
 	move(-9, -40);// Back away from the goal
 	//StartTask(lowerLift);// Begin to lower the BSM
 	wait1Msec(100);
 
-  turn(40);
-  ClearTimer(T2);
-	while (!aligned() && stuff()){}
+	turn(40);
+	while (!aligned()){}
 	pause();
 
-	int direction = forwardBackward ? 1 : -1;
-	// TODO: rewrite code below when not doing math
-	moveRotations(((forwardBackward ? pendulumLength*encodersPerInch : 720)-((leftRight ? 0 : pendulumLength*encodersPerInch)+driveTurns)), direction*80);
-	//moveRotations(((forwardBackward ? pendulumLength : 200)-driveTurns), direction*80);
-	turnTime(1000, -100);
+int direction = forwardBackward ? 1 : -1;
+moveRotations(((forwardBackward ? pendulumLength : 720)-driveTurns), direction*80);
+	turnTime(750, -100);
 	reset();
 
-	move(bridgeSpot, (bridgeSpot > 0 ? 1 : -1) * 80);
-	move(40, 80);
+	//drive(60);
+	//while(!lightAligned()){}
+	//pause();
 
-	turnTime(450, 100);
-	move(60, 80); // Drive onto the ramp
-	/*turnTime(720, -100);
-	reset();
-	*/
-	/*drive(60);
-	while(!lightAligned(heavyHolds)){}
-	pause();
-*//*
-	move(bridgeSpot*distBetweenBS, 80);
-
-	turnTime(450, 100);
-
-	move(40, 80);
-	move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp*/
-	//move(40, 80);
-	//turnTime(450, 100);
-	//move(60, 80); // Drive onto the ramp
+move(bridgeSpot, (bridgeSpot > 0 ? 1 : -1) * 80);
+	//while(!lightSense()){
+	//	if (lightSense()){
+	//		pause();
+	//
+	motor[LiftMtr1] = 0;
+	motor[LiftMtr2] = 0;
+//}
+//turn(60);
+//while(!lightAligned()){
+//	if (lightAligned()){
+//		pause();
+//	}
+//}
+//move(40+bridgeSpot, 80);
+//turnTime(450, 100);
+//move((forwardBackward ? -1 : 1)*40, 80); // Drive onto the ramp
+move(40, 80);
+turnTime(450, 100);
+move(40, 80); // Drive onto the ramp
 }

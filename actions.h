@@ -225,7 +225,7 @@ void swing(int degrees, int speed)
 }
 
 /*
-	turn the paddle by the specified amount
+turn the paddle by the specified amount
 */
 void turnPaddle(int amount)
 {
@@ -244,9 +244,12 @@ void turnPaddle(int amount)
 void scoreBlocks()
 {
 	// TODO: Optimize time
-	turnPaddle(255);
+	servo[Turbofan] = 0;
 	wait1Msec(1000);
-	turnPaddle(-255);
+	servo[Turbofan] = 255;
+	wait1Msec(1000);
+	servo[Turbofan] = 0;
+	wait1Msec(1000);
 }
 
 /**
@@ -264,9 +267,33 @@ bool EOPDDetect(tSensors EOPD, int eopdetect) {
 void lift(int speed, int liftTime){
 	motor[LiftMtr1] = speed;
 	motor[LiftMtr2] = speed;
-	wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
+wait1Msec((liftTime < maxLiftTime) ? liftTime : maxLiftTime);
 }
 
+
+typedef float floatarr[2];
+
+floatarr lightSet(){
+	long lightWhiteFront = 47;
+	long lightWhiteBack = 50;
+	long lightGrayFront = 30;
+	long lightGrayBack = 32;
+	/*TFileHandle file;
+	TFileIOResult result;
+	int fileSize = 0;
+	OpenRead(file, result, "test.txt", fileSize);
+	ReadLong(file, result, lightWhiteBack);
+	ReadLong(file, result, lightWhiteFront);
+	ReadLong(file, result, lightGrayBack);
+	ReadLong(file, result, lightGrayFront);
+	writeDebugStreamLine("%.1d, %.1d, %.1d, %.1d", lightWhiteBack, lightWhiteFront, lightGrayBack, lightGrayFront);
+	Close(file, result);
+	*/
+	float lightholds[2];
+	lightholds[0] = (lightWhiteBack + lightGrayBack)/ 2;
+	lightholds[1] = (lightWhiteFront + lightGrayFront)/ 2;
+	return lightholds;
+}
 /**
 * Use to multitask the lift
 * Up = True

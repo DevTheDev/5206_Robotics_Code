@@ -37,7 +37,10 @@ const tMUXSensor AutoIR = msensor_S4_3;
  *  Button A - move lift up slightly
  */
 
+//#define wavey 10.0
+
 task main() {
+	//writeDebugStreamLine("OM");
 	initializeRobot();
 //	initializeRobotnext();
 
@@ -45,6 +48,11 @@ task main() {
 
 	waitForStart(); // wait for start of tele-op phase
 	while(true){
+		/*string wave = "";
+		for(int a = 0; a <= wavey; a++){
+			strcat(wave, (a == round(wavey/2*(1+sin(time1[T1]/10.0))) ? "#" : " "));
+		}
+		writeDebugStreamLine(wave);*/
 		updateButtons();
 		paddle();
 		getJoystickSettings(joystick);

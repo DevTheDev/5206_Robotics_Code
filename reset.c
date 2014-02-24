@@ -110,29 +110,29 @@ void activateResetMenu(int f){
 		case 4:
 			switch(f){
 				case 0:
-					servo[RightIntake] = 255;
-					servo[LeftIntake] = 0;
+					servo[RightIntake] = 255-intakeOffset;
+					servo[LeftIntake] = 0+intakeOffset;
 					break;
 				case 1:
-					servo[RightIntake] = 127 - intakeOffset;
-					servo[LeftIntake] = 127 + intakeOffset;
+					servo[RightIntake] = 0;// + intakeOffset;
+					servo[LeftIntake] = 255;// - intakeOffset;
 			}
 			break;
 		case 5:
 			TFileHandle file;
 			TFileIOResult result;
-			word fileSize;
+			int fileSize = 16;
 			switch(f){
 				default:
 					break;
-				case 0:
-					Delete(lightFileName, result);
+				case 2:
+					Delete("test.txt", result);
 					PlaySound(soundException);
 					break;
-				case 1:
-					OpenWrite(file, result, lightFileName, fileSize);
-					WriteFloat(file, result, LSvalNorm(LightBack));
-					WriteFloat(file, result, LSvalNorm(LightFront));
+				case 3:
+					OpenWrite(file, result, "test.txt", fileSize);
+					WriteLong(file, result, LSvalNorm(LightBack));
+					WriteLong(file, result, LSvalNorm(LightFront));
 					Close(file, result);
 					PlaySound(soundFastUpwardTones);
 					break;
@@ -142,12 +142,14 @@ void activateResetMenu(int f){
 }
 
 void updateResetInfos(){
-	StringFormat(resetMenu.infos[4], "%f, %f", LSvalNorm(LightBack), LSvalNorm(LightFront));
+	StringFormat(resetMenu.infos[5], "%d, %d", LSvalNorm(LightBack), LSvalNorm(LightFront));
 }
 
 task main()
 {
-	string itemNames[options] = {"Lift", "Flag", "Turbofan", "Intake", "Flip Out", "Config Light"};
+	HTSMUXsetAnalogueActive(msensor_S4_1);
+	HTSMUXsetAnalogueActive(msensor_S4_2);
+	string itemNames[options] = {"Lift", "Flag", "Turbofan", "Intake", "Flip Out", "LitCfg"};
 	string infos[options] = {"", "", "", "", "", "0"};
 	initResetMenu(itemNames, infos);
 	clearScreen();
@@ -157,8 +159,14 @@ task main()
 		if(pressed(orangebutton)){
 			selectNext(resetMenu);
 		}
+		else if(pressed(leftarrow)){
+			activateResetMenu(2);
+		}
 
-		if(held(leftarrow, 1)){
+		else if(pressed(rightarrow)){
+			activateResetMenu(3);
+		}
+		else if(held(leftarrow, 1)){
 			activateResetMenu(0);
 		}
 

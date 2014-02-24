@@ -14,6 +14,7 @@
 #define scoredist 20
 #define timeSpeedPerDegrees 10 // the time * speed / angle of the robots turns
 #define maxAccel 10
+#define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
 
 // Joystick buttons
 #define btnX 1
@@ -37,7 +38,7 @@
 #define leftintakebck 0
 #define rightintakebck 255
 #define intakestop 0
-#define intakeFast 42
+#define intakeFast 100
 #define intakeSpeedRatio (1.00/128)*50
 #define paddlespeedreg 21
 #define paddlespeedslow 4
@@ -50,21 +51,25 @@
 #define paddleFastTime 1000 // the time the paddle runs before slowing down for the sensor
 #define maxLiftTime 10000 //The time it takes the lift to go all the way up or down
 #define turnSensitivity 1 //the sensitivity of turning
+#define flagSpeed 100
+#define nomWait 20
+#define omWait 500
 
 // Tele-op bindings
 #define turboButton1 joy1Btn(btnX)==1
 #define turboButton2 joy1Btn(btnA)==1
 #define turboButton3 joy1Btn(btnB)==1
 #define slowButton joy1Btn(btnA)==1
-#define flagButton joy2Btn(btnY)==1
+#define flagButton joy2Btn(btnA)==1
+#define flagBackButton joy2Btn(btnX)==1
 #define paddleAutoForwardButton joy1Btn(btnRB) ==1
 #define paddleAutoBackButton joy1Btn(btnLB) ==1
 #define paddleBackButton joystick.joy1_TopHat==6
 #define paddleForwardButton joystick.joy1_TopHat==2
 #define autoIntakeButton joy1Btn(btnY)==1
 #define paddle0Loaded joy1Btn(btnB)==1
-#define paddle2Loaded joy1Btn(btnA)==1
-#define paddle4Loaded joy1Btn(btnX)==1
+#define paddle2Loaded joy1Btn(btnY)==1
+#define paddle4Loaded joy1Btn(btnA)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
@@ -87,10 +92,13 @@
 #define distToPend 6.0
 #define maxBridgeDistance encoderticks*120.0
 #define irZone 6
-#define distanceBetweenPend 12
+#define distanceBetweenPend 10
 #define pendulumLength 48
 #define lightBlueLower 19
 #define lightBlueUpper 28
 #define lightRedLower 40
 #define lightRedUpper 50
-#define lightFileName "Aaaaarrrrrrggghhh.config"
+#define bridgeWidth 48
+#define nBS 6
+#define distBetweenBS bridgeWidth/nBS
+#define lightFileName "Aaaaarrrrrrggghhh.txt"
