@@ -90,7 +90,7 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 */
 void lift()
 {
-	if (abs(joystick.joy2_y2) > threshhold) {
+	if (abs(liftControl) > threshhold) {
 		motor[LiftMtr1] = (liftControl-threshhold*liftControl/abs(liftControl))/(joystickRange-threshhold)*constdrivereg;
 		motor[LiftMtr2] = (liftControl-threshhold*liftControl/abs(liftControl))/(joystickRange-threshhold)*constdrivereg;
 	}

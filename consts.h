@@ -65,28 +65,18 @@
 #define turboButton1 joy1Btn(btnX)==1
 #define turboButton2 joy1Btn(btnA)==1
 #define turboButton3 joy1Btn(btnB)==1
-#define slowButton joy1Btn(btnA)==1
 #define flagButton joy2Btn(btnA)==1
 #define flagBackButton joy2Btn(btnX)==1
 #define paddleAutoForwardButton joy1Btn(btnRB) ==1
 #define paddleAutoBackButton joy1Btn(btnLB) ==1
-#define paddleBackButton joystick.joy1_TopHat==6
-#define paddleForwardButton joystick.joy1_TopHat==2
 #define autoIntakeButton joy1Btn(btnY)==1
-#define paddle0Loaded joy1Btn(btnB)==1
-#define paddle2Loaded joy1Btn(btnY)==1
-#define paddle4Loaded joy1Btn(btnA)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
 #define manualPaddleChange 1                               //this needs to be checked
-#define paddleServoLineup 0                                 //this must be checked
-#define joyIntake joystick.joy1_y2
+
 #define intakeOffset 10                                     //this constant need to be bashed
-#define FORWARD 1
-#define BACKWARD -1
-#define STOP 0
 
 #else//people driving teleop
 
@@ -97,29 +87,16 @@
 #define turboButton1 joy1Btn(btnX)==1
 #define turboButton2 joy1Btn(btnA)==1
 #define turboButton3 joy1Btn(btnB)==1
-#define slowButton joy1Btn(btnA)==1
 #define flagButton joy2Btn(btnA)==1
 #define flagBackButton joy2Btn(btnX)==1
 #define paddleAutoForwardButton joy1Btn(btnRB) ==1
 #define paddleAutoBackButton joy1Btn(btnLB) ==1
-#define paddleBackButton joystick.joy1_TopHat==6
-#define paddleForwardButton joystick.joy1_TopHat==2
 #define autoIntakeButton joy1Btn(btnY)==1
-#define paddle0Loaded joy1Btn(btnB)==1
-#define paddle2Loaded joy1Btn(btnY)==1
-#define paddle4Loaded joy1Btn(btnA)==1
 #define manualIntakeButton joy1Btn(btnRT)==1
 #define manualOuttakeButton joy1Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
-#define manualPaddleChange 1                               //this needs to be checked
-#define paddleServoLineup 0                                 //this must be checked
-#define joyIntake joystick.joy1_y2
-#define intakeOffset 10                                     //this constant need to be bashed
-#define FORWARD 1
-#define BACKWARD -1
-#define STOP 0
-
+#define manualPaddleChange 1
 #endif
 
 // NXT buttons
