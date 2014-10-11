@@ -196,7 +196,7 @@ void paddle()
 		if (paddleAutoBackButton) {
 			turnPaddle(-manualPaddleChange);
 		}
-		float joyY = joystick.joy1_y2;
+		float joyY = turboAnalog;
 		if(abs(joyY) > threshhold){
 			turboPos += joyY*.01;
 			servo[Turbofan] = turboPos;
