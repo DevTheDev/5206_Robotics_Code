@@ -1,11 +1,11 @@
 /*!
- * robot.c
- * initialize the robot and build a model of it via structs
- */
-#include "consts.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
+* robot.c
+* initialize the robot and build a model of it via structs
+*/
+#include "consts.h"\
+#include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"\
+#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"\
+#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"\
 
 // Robot's wheel
 typedef struct {
@@ -33,8 +33,8 @@ typedef struct {
 Robot robot;
 
 /**
- * Initilizes all the values and gets the robot ready to go
- */
+* Initilizes all the values and gets the robot ready to go
+*/
 void initializeRobot()
 {
 	// Set robot values

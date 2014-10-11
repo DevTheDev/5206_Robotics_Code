@@ -2,12 +2,12 @@
 Library of all functions
 */
 
-#include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"
-#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"
-#include "consts.h"
-#include "robot.h"
-#include "menu.h"
+#include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"\
+#include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"\
+#include "3rd Party Sensor Drivers/drivers/hitechnic-eopd.h"\
+#include "consts.h"\
+#include "robot.h"\
+#include "menu.h"\
 
 
 /**
@@ -115,7 +115,7 @@ void moveRotations(float rotations, int speed)
 */
 void move(float inches, int speed)
 {
-	int rotations = inches * 1440.0 / robot.wheel.circumference * robot.wheel.dRatio;
+	int rotations = inches * 1440.0 / robot.wheel.circumference * robot.wheel.dRatio;\
 
 	reset();
 
