@@ -42,8 +42,8 @@ void filterJoy(float& x, float& y) {
 * Drive from the right joystick
 */
 void singleJoyDrive() {
-	float joyX = joystick.joy1_x1;
-	float joyY = joystick.joy1_y1;
+	float joyX = driveX;
+	float joyY = driveY;
 	filterJoy(joyX, joyY);
 	motor[LeftDr] = (joyY+joyX*turnSensitivity)*constdrivereg;
 	motor[RightDr] = (joyY-joyX*turnSensitivity)*constdrivereg;
@@ -91,8 +91,8 @@ motor[RightDr] = (abs(joystick.joy1_y2) > threshhold) ? joystick.joy1_y2*constdr
 void lift()
 {
 	if (abs(joystick.joy2_y2) > threshhold) {
-		motor[LiftMtr1] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
-		motor[LiftMtr2] = (joystick.joy2_y2-threshhold*joystick.joy2_y2/abs(joystick.joy2_y2))/(joystickRange-threshhold)*constdrivereg;
+		motor[LiftMtr1] = (liftControl-threshhold*liftControl/abs(liftControl))/(joystickRange-threshhold)*constdrivereg;
+		motor[LiftMtr2] = (liftControl-threshhold*liftControl/abs(liftControl))/(joystickRange-threshhold)*constdrivereg;
 	}
 	else {
 		motor[LiftMtr1] = DCstop;

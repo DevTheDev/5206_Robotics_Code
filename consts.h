@@ -56,7 +56,11 @@
 #define omWait 500
 
 // Tele-op bindings
-#ifdef normal_teleop
+#ifdef normal_teleop//us driving the robot
+
+#define driveX joystick.joy1_x1
+#define driveY joystick.joy1_y1
+#define liftControl joystick.joy2_y2
 #define turboButton1 joy1Btn(btnX)==1
 #define turboButton2 joy1Btn(btnA)==1
 #define turboButton3 joy1Btn(btnB)==1
@@ -83,15 +87,14 @@
 #define BACKWARD -1
 #define STOP 0
 
-#else
+#else//people driving teleop
 
-akfjakfjkajsdkjaksdad;
-#define turboButton1 joy2Btn(btnX)==1
-#define turboButton2 joy2Btn(btnA)==1
-#define turboButton3 joy2Btn(btnB)==1
+#define turboButton1 joy1Btn(btnX)==1
+#define turboButton2 joy1Btn(btnA)==1
+#define turboButton3 joy1Btn(btnB)==1
 #define slowButton joy1Btn(btnA)==1
-#define flagButton joy2Btn(btnA)==1
-#define flagBackButton joy2Btn(btnX)==1
+#define flagButton joy1Btn(btnA)==1
+#define flagBackButton joy1Btn(btnX)==1
 #define paddleAutoForwardButton joy1Btn(btnRB) ==1
 #define paddleAutoBackButton joy1Btn(btnLB) ==1
 #define paddleBackButton joystick.joy1_TopHat==6
