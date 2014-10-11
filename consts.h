@@ -97,6 +97,9 @@
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
 #define manualPaddleChange 1
+
+#define intakeOffset 10
+
 #endif
 
 // NXT buttons
