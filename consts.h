@@ -1,4 +1,3 @@
-#pragma once
 /*!
  * consts.c
  * store all the consts used in one place
