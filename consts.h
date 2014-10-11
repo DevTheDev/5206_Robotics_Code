@@ -84,16 +84,16 @@
 #define driveY joystick.joy1_y1
 #define turboAnalog joystick.joy2_y1
 #define liftControl joystick.joy2_y2
-#define turboButton1 joy1Btn(btnX)==1
-#define turboButton2 joy1Btn(btnA)==1
-#define turboButton3 joy1Btn(btnB)==1
-#define flagButton joy2Btn(btnA)==1
-#define flagBackButton joy2Btn(btnX)==1
-#define paddleAutoForwardButton joy1Btn(btnRB) ==1
-#define paddleAutoBackButton joy1Btn(btnLB) ==1
-#define autoIntakeButton joy1Btn(btnY)==1
-#define manualIntakeButton joy1Btn(btnRT)==1
-#define manualOuttakeButton joy1Btn(btnLT)==1
+#define turboButton1 joy2Btn(btnX)==1
+#define turboButton2 joy2Btn(btnA)==1
+#define turboButton3 joy2Btn(btnB)==1
+#define flagButton joystick.joy2_TopHat == 6
+#define flagBackButton joystick.joy2_TopHat == 2
+#define paddleAutoForwardButton joy2Btn(btnRB) ==1
+#define paddleAutoBackButton joy2Btn(btnLB) ==1
+#define autoIntakeButton 0 //- no longer needed
+#define manualIntakeButton joy2Btn(btnRT)==1
+#define manualOuttakeButton joy2Btn(btnLT)==1
 #define manualDeployIntake joystick.joy2_TopHat==0
 #define manualRetractIntake joystick.joy2_TopHat==4
 #define manualPaddleChange 1
