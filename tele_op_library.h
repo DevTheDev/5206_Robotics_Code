@@ -170,7 +170,7 @@ bool touched = false;
 void paddle()
 {
 	if(!SensorValue[turboTouch]){
-		ClearTimer(T3);
+		clearTimer(T3);
 	}
 	if(autoIntakeOn){
 		writeDebugStreamLine("NOM: %d", turboSlot);
@@ -178,13 +178,13 @@ void paddle()
 	}
 	if (autoIntakeOn && time1[T3] >= nomWait){
 		if(!touched && time1[T4] >= omWait){
-			PlaySound(soundFastUpwardTones);
+			playSound(soundFastUpwardTones);
 			if (turboSlot < 3-1){
 				turboSlot++;
 			}
 			turnPaddle(51);
-			ClearTimer(T3);
-			ClearTimer(T4);
+			clearTimer(T3);
+			clearTimer(T4);
 		}
 		touched = true;
 	}

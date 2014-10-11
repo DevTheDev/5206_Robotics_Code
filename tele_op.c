@@ -24,33 +24,33 @@ const tMUXSensor AutoIR = msensor_S4_3;
 
 */
 /**
- * REMOTE 1
- *  Left Joystick - Drive
- *  Right Joystick - Paddle (slow variable speed)
- *  Button LB / RB - Paddle forward / reverse (fixed fast speed)
- *  Button LT / RT - Intake forward / reverse
- *  Top Hat, right / left - paddle, one-carriage turn in forward /reverse direction
- *    + button A - slow
- *
- * REMOTE 2
- *  Right Joystick - Lift
- *  Button A - move lift up slightly
- */
+* REMOTE 1
+*  Left Joystick - Drive
+*  Right Joystick - Paddle (slow variable speed)
+*  Button LB / RB - Paddle forward / reverse (fixed fast speed)
+*  Button LT / RT - Intake forward / reverse
+*  Top Hat, right / left - paddle, one-carriage turn in forward /reverse direction
+*    + button A - slow
+*
+* REMOTE 2
+*  Right Joystick - Lift
+*  Button A - move lift up slightly
+*/
 
 //#define wavey 10.0
 
 task main() {
 	//writeDebugStreamLine("OM");
 	initializeRobot();
-//	initializeRobotnext();
+	//	initializeRobotnext();
 
-	ClearTimer(T1); // clear the timer for the beeps
+	clearTimer(T1); // clear the timer for the beeps
 
 	waitForStart(); // wait for start of tele-op phase
 	while(true){
 		/*string wave = "";
 		for(int a = 0; a <= wavey; a++){
-			strcat(wave, (a == round(wavey/2*(1+sin(time1[T1]/10.0))) ? "#" : " "));
+		strcat(wave, (a == round(wavey/2*(1+sin(time1[T1]/10.0))) ? "#" : " "));
 		}
 		writeDebugStreamLine(wave);*/
 		updateButtons();
