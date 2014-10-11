@@ -2,8 +2,8 @@
 Library of all functions
 */
 
-#include "consts.h"\
 #include "robot.h"\
+#include "consts.h"\
 #include "menu.h"\
 #include "3rd Party Sensor Drivers/drivers/hitechnic-sensormux.h"\
 #include "3rd Party Sensor Drivers/drivers/hitechnic-irseeker-v2.h"\
