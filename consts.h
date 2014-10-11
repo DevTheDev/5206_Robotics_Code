@@ -56,7 +56,7 @@
 #define omWait 500
 
 // Tele-op bindings
-#ifdef normal_teleop//us driving the robot
+#if normal_teleop//us driving the robot
 
 #define driveX joystick.joy1_x1
 #define driveY joystick.joy1_y1
