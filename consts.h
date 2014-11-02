@@ -2,6 +2,8 @@
  * consts.c
  * store all the consts used in one place
  */
+#pragma once
+
 
 // Robot values
 #define OPTIMAL_SPEED 75
@@ -30,7 +32,7 @@
 // Tele-op constants
 #define joystickRange 128.0 // ?
 #define threshhold 6
-#define constdrivereg 100.0//80.0/128.0
+#define constdrivereg 50.0//80.0/128.0
 #define nearblockconst 36
 #define farblockconst 20
 #define leftintakefwd 255

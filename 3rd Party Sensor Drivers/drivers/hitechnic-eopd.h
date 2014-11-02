@@ -116,7 +116,7 @@ int HTEOPDreadProcessed(tMUXSensor muxsensor) {
  * @param link the HTEOPD port number
  */
 void HTEOPDsetShortRange(tSensors link) {
-  SetSensorType(link, SRType);
+  setSensorType(link, SRType);
 }
 
 
@@ -139,7 +139,7 @@ void HTEOPDsetShortRange(tMUXSensor muxsensor) {
  * @param link the HTEOPD port number
  */
 void HTEOPDsetLongRange(tSensors link) {
-  SetSensorType(link, LRType);
+  setSensorType(link, LRType);
 }
 
 
