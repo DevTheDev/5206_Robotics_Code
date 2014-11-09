@@ -27,20 +27,30 @@
 // Drive Controls
 #define single_joystick_drive 1
 #if single_joystick_drive // single joystick drive
-#define left_drive_control (joystick.joy1_y1 - joystick.joy1_x1)/128
-#define rght_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/128
+#define left_drive_control (joystick.joy1_y1 - joystick.joy1_x1)/128.0
+#define rght_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/128.0
 #else // dual joystick drive
-#define left_drive_control joystick.joy1_y1/128
-#define rght_drive_control joystick.joy1_y2/128
+#define left_drive_control joystick.joy1_y1/128.0
+#define rght_drive_control joystick.joy1_y2/128.0
 #endif
 
 //Buttons
-#define intake_control joy1Btn(btnX)
-#define launcher_control joy1Btn(btnY)
+#define intake_control joystick.joy1_y2/128.0
+#define launcher_control joystick.joy1_y1
 //===================================================================
 
-int clampDrive(int a){
-	if(a <= threshold){
+float thresholdify(float a){
+	if(a >= threshold){
+		return (a-threshold)/(1-threshold);
+	}
+	else if(a <= -threshold){
+		return (a+threshold)/(1-threshold);
+	}
+	return 0;
+}
+
+float clampDrive(float a){
+	if(abs(a) <= threshold){
 		return 0;
 	}
 	return max_drive*(a-threshold)/(1-threshold);
@@ -82,7 +92,7 @@ task main()
 		}
 		#endif
 //===============================Intake==============================
-		motor[intake] = intake_control*80;
+		motor[intake] = thresholdify(intake_control)*100;
 //==============================Launcher=============================
 		motor[launcher] = launcher_control*100;
 	}
