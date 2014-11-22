@@ -16,6 +16,11 @@
 #define maxAccel //? //Not self explanatory
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
 
+//Autonomous Constants - Need bashing
+#define distOffRamp
+#define degreesToCenter
+#define distToCenter
+
 // Joystick buttons
 #define btnX 1
 #define btnA 2
