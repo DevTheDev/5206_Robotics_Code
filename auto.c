@@ -23,8 +23,22 @@ task main(){
 	raiseNet();
 	turnDegrees(degreesToCenter);
 	driveDist(distToCenter);
-	launchOn();
-	gateUp();
+	//launchOn();
+	//gateUp();
+	//wait1Msec(1000); //Time to score the ball
+	turnDegrees(firstKick);
+	driveDist(firstKickDist);
+	turnDegrees(secondKick);
+	driveDist(secondKickDist);
+	turnDegrees(thirdKick);
+	driveDist(thirdKickDist); //Algorithm without IR
+	driveDist(awayFromCenter); //Start going for rolling goals
+	turnDegrees(towardGoals);
+	driveDist(toGoals);
+	//Probably some more fine tuning turns to be done here
+	grabGoal(); //Closest one ':, the lowest .
+
+
 
 
 

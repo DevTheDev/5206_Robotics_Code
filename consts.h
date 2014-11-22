@@ -17,9 +17,9 @@
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
 
 //Autonomous Constants - Need bashing
-#define distOffRamp
-#define degreesToCenter
-#define distToCenter
+#define distOffRamp 50
+#define degreesToCenter 60
+#define distToCenter 30
 
 // Joystick buttons
 #define btnX 1
