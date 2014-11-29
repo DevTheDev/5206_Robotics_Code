@@ -15,7 +15,7 @@ unsigned int menu_size = 0;
 int prevButton = -1; // Global var? TODO: Delete me// Where do I put this; the NXT buttons are global, and robot c does not have namespaces?
 
 /**
-* Must be run in a loop to use button checking functions
+ Must be run in a loop to use button checking functions
 */
 void updateButtons() {
 	if (prevButton != nNxtButtonPressed) {
@@ -25,8 +25,8 @@ void updateButtons() {
 }
 
 /**
-* Returns if button has been pressed
-* button: the button being tested
+Returns if button has been pressed
+button: the button being tested
 */
 bool pressed(int button) {
 	if (prevButton != button && nNxtButtonPressed == button) {
@@ -36,8 +36,8 @@ bool pressed(int button) {
 }
 
 /**
-* Returns true if button has been released
-* button: the button being tested
+Returns true if button has been released
+button: the button being tested
 */
 bool released(int button) {
 	if (prevButton == button && nNxtButtonPressed != button) {
@@ -47,9 +47,9 @@ bool released(int button) {
 }
 
 /**
-* Returns if button has been held for time
-* button: the button being tested
-* holdTime: the time required for the button to have been held
+Returns if button has been held for time
+button: the button being tested
+holdTime: the time required for the button to have been held
 */
 bool held(int button, int holdTime) {
 	if (nNxtButtonPressed == button && time1[T1] > holdTime) {
@@ -75,9 +75,16 @@ menu: the menu to display
 }*/
 
 bool displayMenuItem(char * name){
-	nxtDisplayCenteredTextLine(menu_size, (menu_size == menu_position) ? ">%s<" : " %s ", name);
+#define item (menu_size == menu_position) ? ">%s<" : " %s ", name
+	if(menu_size < 8){
+	nxtDisplayCenteredTextLine(menu_size, item);
+	}
+	else{
+		scrollText(item)
+	}
 	menu_size++;
 	return (menu_size == menu_position && nNxtButtonPressed == orangebutton);
+#undef item
 }
 
 /*
@@ -98,7 +105,8 @@ void selectNext() {
 }
 
 void updateMenu(){
-	menu_position = (menu_position - pressed(leftarrow) + pressed(rightarrow)) % menu_size;
+	menu_position = (menu_position+menu_size - pressed(leftarrow) + pressed(rightarrow)) % menu_size;
 	updateButtons();
 	menu_size = 0;
+
 }
