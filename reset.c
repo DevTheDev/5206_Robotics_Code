@@ -26,7 +26,7 @@ task main()
 			lift_position += 1*dt;//Bash
 		}
 		char blah[16];
-		sprintf(blah, 16, "intake %i", intake_speed);
+		sprintf(blah, "intake %i", 16, intake_speed);
 		if(displayMenuItem(blah)){
 			motor[intake] = intake_speed;
 		}
@@ -41,7 +41,7 @@ task main()
 			clearTimer(T2);
 			-- intake_speed;
 		}
-		sprintf(blah, 16, "launcher %i", launcher_speed);
+		sprintf(blah, "launcher %i", 16, launcher_speed);
 		if(displayMenuItem(blah)){
 			motor[launcher] = launcher_speed;
 		}

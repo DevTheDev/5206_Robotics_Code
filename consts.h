@@ -41,7 +41,7 @@
 // Tele-op bindings
 
 // NXT buttons
-#define leftarrow 2
-#define rightarrow 1
-#define orangebutton 3
-#define graybutton 0
+//#define leftarrow 2
+//#define rightarrow 1
+//#define orangebutton 3
+//#define graybutton 0
