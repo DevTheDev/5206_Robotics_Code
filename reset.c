@@ -13,8 +13,8 @@
 #include "menu.h";
 #include "actions.h";
 
-int intake_speed = 1;
-int launcher_speed = 1;
+int intake_speed = 100;
+int launcher_speed = 100;
 
 task main()
 {
@@ -26,7 +26,7 @@ task main()
 			lift_position += 1*dt;//Bash
 		}
 		char blah[16];
-		sprintf(blah, "intake %i", 16, intake_speed);
+		sprintf(blah, "intake %i", intake_speed);
 		if(displayMenuItem(blah)){
 			motor[intake] = intake_speed;
 		}
@@ -41,7 +41,7 @@ task main()
 			clearTimer(T2);
 			-- intake_speed;
 		}
-		sprintf(blah, "launcher %i", 16, launcher_speed);
+		sprintf(blah, "launcher %i", launcher_speed);
 		if(displayMenuItem(blah)){
 			motor[launcher] = launcher_speed;
 		}
