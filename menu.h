@@ -80,7 +80,7 @@ bool displayMenuItem(char * name){
 	nxtDisplayCenteredTextLine(menu_size, item);
 	}
 	else{
-//		scrollText(item)
+		scrollText(item)
 	}
 	return (menu_size++ == menu_position && nNxtButtonPressed == orangebutton);
 #undef item
