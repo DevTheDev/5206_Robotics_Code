@@ -21,17 +21,6 @@
 #define degreesToCenter 60
 #define distToCenter 30
 
-// Joystick buttons
-#define btnX 1
-#define btnA 2
-#define btnB 3
-#define btnY 4
-
-#define btnLB 5
-#define btnRB 6
-#define btnLT 7
-#define btnRT 8
-
 // Tele-op constants
 #define joystickRange 128.0 // ?
 #define threshhold 6

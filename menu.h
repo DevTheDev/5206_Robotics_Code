@@ -1,4 +1,5 @@
 #include "joystickdriver.c";
+#include "misc.h"
 
 // NXT buttons
 #define leftarrow 2
@@ -74,33 +75,29 @@ menu: the menu to display
 	nxtDisplayCenteredTextLine(i, (i == menu.selected) ? ">%s< %s" : " %s  %s", menu.itemNames[i], menu.infos[i]);
 }*/
 
-bool displayMenuItem(char * name){
-#define item (menu_size == menu_position) ? ">%s<" : " %s ", name
-	if(menu_size < 8){
-	nxtDisplayCenteredTextLine(menu_size, item);
+void displayMenuItem(char * name){
+  unsigned int display_position = menu_size-max(menu_position, 7)+7;
+  if(display_position >= 0 && display_position < 8){// if you write to a display position below position 7, the NXT will freeze when the program exits
+	  nxtDisplayCenteredTextLine(display_position, (menu_size == menu_position) ? ">%s<" : " %s ", name);
 	}
-	else{
-		scrollText(item)
-	}
-	return (menu_size++ == menu_position && nNxtButtonPressed == orangebutton);
-#undef item
+}
+
+bool doMenuItem(char * name){
+  displayMenuItem(name);
+	return menu_size++ == menu_position && nNxtButtonPressed == orangebutton;
 }
 
 /*
-Selects the previous menu item
-menu: the menu to modify
+names is a pointer to two adjacent null-terminated strings
 */
-void selectPrev () {
-	// Add item count so selected stays non-negative
-	menu_position = (menu_position - 1) % menu_size;
-}
-
-/**
-* Selects the next menu item
-* menu: the menu to modify
-*/
-void selectNext() {
-	menu_position = (menu_position + 1) % menu_size;
+bool doToggleMenuItem(char * names, bool & current_state){
+  bool out = (menu_size == menu_position) && pressed(orangebutton);
+  if(out){
+    current_state = !current_state;
+  }
+  displayMenuItem(&(names[(strlen(names)+1) * current_state]));
+  menu_size++;
+  return out;
 }
 
 void updateMenu(){

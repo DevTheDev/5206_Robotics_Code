@@ -20,6 +20,7 @@
 
 int intake_speed = 100;
 int launcher_speed = 100;
+bool goal_closed = 0;
 
 task main()
 {
@@ -27,43 +28,45 @@ task main()
 	while(1){
 		float dt = time1[T1]/1000.0;
 		clearTimer(T1);
-		if(displayMenuItem("lift")){
+		if(doMenuItem("lift")){
 			lift_position += 1*dt;//Bash
 		}
 		char blah[16];
 		sprintf(blah, "intake %i", intake_speed);
-		if(displayMenuItem(blah)){
+		if(doMenuItem(blah)){
 			motor[intake] = intake_speed;
 		}
 		else{
 			motor[intake] = 0;
 		}
-		if(displayMenuItem("increase intake") && time1[T2] >= 100){
+		if(doMenuItem("inc intake") && time1[T2] >= 200){
 			clearTimer(T2);
 			intake_speed ++;
 		}
-		if(displayMenuItem("decrease intake") && time1[T2] >= 100){
+		if(doMenuItem("dec intake") && time1[T2] >= 200){
 			clearTimer(T2);
 			-- intake_speed;
 		}
 		sprintf(blah, "launcher %i", launcher_speed);
-		if(displayMenuItem(blah)){
+		if(doMenuItem(blah)){
 			motor[launcher] = launcher_speed;
 		}
 		else{
 			motor[launcher] = 0;
 		}
-		if(displayMenuItem("increase launcher") && time1[T2] >= 100){
+		if(doMenuItem("inc launcher") && time1[T2] >= 200){
 			clearTimer(T2);
 			launcher_speed ++;
 		}
-		if(displayMenuItem("decrease launcher") && time1[T2] >= 100){
+		if(doMenuItem("dec launcher") && time1[T2] >= 200){
 			clearTimer(T2);
 			-- launcher_speed;
 		}
-		if(displayMenuItem("goal lock")){
-		}
-		updateMenu();
+		{
+			doToggleMenuItem("clos goal lock\0open goal lock", goal_closed);//it's spelled clos to match the # of characters in open and to fit on the screen
+	    servo[goal] = 180 * goal_closed;
+    }
+    updateMenu();
 		updateLift();
 	}
 }
