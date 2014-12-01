@@ -75,7 +75,7 @@ task main()
 		prev1Btns = joystick.joy1_Buttons;
  		getJoystickSettings(joystick);
 		toggle1Btns = (toggle1Btns^((~joystick.joy1_Buttons) & prev1Btns));//invert toggle1Btns when the button goes from high to low
- 		//===============================Drive===============================
+//===============================Drive===============================
 		#if single_joystick_drive
 		{//single joystick drive //circle clamping
 			float magnitude = sqrt(left_drive_control*left_drive_control+rght_drive_control*rght_drive_control);//the magnitude of the joystick vector
