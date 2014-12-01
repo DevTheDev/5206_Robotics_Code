@@ -28,10 +28,15 @@
 #define threshold 0.1
 #define max_drive 75
 //=============================Controls=============================
-static short prev1Btns;
-static short toggled1Btns = 0;
-#define joy1press(btn) (!joy1Btn(btn)) && (prev1Btns & (btn-1))
-#define joy1toggle(btn) (toggled1Btns >> (btn-1))&1
+static unsigned short prev1Btns = 0;
+static unsigned short toggle1Btns = 0;
+inline bool joy1press(unsigned short btn){
+  return (!joy1Btn(btn)) && (prev1Btns & (btn-1));
+}
+
+inline bool joy1toggle(unsigned short btn){
+  return (toggle1Btns >> (btn-1))&1;//the "&1" should make it 0 or 1 no reason to != 0 it
+}
 
 // Drive Controls
 #define single_joystick_drive 1
@@ -46,10 +51,10 @@ static short toggled1Btns = 0;
 #define lift_control (joystick.joy2_y2)/128.0
 
 //Buttons
-#define intake_control joy1Btn(btnB)
-#define launcher_control joy1Btn(btnA)
-#define goal_control joy1Btn(btnX)
-#define gate_control joy1Btn(btnY)
+#define intake_control joy1toggle(btnB)
+#define launcher_control joy1toggle(btnA)
+#define goal_control joy1toggle(btnX)
+#define gate_control joy1toggle(btnY)
 //===================================================================
 
 float thresholdify(float a){
@@ -67,10 +72,10 @@ task main()
 	while(1){
 		float dt = time1[T1];
 		clearTimer(T1);
-		toggled1Btns = (toggled1Btns^((~joystick.joy1_Buttons)&prev1Btns));
 		prev1Btns = joystick.joy1_Buttons;
  		getJoystickSettings(joystick);
-//===============================Drive===============================
+		toggle1Btns = (toggle1Btns^((~joystick.joy1_Buttons) & prev1Btns));//invert toggle1Btns when the button goes from high to low
+ 		//===============================Drive===============================
 		#if single_joystick_drive
 		{//single joystick drive //circle clamping
 			float magnitude = sqrt(left_drive_control*left_drive_control+rght_drive_control*rght_drive_control);//the magnitude of the joystick vector
