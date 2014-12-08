@@ -45,7 +45,7 @@ task main()
 		rght_drive_control = (joystick.joy1_y1 - joystick.joy1_x1)*75/128;
 		drive(left_drive_control,rght_drive_control);
 
-		if(joy1Btn(btnY)==1) {motor[intake]=80;}
+		if(abs(joystick.joy1_y2)>10) {motor[intake]=(joystick.joy1_y2-10)*100/118;}
 		else {motor[intake]=0;}
 	}
 }
