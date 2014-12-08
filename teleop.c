@@ -51,10 +51,16 @@ inline bool joy1toggle(unsigned short btn){
 #define lift_control (joystick.joy2_y2)/128.0
 
 //Buttons
-#define intake_control joy1toggle(btnB)
-#define launcher_control joy1toggle(btnA)
-#define goal_control joy1toggle(btnX)
-#define gate_control joy1toggle(btnY)
+#define intake_control joy1toggle(btnRB)
+#define launcher_control joy1toggle(btnRT)
+#define unjam_btn joy2Btn(btnRB)
+#define goal_control joy1toggle(btnLT)
+#define gate_control joy1toggle(btnLB)
+
+#define liftBot_btn joy1Btn(btnB)
+#define lift60_btn joy1Btn(btnY)
+#define lift90_btn joy1Btn(btnX)
+#define lift120_btn joy1Btn(btnA)
 //===================================================================
 
 float thresholdify(float a){
@@ -69,6 +75,7 @@ float thresholdify(float a){
 
 task main()
 {
+	//time1[T4] = 501;
 	while(1){
 		float dt = time1[T1];
 		clearTimer(T1);
@@ -106,9 +113,49 @@ task main()
 		motor[intake] = intake_control*80;
 //==============================Launcher=============================
 		motor[launcher] = launcher_control*100;
+		if(unjam_btn){
+			clearTimer(T4);
+		}
+		if(time1[T4] <= 500){
+			motor[launcher] = -50;
+		}
 //================================Lift===============================
-		lift_position += thresholdify(lift_control)*dt*1.5;//the rate in cm/ms
+		if(liftBot_btn){
+			lift_position = lift_bottom;
+		}
+		else if(lift60_btn){
+			lift_position = lift_60;
+		}
+		else if(lift90_btn){
+			lift_position = lift_90;
+		}
+		else if(lift120_btn){
+			lift_position = lift_120;
+		}
 		updateLift();
+
+		if(joy2Btn(btnB)){
+			motor[liftL] = 50;//the rate in cm/ms
+			motor[liftR] = 50;//the rate in cm/ms
+			nMotorEncoder[liftL] = 0;
+			nMotorEncoder[liftR] = 0;
+			lift_position = 0;
+		}
+		if(joy2Btn(btnA)){
+			motor[liftL] = -50;//the rate in cm/ms
+			motor[liftR] = -50;//the rate in cm/ms
+			nMotorEncoder[liftL] = 0;
+			nMotorEncoder[liftR] = 0;
+			lift_position = 0;
+		}
+		if(joy2Btn(btnB)){
+			motor[liftL] = 50;
+			nMotorEncoder[liftL] = nMotorEncoder[liftR];
+		}
+		if(joy2Btn(btnY)){
+			motor[liftR] = 50;
+			nMotorEncoder[liftR] = nMotorEncoder[liftL];
+		}
 //===========================Goal Mechanism==========================
 		servo[goal] = 180*goal_control;
 //===========================Gate Mechanism==========================

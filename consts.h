@@ -1,8 +1,9 @@
 /*!
  * consts.c
- * store all the consts used in one place
+ * store global consts used in one place
  */
-//Currently all the values that can be kept for Cascade
+#define ever (;;)
+
 // Robot values
 #define OPTIMAL_SPEED //
 
@@ -15,7 +16,7 @@
 #define timeSpeedPerDegrees //? // the time * speed / angle of the robots turns
 #define maxAccel //? //Not self explanatory
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
-
+#define kyler "upp"
 //Autonomous Constants - Need bashing
 #define distOffRamp 50
 #define degreesToCenter 60

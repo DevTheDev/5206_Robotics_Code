@@ -25,16 +25,26 @@ task main()
 	while(1){
 		float dt = time1[T1]/1000.0;
 		clearTimer(T1);
+		int left_lift = 0;
+		int right_lift = 0;
 		if(doMenuItem("lift up")){
 			//lift_position += 1*dt;//Bash
-			motor[liftL] = 50;
-			motor[liftR] = 50;
+			left_lift = 50;
+			right_lift = 50;
 		}
 		if(doMenuItem("lift down")){
-			motor[liftL] = -50;
-			motor[liftR] = -50;
+			left_lift = -50;
+			right_lift = -50;
 		}
-		updateLift();
+		if(doMenuItem("left lift up")){
+			left_lift = 50;
+		}
+		if(doMenuItem("right lift up")){
+			right_lift = 50;
+		}
+		motor[liftL] = left_lift;
+		motor[liftR] = right_lift;
+		//updateLift();
 		char blah[16];
 		sprintf(blah, "intake %i", intake_speed);
 		bool intake_pressed = 0;
