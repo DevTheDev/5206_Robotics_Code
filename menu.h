@@ -100,6 +100,26 @@ bool doToggleMenuItem(char * names, bool & current_state){
   return out;
 }
 
+/*
+names is a pointer to n adjacent null-terminated strings
+*/
+bool doCycleMenuItem(char * names, int n, int * current_state)
+{
+  bool out = (menu_size == menu_position) && pressed(orangebutton);
+  if(out)
+  {
+      *current_state = (++(*current_state)) % n;
+  }
+
+  for(int i = 0; i < *current_state; i++)
+  {
+      names = names + strlen(names) + 1;
+  }
+  displayMenuItem(names);
+  menu_size++;
+  return out;
+}
+
 void updateMenu(){
 	menu_position = (menu_position+menu_size - pressed(leftarrow) + pressed(rightarrow)) % menu_size;
 	updateButtons();

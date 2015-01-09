@@ -75,13 +75,17 @@ void updateLift(){ //TODO: Add constraints on max and min
 }
 */
 const float drive_cm_per_tick = (PI*2*2.54)/encoderticks;
-void driveDist(int distance, int motor_vIs){ //TODO: both motors separate
-	int correction = 0;
-	while(abs(abs(nMotorEncoder[driveL]*drive_cm_per_tick)-(float)distance) >= 0.0){
-		correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
-		motor[driveR] = motor_vIs+correction;
-		motor[driveL] = motor_vIs-correction;
-	}
+void driveDist(float distance, int motor_vIs) //TODO: both motors separate
+{
+    resetDriveEncoders();
+    
+    int correction = 0;
+    while(abs(abs(nMotorEncoder[driveL]*drive_cm_per_tick)-distance) >= 0.0)
+    {
+        correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
+        motor[driveR] = motor_vIs+correction;
+        motor[driveL] = motor_vIs-correction;
+    }
 }
 
 #define robot_half_width 43.5/2.0//middle of the wheel to middle of the wheel
