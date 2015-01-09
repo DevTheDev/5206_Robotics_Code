@@ -15,7 +15,6 @@
 #include "joystickdriver.c"
 
 //TODO: debug stream
-//TODO: input speed in the turns
 
 task lift() //TODO: move this to actions?
 {
@@ -130,9 +129,9 @@ task main()
             {
                 servo[goal] = 180; //open the goal lock
                 driveDistAndScanForIR(200, -80); //get off of ramp
-                turnAngle(pi/2);
+                turnAngle(pi/2, 80);
                 driveDist(30, -80);
-                turnAngle(-pi/2);
+                turnAngle(-pi/2, 80);
                 driveDist(30, -80);
                 servo[goal] = 0;
             }
@@ -150,9 +149,9 @@ task main()
             {
                 servo[goal] = 180; //open the goal lock
                 driveDistAndScanForIR(230, -80); //get off of ramp
-                turnAngle(pi/2);
+                turnAngle(pi/2, 80);
                 driveDist(30, 80);
-                turnAngle(pi/4);
+                turnAngle(pi/4, 80);
                 driveDist(30*sqrt(2), -80);
                 servo[goal] = 0;
             }
@@ -194,9 +193,9 @@ skip_first_launch:;
                         {
                             case center_rot_NS:
                             {
-                                turnAngle(-pi/2);
+                                turnAngle(-pi/2, 80, 80);
                                 driveDist(150, 80);
-                                turnAngle(pi/2);
+                                turnAngle(pi/2, 80);
                                 driveDist(30, 40);
                                 turngAngle(pi/2);
                                 driveDist(10, 40);
@@ -205,18 +204,18 @@ skip_first_launch:;
                             
                             case center_rot_NESW:
                             {
-                                turnAngle(pi/2);
+                                turnAngle(pi/2, 80, 80);
                                 driveDist(200, -80);
-                                turnAngle(-pi/4);
+                                turnAngle(-pi/4, 80);
                                 driveDist(40, 40);
                             }
                             break;
                                                         
                             case center_rot_SW:
                             {
-                                turnAngle(-pi/2);
+                                turnAngle(-pi/2, 80);
                                 driveDist(125, 80);
-                                turnAngle(pi/2);
+                                turnAngle(pi/2, 80);
                                 driveDist(20, 40);
                             }
                             break;
@@ -252,29 +251,29 @@ skip_first_launch:;
                 {
                     case center_rot_NS:
                     {
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(150, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(40, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(60, 80);
                     }
                     break;
                             
                     case center_rot_NESW:
                     {
-                        turnAngle(-pi/2);
+                        turnAngle(-pi/2, 80);
                         driveDist(150, -80);
-                        turnAngle(-pi/4);
+                        turnAngle(-pi/4, 80);
                         driveDist(100, 80);
                     }
                     break;
                                                         
                     case center_rot_EW:
                     {
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(81, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(60, 80);
                     }
                     break;
@@ -288,29 +287,29 @@ skip_first_launch:;
                 {
                     case center_rot_NS:
                     {
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(200, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(40, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(60, 80);
                     }
                     break;
                             
                     case center_rot_NESW:
                     {
-                        turnAngle(-pi/2);
+                        turnAngle(-pi/2, 80);
                         driveDist(125, -80);
-                        turnAngle(-pi/4);
+                        turnAngle(-pi/4, 80);
                         driveDist(60, 80);
                     }
                     break;
                                                         
                     case center_rot_EW:
                     {
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(125, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         driveDist(60, 80);
                     }
                     break;
@@ -325,11 +324,11 @@ skip_first_launch:;
                     case center_rot_NS:
                     {
                         driveDist(40, 80);
-                        turnAngle(pi/4);
+                        turnAngle(pi/4, 80);
                         driveDist(170, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(40, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(60, 80);
                     }
                     break;
@@ -337,9 +336,9 @@ skip_first_launch:;
                     case center_rot_NESW:
                     {
                         driveDist(40, 80);
-                        turnAngle(3.0*pi/4);
+                        turnAngle(3.0*pi/4, 80);
                         driveDist(170, 80);
-                        turnAngle(-pi/4);
+                        turnAngle(-pi/4, 80);
                         drive_dist(50, 80);
                     }
                     break;
@@ -347,9 +346,9 @@ skip_first_launch:;
                     case center_rot_EW:
                     {
                         driveDist(40, 80);
-                        turnAngle(pi/4);
+                        turnAngle(pi/4, 80);
                         driveDist(120, 80);
-                        turnAngle(pi/2);
+                        turnAngle(pi/2, 80);
                         drive_dist(40, 80);
                     }
                     break;
@@ -366,6 +365,32 @@ skip_first_launch:;
         motor[launcher] = 0;
     skip_second_launch:;
     }
+    
+    driveDist(10, -80);
+    turnAngle(-pi/2, 80);
+    driveDist(30, 80);
+    driveDist(40, 100);
 
-    //TODO: knock down stand and drive to parking zone
+    switch(center_rotation)
+    {
+        case center_rot_NS:
+        {
+            turnAngle(-pi/2, 80);
+            driveDist(90, 80);
+        }
+        break;
+                            
+        case center_rot_NESW:
+        {
+            turnAngle(-pi/4, 80);
+            driveDist(90, 80);
+        }
+        break;
+                                                        
+        case center_rot_EW:
+        {
+            driveDist(90, 80);
+        }
+        break;
+    }
 }
