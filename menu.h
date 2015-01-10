@@ -20,7 +20,7 @@ int prevButton = -1; // Global var? TODO: Delete me// Where do I put this; the N
 */
 void updateButtons() {
 	if (prevButton != nNxtButtonPressed) {
-		ClearTimer(T1);
+		clearTimer(T1);
 	}
 	prevButton = nNxtButtonPressed;
 }

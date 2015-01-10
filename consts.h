@@ -1,8 +1,13 @@
+#ifndef _consts
+#define _consts
+
 /*!
  * consts.c
  * store global consts used in one place
  */
 #define ever (;;)
+
+#define pi PI
 
 // Robot values
 #define OPTIMAL_SPEED //
@@ -35,3 +40,5 @@
 //#define rightarrow 1
 //#define orangebutton 3
 //#define graybutton 0
+
+#endif
