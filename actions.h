@@ -24,6 +24,13 @@ float absv(float a)
     return abs(a);
 }
 
+#define sq(a) (a)*(a)
+
+float quadBezier(float t, float p1, float p2, float p3)
+{
+    return sq(1-t)*p1 + 2.0*t*(1-t)*p2 + sq(t)*p3;
+}
+
 void resetLiftEncoders(){
 		nMotorEncoder[liftL] = 0;
 		nMotorEncoder[liftR] = 0;
@@ -33,11 +40,11 @@ void resetDriveEncoders(){
 		nMotorEncoder[driveR] = 0;
 }
 
-const float lift_bottom = 5.0;
-const float lift_30 = 22.5;
-const float lift_60 = 35.0;
-const float lift_90 = 65.0;
-const float lift_120 = 105.0;
+const float lift_bottom = 0.0;
+const float lift_30 = 6.0;
+const float lift_60 = 34.0;
+const float lift_90 = 60.0;
+const float lift_120 = 88.0;
 
 float lift_position = 0;//the desired lift position in cm,0 is the position at the start of teleop, max = 32.5 cm
 
@@ -45,8 +52,7 @@ const float power_difference_per_tick = 5;
 
 float lift_threshhold = 3.0;
 
-float lift_rotations_per_full_height = 3.5;
-const float lift_cm_per_tick = (120.0-18.0*2.54)/lift_rotations_per_full_height/encoderticks;//the number of cm the lift raises when the lift motors rotate 1 encoder tick
+const float lift_cm_per_tick = PI*4.6/3.0/encoderticks; //the number of cm the lift raises when the lift motors rotate 1 encoder tick
 const float lift_speed_constant = 80.0/(PI/2.0);
 const float lift_slow_constant = 1.0/10.0;
 

@@ -4,9 +4,9 @@
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     launcher,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S4_C2_1,     driveL,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S4_C2_2,     liftL,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S4_C2_2,     liftL,         tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C3_1,     driveR,        tmotorTetrix, openLoop, reversed)
-#pragma config(Motor,  mtr_S4_C3_2,     liftR,         tmotorTetrix, openLoop, reversed, encoder)
+#pragma config(Motor,  mtr_S4_C3_2,     liftR,         tmotorTetrix, openLoop, encoder)
 #pragma config(Servo,  srvo_S4_C4_1,    goal,                 tServoStandard)
 #pragma config(Servo,  srvo_S4_C4_2,    gate,                 tServoStandard)
 #pragma config(Servo,  srvo_S4_C4_3,    shrub,                tServoContinuousRotation)
@@ -41,7 +41,9 @@
 #define tophat_xN1y1 7
 
 #define threshold 0.1
-#define max_drive 75
+#define min_drive 15
+#define bezier_drive_control 10
+#define max_drive 80
 //=============================Controls=============================
 static unsigned short prev1Btns = 0;
 static unsigned short toggle1Btns = 0;
@@ -66,8 +68,8 @@ bool joy2toggle(unsigned short btn){
 // Drive Controls
 #define single_joystick_drive 1
 #if single_joystick_drive // single joystick drive
-#define left_drive_control (joystick.joy1_y2 + joystick.joy1_x2)/127.0
-#define rght_drive_control (joystick.joy1_y2 - joystick.joy1_x2)/127.0
+#define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
+#define rght_drive_control (joystick.joy1_y1 - joystick.joy1_x1)/127.0
 #else // dual joystick drive
 #define left_drive_control joystick.joy1_y1/127.0
 #define rght_drive_control joystick.joy1_y2/127.0
@@ -77,17 +79,17 @@ bool joy2toggle(unsigned short btn){
 #define lift_up joy2Btn(btnY)
 #define lift_down joy2Btn(btnA)
 //Buttons
-#define intake_control joy1toggle(btnRB)
-#define launcher_control joy1toggle(btnRT)
+#define intake_control (joy1toggle(btnRB) || joy2Btn(btnRB))
+#define launcher_control (joy1toggle(btnRT) || joy2Btn(btnRT))
 //#define unjam_btn joy1Btn(btnBack)
 #define goal_control joy1toggle(btnLT)
 #define gate_control joy1toggle(btnLB)
 
-#define liftBot_btn joy1Btn(btnA)
-#define lift30_btn joy1Btn(btnX)
-#define lift60_btn joy1Btn(btnY)
-#define lift90_btn joy1Btn(btnB)
-//#define lift120_btn joy1Btn(btnB)
+#define liftBot_btn joy2Btn(btnA)
+#define lift30_btn joy1Btn(btnA)
+#define lift60_btn joy1Btn(btnX)
+#define lift90_btn joy1Btn(btnY)
+#define lift120_btn joy1Btn(btnB)
 
 //#define reset_encoders joy1Btn(btnStart)
 #define goal_open joy2Btn(btnStart)
@@ -124,8 +126,10 @@ task main()
 			if(magnitude >= threshold){
 				//maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
 			//= maximum speed*(fraction speed)*(direction)
-				int l = max_drive*(magnitude-threshold)/(1-threshold)*(left_drive_control/magnitude);
-				int r = max_drive*(magnitude-threshold)/(1-threshold)*(rght_drive_control/magnitude);
+			    float speed = (magnitude-threshold)/(1-threshold);
+			    speed = quadBezier(speed, min_drive, bezier_drive_control, max_drive);
+				int l = speed*(left_drive_control/magnitude);
+				int r = speed*(rght_drive_control/magnitude);
 				motor[driveL] = l;
 				motor[driveR] = r;
 			}
@@ -147,7 +151,7 @@ task main()
 //==============================Intakers=============================
 		motor[intake] = intake_control*80;
 //==============================Launcher=============================
-		motor[launcher] = launcher_control*85;
+		motor[launcher] = launcher_control*80;
 		/*if(unjam_btn){
 			clearTimer(T4);
 		}
@@ -171,9 +175,9 @@ task main()
 		else if(lift90_btn){
 			lift_position = lift_90;
 		}
-		//else if(lift120_btn){
-			//lift_position = lift_120;
-		//}
+		else if(lift120_btn){
+			lift_position = lift_120;
+		}
 /*		if(joy2toggle(btnX)){
 			//manual raise/lower
 			if(lift_up){
@@ -210,6 +214,6 @@ task main()
 //===========================Gate Mechanism==========================
 		servo[gate] = 10+108*gate_control;
 //===============================Shrub===============================
-		servo[shrub] = 100*joy1Btn(btnBack);
+		servo[shrub] = 100*joy2toggle(btnX);
 	}
 }
