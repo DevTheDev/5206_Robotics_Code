@@ -48,21 +48,21 @@
 static unsigned short prev1Btns = 0;
 static unsigned short toggle1Btns = 0;
 bool joy1press(unsigned short btn){
-  return (!joy1Btn(btn)) && (prev1Btns & (btn-1));
+    return (!joy1Btn(btn)) && (prev1Btns & (btn-1));
 }
 
 bool joy1toggle(unsigned short btn){
-  return (bool)((toggle1Btns >> (btn-1))&1); //the "&1" should make it 0 or 1 no reason to != 0 it
+    return (bool)((toggle1Btns >> (btn-1))&1); //the "&1" should make it 0 or 1 no reason to != 0 it
 }
 
 static unsigned short prev2Btns = 0;
 static unsigned short toggle2Btns = 0;
 bool joy2press(unsigned short btn){
-  return (!joy2Btn(btn)) && (prev2Btns & (btn-1));
+    return (!joy2Btn(btn)) && (prev2Btns & (btn-1));
 }
 
 bool joy2toggle(unsigned short btn){
-  return (bool)((toggle2Btns >> (btn-1))&1); //the "&1" should make it 0 or 1 no reason to != 0 it
+    return (bool)((toggle2Btns >> (btn-1))&1); //the "&1" should make it 0 or 1 no reason to != 0 it
 }
 
 // Drive Controls
@@ -81,6 +81,7 @@ bool joy2toggle(unsigned short btn){
 //Buttons
 #define intake_control (joy1toggle(btnRB) || joy2Btn(btnRB))
 #define launcher_control (joy1toggle(btnRT) || joy2Btn(btnRT))
+#define break_out (joy1Btn(btnRT))
 //#define unjam_btn joy1Btn(btnBack)
 #define goal_control joy1toggle(btnLT)
 #define gate_control joy1toggle(btnLB)
@@ -90,6 +91,8 @@ bool joy2toggle(unsigned short btn){
 #define lift60_btn joy1Btn(btnX)
 #define lift90_btn joy1Btn(btnY)
 #define lift120_btn joy1Btn(btnB)
+#define liftpulseup_btn joy2Btn(btnB)
+#define liftpulsedown_btn joy2Btn(btnX)
 
 //#define reset_encoders joy1Btn(btnStart)
 #define goal_open joy2Btn(btnStart)
@@ -97,123 +100,142 @@ bool joy2toggle(unsigned short btn){
 
 //===================================================================
 
+#define launcher_slow_time 1000.0
+#define max_launcher 80
+
 bool prev_goal_control = 0;
 
 float thresholdify(float a){
-	if(a > threshold){
-		return (a-threshold)/(1-threshold);
-	}
-	else if(a < -threshold){
-		return (a+threshold)/(1-threshold);
-	}
-	return 0;
+    if(a > threshold){
+        return (a-threshold)/(1-threshold);
+    }
+    else if(a < -threshold){
+        return (a+threshold)/(1-threshold);
+    }
+    return 0;
 }
 
 task main()
 {
-	//time1[T4] = 501;
-	resetLiftEncoders();
-	while(1){
-		prev1Btns = joystick.joy1_Buttons;
-		prev2Btns = joystick.joy2_Buttons;
- 		getJoystickSettings(joystick);
-		toggle1Btns = (toggle1Btns^((joystick.joy1_Buttons) & (~prev1Btns)));//invert toggle1Btns when the button goes from high to low
-		toggle2Btns = (toggle2Btns^((joystick.joy2_Buttons) & (~prev2Btns)));//invert toggle1Btns when the button goes from high to low
-//===============================Drive===============================
-		#if single_joystick_drive
-		{//single joystick drive //circle clamping
-			float magnitude = sqrt(left_drive_control*left_drive_control+rght_drive_control*rght_drive_control);//the magnitude of the joystick vector
-			if(magnitude >= threshold){
-				//maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
-			//= maximum speed*(fraction speed)*(direction)
-			    float speed = (magnitude-threshold)/(1-threshold);
-			    speed = quadBezier(speed, min_drive, bezier_drive_control, max_drive);
-				int l = speed*(left_drive_control/magnitude);
-				int r = speed*(rght_drive_control/magnitude);
-				motor[driveL] = l;
-				motor[driveR] = r;
-			}
-			else{
-				motor[driveL] = 0;
-				motor[driveR] = 0;
-			}
-		}
-		#else
-		{//dual joystick drive //square clamping
-			int l = max_drive*thresholdify(left_drive_control);
-			int r = max_drive*thresholdify(rght_drive_control);
-			motor[lf] = l;
-			motor[lb] = l;
-			motor[rf] = r;
-			motor[rb] = r;
-		}
-		#endif
-//==============================Intakers=============================
-		motor[intake] = intake_control*80;
-//==============================Launcher=============================
-		motor[launcher] = launcher_control*80;
-		/*if(unjam_btn){
-			clearTimer(T4);
-		}
-		*/
-		if(time1[T4] <= 500){
-			motor[launcher] = -50;
-		}
-//================================Lift===============================
-		/*if(reset_encoders){
-			resetLiftEncoders();
-		}*/
-		if(liftBot_btn){
-			lift_position = lift_bottom;
-		}
-		else if(lift30_btn){
-			lift_position = lift_30;
-		}
-		else if(lift60_btn){
-			lift_position = lift_60;
-		}
-		else if(lift90_btn){
-			lift_position = lift_90;
-		}
-		else if(lift120_btn){
-			lift_position = lift_120;
-		}
-/*		if(joy2toggle(btnX)){
-			//manual raise/lower
-			if(lift_up){
-				motor[liftL] = 50;
-				motor[liftR] = 50;
-			}
-			else if(lift_down){
-				motor[liftL] = -50;
-				motor[liftR] = -50;
-			}
-			else{
-				motor[liftL] = -0;
-				motor[liftR] = +0;
-			}
-			lift_position = 0;
-			resetLiftEncoders();
-		}
-		else{
-			updateLift();
-		}
-*/
-	updateLift();
-//===========================Goal Mechanism==========================
-		if(goal_open){
-			servo[goal] = 10;
-		}
-		if(goal_closed){
-			servo[goal] = 170;
-		}
-		if(goal_control != prev_goal_control){
-			servo[goal] = 180*goal_control;
-		}
-		prev_goal_control = goal_control;
-//===========================Gate Mechanism==========================
-		servo[gate] = 10+108*gate_control;
-//===============================Shrub===============================
-		servo[shrub] = 100*joy2toggle(btnX);
-	}
+    //time1[T4] = 501;
+    resetLiftEncoders();
+    while(1){
+        prev1Btns = joystick.joy1_Buttons;
+        prev2Btns = joystick.joy2_Buttons;
+        getJoystickSettings(joystick);
+        toggle1Btns = (toggle1Btns^((joystick.joy1_Buttons) & (~prev1Btns)));//invert toggle1Btns when the button goes from high to low
+        toggle2Btns = (toggle2Btns^((joystick.joy2_Buttons) & (~prev2Btns)));//invert toggle1Btns when the button goes from high to low
+        //===============================Drive===============================
+#if single_joystick_drive
+        {//single joystick drive //circle clamping
+            float magnitude = sqrt(left_drive_control*left_drive_control+rght_drive_control*rght_drive_control);//the magnitude of the joystick vector
+            if(magnitude >= threshold){
+                //maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
+                //= maximum speed*(fraction speed)*(direction)
+                float speed = (magnitude-threshold)/(1-threshold);
+                speed = quadBezier(speed, min_drive, bezier_drive_control, max_drive);
+                int l = speed*(left_drive_control/magnitude);
+                int r = speed*(rght_drive_control/magnitude);
+                motor[driveL] = l;
+                motor[driveR] = r;
+            }
+            else{
+                motor[driveL] = 0;
+                motor[driveR] = 0;
+            }
+        }
+#else
+        {//dual joystick drive //square clamping
+            int l = max_drive*thresholdify(left_drive_control);
+            int r = max_drive*thresholdify(rght_drive_control);
+            motor[lf] = l;
+            motor[lb] = l;
+            motor[rf] = r;
+            motor[rb] = r;
+        }
+#endif
+        //==============================Intakers=============================
+        motor[intake] = intake_control*80;
+        //==============================Launcher=============================
+        /*if(unjam_btn){
+        clearTimer(T4);
+        }
+        */
+        //if(time1[T4] <= 500){
+        //	motor[launcher] = -50;
+        //}
+        /*while(launcher_control == 1){
+        clearTimer(T4);
+        if(launcher_control == 0){
+        playSound(soundLowBuzz);
+        while(time1[T4] <= 1500){
+        motor[launcher] =  clamp((-10*sq(time1[T4]/1000)+25),0,25);
+        }
+        playSound(soundFastUpwardTones);
+        }
+        }*/
+        if(launcher_control)
+        {
+            clearTimer(T4);
+        }
+
+        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher));
+
+        //================================Lift===============================
+        /*if(reset_encoders){
+        resetLiftEncoders();
+        }*/
+        if(liftBot_btn){
+            lift_position = lift_bottom;
+        }
+        else if(lift30_btn){
+            lift_position = lift_30;
+        }
+        else if(lift60_btn){
+            lift_position = lift_60;
+        }
+        else if(lift90_btn){
+            lift_position = lift_90;
+        }
+        else if(lift120_btn){
+            lift_position = lift_120;
+        }
+        /*		if(joy2toggle(btnX)){
+        //manual raise/lower
+        if(lift_up){
+        motor[liftL] = 50;
+        motor[liftR] = 50;
+        }
+        else if(lift_down){
+        motor[liftL] = -50;
+        motor[liftR] = -50;
+        }
+        else{
+        motor[liftL] = -0;
+        motor[liftR] = +0;
+        }
+        lift_position = 0;
+        resetLiftEncoders();
+        }
+        else{
+        updateLift();
+        }
+        */
+        updateLift();
+        //===========================Goal Mechanism==========================
+        if(goal_open){
+            servo[goal] = 10;
+        }
+        if(goal_closed){
+            servo[goal] = 170;
+        }
+        if(goal_control != prev_goal_control){
+            servo[goal] = 180*goal_control;
+        }
+        prev_goal_control = goal_control;
+        //===========================Gate Mechanism==========================
+        servo[gate] = 10+108*gate_control;
+        //===============================Shrub===============================
+        servo[shrub] = 100*joy2toggle(btnX);
+    }
 }

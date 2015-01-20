@@ -6,18 +6,7 @@ Tele-op should be done in-line unless it needs to do something that might be nee
 #undef encodersPerInch
 #undef kyler //bye Kyler!//hi Kyler?
 
-int clamp(int a, int min, int max)
-{
-    if(a < min)
-    {
-        return min;
-    }
-    if(a > max)
-    {
-        return max;
-    }
-    return a;
-}
+#define clamp(a, min, max) (((a) < (min)) ? (min) : (((a) > (max)) ? (max) : (a)))
 
 float absv(float a)
 {
@@ -25,6 +14,11 @@ float absv(float a)
 }
 
 #define sq(a) (a)*(a)
+
+float lerp(float t, float p1, float p2)
+{
+   return (1-t)*p1 + t*p2;
+}
 
 float quadBezier(float t, float p1, float p2, float p3)
 {
@@ -41,10 +35,10 @@ void resetDriveEncoders(){
 }
 
 const float lift_bottom = 0.0;
-const float lift_30 = 6.0;
-const float lift_60 = 34.0;
-const float lift_90 = 60.0;
-const float lift_120 = 88.0;
+const float lift_30 = 8.0;
+const float lift_60 = 36.0;
+const float lift_90 = 62.0;
+const float lift_120 = 90.0;
 
 float lift_position = 0;//the desired lift position in cm,0 is the position at the start of teleop, max = 32.5 cm
 
@@ -108,6 +102,8 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
         motor[driveR] = motor_vIs+correction;
         motor[driveL] = motor_vIs-correction;
     }
+    motor[driveR] = 0;
+    motor[driveL] = 0;
 }
 
 #define robot_half_width 43.5/2.0//middle of the wheel to middle of the wheel
@@ -116,8 +112,22 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 void turnAngle(float radians, int motor_vIs){
 	int correction = 0;
 	while(nMotorEncoder[driveR]*drive_cm_per_tick >= radians*robot_half_width){
-		correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
+		//correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
 		motor[driveR] = motor_vIs+correction;
 		motor[driveL] = -(motor_vIs-correction);
 	}
+	motor[driveR] = 0;
+    motor[driveL] = 0;
+}
+
+void launcherOn(int motor_vIs){
+    //motor[launcher] = motor_vIs;
+}
+
+#define max_auto_launcher 80
+void launcherOff(){
+    clearTimer(T4);
+    while(time1[T4] <= 1000){
+        //motor[launcher] = (float)(clamp(lerp((float)time1[T4]/1000, max_auto_launcher, 0.0), 0.0, max_auto_launcher));
+    }
 }

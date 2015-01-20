@@ -1,11 +1,12 @@
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
 #pragma config(Sensor, S3,     ,               sensorHiTechnicIRSeeker1200)
-#pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop)
+#pragma config(Sensor, S4,     ,               sensorI2CMuxController)
+#pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     launcher,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S4_C2_1,     liftL,         tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S4_C2_2,     driveL,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S4_C3_1,     liftR,         tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S4_C3_2,     driveR,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S4_C2_1,     driveL,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S4_C2_2,     liftL,         tmotorTetrix, openLoop, reversed)
+#pragma config(Motor,  mtr_S4_C3_1,     driveR,        tmotorTetrix, openLoop, reversed)
+#pragma config(Motor,  mtr_S4_C3_2,     liftR,         tmotorTetrix, openLoop, encoder)
 #pragma config(Servo,  srvo_S4_C4_1,    goal,                 tServoStandard)
 #pragma config(Servo,  srvo_S4_C4_2,    gate,                 tServoStandard)
 #pragma config(Servo,  srvo_S4_C4_3,    shrub,                tServoContinuousRotation)
@@ -81,6 +82,7 @@ center_rot driveDistAndScanForIR(float distance, int motor_vIs)
             //TODO(maybe): set to center_rot_not_found if the center_rotation is outside the range
             center_rotation = clamp(center_rotation, 1, center_rot_count);
         }
+        center_rotation = center_rot_EW; //DEBUG
 
         if(absv(absv(nMotorEncoder[driveL]*drive_cm_per_tick)-distance) < 0.0){
             return center_rotation;
@@ -90,21 +92,24 @@ center_rot driveDistAndScanForIR(float distance, int motor_vIs)
 
 task main()
 {
+    clearScreen();
+
     bool go_for_120 = 0;
     start_pos start_location = 0;
-    lift_pos lift_goto = 0;//0 => bottom, 1 => 30 cm, ...
+    lift_pos lift_goto = 2;//0 => bottom, 1 => 30 cm, ...
 
     servo[gate] = gate_closed; //init the servos
 
     //the config menu
     int wait_timer = 0;
     char* bleh;
-    clearScreen();
     do
     {
-        doCycleMenuItem("ramp start", start_pos_count, (int *) &start_location);
+        updateMenu();
 
-        doCycleMenuItem("bottom\0\30 cm\060 cm\090 cm\0120cm", lift_pos_count, (int *) &lift_goto);
+        //doCycleMenuItem("ramp start", start_pos_count, (int *) &start_location);
+
+        //doCycleMenuItem("bottom\0\30 cm\060 cm\090 cm\0120cm", lift_pos_count, (int *) &lift_goto);
 
         doToggleMenuItem("don't do 120\0do 120", go_for_120);
 
@@ -119,14 +124,12 @@ task main()
             clearTimer(T2);
             wait_timer -= 500;
         }
-
-        updateMenu();
     }
     while(!doMenuItem("confirm"));
 
     nxtDisplayCenteredBigTextLine(4, "Ready?!");
 
-    waitForStart();
+    wait1Msec(1000);//waitForStart();
 
     center_rot center_rotation = center_rot_not_found;
 
@@ -149,7 +152,7 @@ task main()
 	            case lift_pos_30:
 	            {
 	                servo[goal] = 180; //open the goal lock
-	                driveDistAndScanForIR(200, -80); //get off of ramp
+	                driveDistAndScanForIR(200, -40); //get off of ramp
 	                turnAngle(pi/2, 80);
 	                driveDist(30, -80);
 	                turnAngle(-pi/2, 80);
@@ -161,7 +164,7 @@ task main()
 	            case lift_pos_60:
 	            {
 	                servo[goal] = 180; //open the goal lock
-	                driveDistAndScanForIR(230, -80); //get off of ramp
+	                driveDistAndScanForIR(230, -40); //get off of ramp
 	                servo[goal] = 0;
 	            }
 	            break;
@@ -169,7 +172,7 @@ task main()
 	            case lift_pos_90:
 	            {
 	                servo[goal] = 180; //open the goal lock
-	                driveDistAndScanForIR(230, -80); //get off of ramp
+	                driveDistAndScanForIR(230, -40); //get off of ramp
 	                turnAngle(pi/2, 80);
 	                driveDist(30, 80);
 	                turnAngle(pi/4, 80);
@@ -181,7 +184,7 @@ task main()
     }
 
     //launch the preloaded balls //TODO: make launch balls a function
-    motor[launcher] = 100;
+    //motor[launcher] = 100;
     wait1Msec(100);
     motor[intake] = 100;
     if(!go_for_120)
@@ -190,7 +193,7 @@ task main()
         wait1Msec(2500);
     }
     motor[intake] = 0;
-    motor[launcher] = 0;
+    //motor[launcher] = 0;
 
 skip_first_launch:;
 
@@ -243,24 +246,24 @@ skip_first_launch:;
                         }
 
                         //score both balls in the goal
-                        motor[launcher] = 100;
+                        //motor[launcher] = 100;
                         wait1Msec(100);
                         motor[intake] = 100;
                         servo[gate] = gate_open;
                         wait1Msec(2500);
                         motor[intake] = 0;
-                        motor[launcher] = 0;
+                        //motor[launcher] = 0;
                     }
                     break;
                 }
 
-                motor[launcher] = 100;
+                //motor[launcher] = 100;
                 wait1Msec(100);
                 motor[intake] = 100;
                 servo[gate] = gate_open;
                 wait1Msec(2500);
                 motor[intake] = 0;
-                motor[launcher] = 0;
+                //motor[launcher] = 0;
 
                 goto skip_second_launch;
             }
@@ -379,15 +382,15 @@ skip_first_launch:;
             break;
         }
 
-        motor[launcher] = 100;
+        //motor[launcher] = 100;
         wait1Msec(100);
         motor[intake] = 100;
         motor[intake] = 0;
-        motor[launcher] = 0;
+        //motor[launcher] = 0;
     skip_second_launch:;
     }
 
-    driveDist(10, -80);
+    driveDist(10, 80);
     turnAngle(-pi/2, 80);
     driveDist(30, 80);
     driveDist(40, 100);
