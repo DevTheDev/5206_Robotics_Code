@@ -1,10 +1,16 @@
+#ifndef _consts
+#define _consts
+
 /*!
  * consts.c
- * store all the consts used in one place
+ * store global consts used in one place
  */
-//Currently all the values that can be kept for Cascade
+#define ever (;;)
+
+#define pi PI
+
 // Robot values
-#define OPTIMAL_SPEED //?
+#define OPTIMAL_SPEED //
 
 // Robot specs
 #define WHEEL_RADIUS //?
@@ -15,22 +21,11 @@
 #define timeSpeedPerDegrees //? // the time * speed / angle of the robots turns
 #define maxAccel //? //Not self explanatory
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
-
+#define kyler "upp"
 //Autonomous Constants - Need bashing
 #define distOffRamp 50
 #define degreesToCenter 60
 #define distToCenter 30
-
-// Joystick buttons
-#define btnX 1
-#define btnA 2
-#define btnB 3
-#define btnY 4
-
-#define btnLB 5
-#define btnRB 6
-#define btnLT 7
-#define btnRT 8
 
 // Tele-op constants
 #define joystickRange 128.0 // ?
@@ -41,7 +36,9 @@
 // Tele-op bindings
 
 // NXT buttons
-#define leftarrow 2
-#define rightarrow 1
-#define orangebutton 3
-#define graybutton 0
+//#define leftarrow 2
+//#define rightarrow 1
+//#define orangebutton 3
+//#define graybutton 0
+
+#endif
