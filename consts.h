@@ -5,15 +5,17 @@
  * consts.c
  * store global consts used in one place
  */
+typedef unsigned char uint8;
+
 #define ever (;;)
 
 #define pi PI
 
 // Robot values
-#define OPTIMAL_SPEED //
+#define OPTIMAL_SPEED //don't need this
 
 // Robot specs
-#define WHEEL_RADIUS //?
+#define WHEEL_RADIUS 2*2.54
 #define WHEEL_WIDTH //? // width between the wheels on opposite sides of robot
 #define D_RATIO //? // the gear ratio on the drive motors
 #define encoderticks 1440 //the number of encoder ticks in a rotation
@@ -22,6 +24,14 @@
 #define maxAccel //? //Not self explanatory
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
 #define kyler "upp"
+
+#define goal_closed 20
+#define goal_open 170
+
+#define gate_open 227
+#define gate_closed 27
+#define servo_stop 127
+
 //Autonomous Constants - Need bashing
 #define distOffRamp 50
 #define degreesToCenter 60

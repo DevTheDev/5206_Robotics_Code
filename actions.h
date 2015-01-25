@@ -8,7 +8,7 @@ Tele-op should be done in-line unless it needs to do something that might be nee
 
 #define clamp(a, min, max) (((a) < (min)) ? (min) : (((a) > (max)) ? (max) : (a)))
 
-float absv(float a)
+float absf(float a)
 {
     return abs(a);
 }
@@ -27,7 +27,6 @@ float quadBezier(float t, float p1, float p2, float p3)
 
 void resetLiftEncoders(){
 		nMotorEncoder[liftL] = 0;
-		nMotorEncoder[liftR] = 0;
 	}
 void resetDriveEncoders(){
 		nMotorEncoder[driveL] = 0;
@@ -37,7 +36,7 @@ void resetDriveEncoders(){
 const float lift_bottom = 0.0;
 const float lift_30 = 8.0;
 const float lift_60 = 36.0;
-const float lift_90 = 62.0;
+const float lift_90 = 67.0;//62.0;
 const float lift_120 = 90.0;
 
 float lift_position = 0;//the desired lift position in cm,0 is the position at the start of teleop, max = 32.5 cm
@@ -49,6 +48,8 @@ float lift_threshhold = 3.0;
 const float lift_cm_per_tick = PI*4.6/3.0/encoderticks; //the number of cm the lift raises when the lift motors rotate 1 encoder tick
 const float lift_speed_constant = 80.0/(PI/2.0);
 const float lift_slow_constant = 1.0/10.0;
+
+float lift_start = lift_bottom;
 
 void updateLift(){ //TODO: Add constraints on max and min
 #if 0
@@ -64,7 +65,9 @@ void updateLift(){ //TODO: Add constraints on max and min
 		}
 	}
 #endif
-    motor[liftL] = lift_speed_constant*atan(lift_slow_constant*(lift_position-nMotorEncoder[liftL]*lift_cm_per_tick));//this atan is totally arbitrary and was only chosen because gives a good curve(the motor will be at an approx. const. speed far from the wanted point and will slow down near the wanted point)
+
+    //writeDebugStreamLine("%i", nMotorEncoder[liftL]);
+    motor[liftL] = lift_speed_constant*atan(lift_slow_constant*(lift_position-lift_start-nMotorEncoder[liftL]*lift_cm_per_tick));//this atan is totally arbitrary and was only chosen because gives a good curve(the motor will be at an approx. const. speed far from the wanted point and will slow down near the wanted point)
     motor[liftR] = motor[liftL];
 }
 
@@ -90,29 +93,33 @@ void updateLift(){ //TODO: Add constraints on max and min
 	}
 }
 */
-const float drive_cm_per_tick = (PI*2*2.54)/encoderticks;
+const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
 void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 {
+    distance -= 5.0;
     resetDriveEncoders();
 
-    int correction = 0;
-    while(absv(absv(nMotorEncoder[driveL]*drive_cm_per_tick)-distance) >= 0.0)
+    //int correction = 0;
+    while(abs(nMotorEncoder[driveL]*drive_cm_per_tick) < distance)
     {
-        correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
-        motor[driveR] = motor_vIs+correction;
-        motor[driveL] = motor_vIs-correction;
+        //correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
+        motor[driveR] = motor_vIs;//+correction;
+        motor[driveL] = motor_vIs;//-correction;
     }
     motor[driveR] = 0;
     motor[driveL] = 0;
 }
 
-#define robot_half_width 43.5/2.0//middle of the wheel to middle of the wheel
+#define robot_half_width 40.0/2.0//middle of the wheel to middle of the wheel
 
 //RHR
 void turnAngle(float radians, int motor_vIs){
+    resetDriveEncoders();
+
 	int correction = 0;
-	while(nMotorEncoder[driveR]*drive_cm_per_tick >= radians*robot_half_width){
-		//correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
+	while(absf(nMotorEncoder[driveL]*drive_cm_per_tick*0.65) <= radians*robot_half_width)
+	    {
+        //correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
 		motor[driveR] = motor_vIs+correction;
 		motor[driveL] = -(motor_vIs-correction);
 	}
