@@ -100,7 +100,7 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
     resetDriveEncoders();
 
     //int correction = 0;
-    while(abs(nMotorEncoder[driveL]*drive_cm_per_tick) < distance)
+    while(abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance)
     {
         //correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
         motor[driveR] = motor_vIs;//+correction;
@@ -117,7 +117,7 @@ void turnAngle(float radians, int motor_vIs){
     resetDriveEncoders();
 
 	int correction = 0;
-	while(absf(nMotorEncoder[driveL]*drive_cm_per_tick*0.65) <= radians*robot_half_width)
+	while(absf(nMotorEncoder[driveR]*drive_cm_per_tick*0.65) <= radians*robot_half_width)
 	    {
         //correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
 		motor[driveR] = motor_vIs+correction;

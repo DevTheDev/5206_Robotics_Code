@@ -25,11 +25,11 @@ typedef unsigned char uint8;
 #define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
 #define kyler "upp"
 
-#define goal_closed 20
-#define goal_open 170
+#define goal_close 95
+#define goal_open 210
 
-#define gate_open 227
-#define gate_closed 27
+#define net_open 20
+#define net_close 232
 #define servo_stop 127
 
 //Autonomous Constants - Need bashing
