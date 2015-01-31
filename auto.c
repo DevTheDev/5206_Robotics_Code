@@ -94,6 +94,9 @@ task main()
 {
     clearScreen();
 
+    tHTIRS2 irseeker;
+    initSensor(&irseeker, S3);
+
     bool go_for_120 = 0;
     start_pos start_location = 0;
     lift_pos lift_goto = 2;//0 => bottom, 1 => 30 cm, ...

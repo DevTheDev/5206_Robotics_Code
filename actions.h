@@ -3,34 +3,70 @@ Function library for autonomous operations
 Tele-op should be done in-line unless it needs to do something that might be needed in tele-op
 */
 #include "consts.h"
+#include "misc.h"
 #undef encodersPerInch
 #undef kyler //bye Kyler!//hi Kyler?
 
-#define clamp(a, min, max) (((a) < (min)) ? (min) : (((a) > (max)) ? (max) : (a)))
+#define launcher_update_wait 16 //the rate at which we check for a jam
+#define launcher_stop_wait 96 //the time the motor needs to be stopped for a jam to be detected
 
-float absf(float a)
+#define launcher_tolerance 5 //the minimum number of andymark motor encoder ticks(280 per revolution) the motor needs to rotate to not trigger a jam
+
+#define MAX_LAUNCHER_POSITIONS (1*kilobyte/sizeof(int))
+int launcher_positions[MAX_LAUNCHER_POSITIONS]; //looped buffer
+unsigned int current_launcher_position = 0;
+short launcher_accounted_time = 0;
+bool not_jammed = 1;
+short motor_start_time = 0;
+int launcher_last_check = 0;
+
+#if 1
+void initializeLauncherTimer()
 {
-    return abs(a);
+    clearTimer(T3);
 }
 
-#define sq(a) (a)*(a)
+void updateLauncher(int launcher_vIs)
+{// it seems to stop after stop_wait after the motor starts
+    if(launcher_last_check == 0 && motor[launcher])
+    {
+        motor_start_time = time1[T3];
+    }
+    launcher_last_check = motor[launcher];
+    if(time1[T3] - launcher_accounted_time > launcher_update_wait)
+    {
+        launcher_accounted_time += launcher_update_wait;
+        launcher_positions[current_launcher_position++] = nMotorEncoder[launcher];
+        unsigned int old_launcher_position = (current_launcher_position + MAX_LAUNCHER_POSITIONS - launcher_stop_wait/launcher_update_wait)%MAX_LAUNCHER_POSITIONS;
+        if(time1[T3]-motor_start_time > launcher_stop_wait &&
+           motor[launcher] > 0 &&
+           launcher_positions[current_launcher_position] - launcher_positions[old_launcher_position] < launcher_tolerance)
+           //don't run the launcher backwards yet
+        {
+            not_jammed = 0;
+        }
+        current_launcher_position++;
+        current_launcher_position %= MAX_LAUNCHER_POSITIONS;
+    }
+    if(not_jammed)
+    {
+        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_vIs, 0.0), 0.0, launcher_vIs));
+    }
+    else
+    {
+        motor[launcher] = 0;
+    }
+}
+#endif
 
-float lerp(float t, float p1, float p2)
+void resetLiftEncoders()
 {
-   return (1-t)*p1 + t*p2;
+	nMotorEncoder[liftL] = 0;
 }
 
-float quadBezier(float t, float p1, float p2, float p3)
+void resetDriveEncoders()
 {
-    return sq(1-t)*p1 + 2.0*t*(1-t)*p2 + sq(t)*p3;
-}
-
-void resetLiftEncoders(){
-		nMotorEncoder[liftL] = 0;
-	}
-void resetDriveEncoders(){
-		nMotorEncoder[driveL] = 0;
-		nMotorEncoder[driveR] = 0;
+	nMotorEncoder[driveR] = 0;
 }
 
 const float lift_bottom = 0.0;

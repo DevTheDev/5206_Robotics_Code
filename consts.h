@@ -14,6 +14,8 @@ typedef unsigned char uint8;
 // Robot values
 #define OPTIMAL_SPEED //don't need this
 
+#define launcher_slow_time 1000.0
+
 // Robot specs
 #define WHEEL_RADIUS 2*2.54
 #define WHEEL_WIDTH //? // width between the wheels on opposite sides of robot
