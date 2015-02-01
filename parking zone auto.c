@@ -85,7 +85,8 @@ task main()
     //driveDist(20, -40);
     turnAngle(pi/2*0.6, 80);
 
-    //UNCOMMENT ME: lift_position = 90.0;
+    //UNCOMMENT ME: lift_position = 90.0
+    ;
 
     wait1Msec(5000);
 

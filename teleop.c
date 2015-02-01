@@ -136,7 +136,7 @@ task main()
     resetLiftEncoders();
     lift_position = lift_60;
     lift_start = lift_60;
-    initializeLauncherTimer();
+    //initializeLauncherTimer();
 
     while(1){
         prev1Btns = joystick.joy1_Buttons;
@@ -178,7 +178,7 @@ task main()
         }
         else
         {
-            motor[intake] = intake_control*45;
+            motor[intake] = intake_control*50;
         }
         //==============================Launcher=============================
         /*if(unjam_btn){
@@ -203,9 +203,16 @@ task main()
             clearTimer(T4);
         }
 
+        if(joy2press(btnY))
+        {
+            clearTimer(T3)
+            while(time1[T3] < 100)
+            {
+                motor[launcher] = -40;
+            }
+        }
         //pdateLauncher(max_launcher);
         motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher)
-
         /*if(launcher_force_unjam)
         {
             not_jammed = 1;

@@ -77,6 +77,13 @@ task main()
     wait1Msec(300);
     lift_position = 35.0;
     wait1Msec(4000);
+    //goto parking zone
+#if 0
+    turnAngle(pi/4, -80);
+    driveDist(75, 80);
+    turnAngle(pi/4, 80);
+    driveDist(190, 80);
+#endif
 #if 0
 
     wait1Msec(400);

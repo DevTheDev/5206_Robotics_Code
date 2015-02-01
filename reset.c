@@ -15,7 +15,7 @@
 #include "actions.h";
 
 int intake_speed = 80;
-int launcher_speed = 80;
+int launcher_speed = 100;
 bool goal_closed_control = 0;
 bool net_up = 1;
 
