@@ -11,46 +11,19 @@ typedef unsigned char uint8;
 
 #define pi PI
 
-// Robot values
-#define OPTIMAL_SPEED //don't need this
+#define launcher_slow_time 1000.0 //How long the launcher slows for after button release
 
-#define launcher_slow_time 1000.0
-
-// Robot specs
-#define WHEEL_RADIUS 2*2.54
-#define WHEEL_WIDTH //? // width between the wheels on opposite sides of robot
-#define D_RATIO //? // the gear ratio on the drive motors
-#define encoderticks 1440 //the number of encoder ticks in a rotation
-#define scoredist //?
-#define timeSpeedPerDegrees //? // the time * speed / angle of the robots turns
-#define maxAccel //? //Not self explanatory
-#define encodersPerInch encoderticks/(2*WHEEL_RADIUS*PI)
-#define kyler "upp"
+//Servo Values
+#define servo_stop 127 //Stopping point for continuous servos
 
 #define goal_close 95
 #define goal_open 210
 
-#define net_open 20
 #define net_close 232
-#define servo_stop 127
+#define net_open 20
 
-//Autonomous Constants - Need bashing
-#define distOffRamp 50
-#define degreesToCenter 60
-#define distToCenter 30
-
-// Tele-op constants
-#define joystickRange 128.0 // ?
-#define threshhold 6
-#define constdrivereg 100.0//80.0/128.0
-#define DCstop 0 //Simpler stop
-
-// Tele-op bindings
-
-// NXT buttons
-//#define leftarrow 2
-//#define rightarrow 1
-//#define orangebutton 3
-//#define graybutton 0
+// Robot specs
+#define WHEEL_RADIUS 2*2.54 //The radius of the wheels, for distance calculation (converted to cm)
+#define encoderticks 1440 //the number of encoder ticks in a rotation
 
 #endif

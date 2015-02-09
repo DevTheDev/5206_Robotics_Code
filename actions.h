@@ -4,8 +4,6 @@ Tele-op should be done in-line unless it needs to do something that might be nee
 */
 #include "consts.h"
 #include "misc.h"
-#undef encodersPerInch
-#undef kyler //bye Kyler!//hi Kyler?
 
 #define launcher_update_wait 16 //the rate at which we check for a jam
 #define launcher_stop_wait 96 //the time the motor needs to be stopped for a jam to be detected
