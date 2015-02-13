@@ -31,6 +31,9 @@ task main()
 		clearTimer(T1);
 		int left_lift = 0;
 		int right_lift = 0;
+		char blug[16];
+		sprintf(blug, "Bat: %f V", externalBattery/1000);
+		displayMenuItem(blug);
 		if(doMenuItem("lift up")){
 			//lift_position += 1*dt;//Bash
 			left_lift = 50;
