@@ -114,7 +114,7 @@ float deadzone(float a){
 //Launcher Control
 #define launcher_control (joy1toggle(btnRT) || joy2Btn(btnRT))
 #define launcher_force_unjam joy2Btn(btnBack)
-#define launcher_unjam joy1Btn(btnY)
+#define launcher_unjam joy2Btn(btnY)
 
 //Net Control
 #define net_pressed joy1press(btnLB)
@@ -194,8 +194,14 @@ task main()
                 motor[launcher] = -40;
             }
         }
-        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher) //Coast at the end
-
+        if(time1[T3] > 1000)
+        {
+            motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher) //Coast at the end
+        }
+        else
+        {
+            motor[launcher] = 0;
+        }
         //================================Lift===============================
         float lift_vel = deadzone(joystick.joy2_y1)*100.0/128.0;
         motor[liftL] = lift_vel;

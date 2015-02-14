@@ -55,7 +55,7 @@ task main()
     driveDist(150, -15);
     //playSound(soundBeepBeep);
     servo[shrub] = 227;
-    lift_position = 40.0;
+    lift_position = lift_60;
     wait1Msec(4000);
     driveDist(60, -80);
     servo[shrub] = 127;
