@@ -51,10 +51,17 @@ task main()
     calibrateGyro();
     eraseDisplay();
     displayCenteredTextLine(3, "Ready");
+    playSoundFile("Sensor Calibrated.rso");
     char ugh[16];
     sprintf(ugh, "Offset: %f", offset);
     displayCenteredTextLine(4, ugh);
-    playSound(soundUpwardTones);
+    while(externalBattery == -1){
+        playSoundFile("Turn The Robot On.rso");
+        while(bSoundActive);
+    }
+    playSoundFile("Aligned and Preloaded.rso");
+    wait1Msec(3000);
+    playSoundFile("Online and Ready.rso");
     waitForStart();
 
     startTask(lift);
