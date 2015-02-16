@@ -1,3 +1,4 @@
+#pragma config(Sensor, S2,     gyro,           sensorNone)
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
 #pragma config(Sensor, S4,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
@@ -13,6 +14,7 @@
 
 #include "actions.h"
 #include "consts.h"
+#include "menu.h"
 
 #include "joystickdriver.c"
 #include "3rd Party Sensor Drivers\drivers\hitechnic-irseeker-v2.h"
@@ -36,6 +38,7 @@ bool seeIR(tHTIRS2 * irseeker)
 
 task main()
 {
+    clearScreen();
     tHTIRS2 irseeker;
     initSensor(&irseeker, S3);
 
@@ -44,20 +47,28 @@ task main()
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
+    wait1Msec(100);//wait for everything to stop
+    calibrateGyro();
+    eraseDisplay();
+    displayCenteredTextLine(3, "Ready");
+    char ugh[16];
+    sprintf(ugh, "Offset: %f", offset);
+    displayCenteredTextLine(4, ugh);
+    playSound(soundUpwardTones);
     waitForStart();
 
     startTask(lift);
 
-    //lift_position = lift_120;
+    lift_position = lift_120;
 
     driveDist(40, 80);//weird stuff happens if you wait after this
-    turnAngle(pi/2, 50);
+    turnAngle(80, 50);//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
 
     uint8 n_turns = 0;
 
     {
         int motor_vIs = 20;
-        int distance = 76;
+        int distance = 56;
 
         resetDriveEncoders();
 
@@ -72,7 +83,8 @@ task main()
             motor[driveR] = motor_vIs;
             if(nMotorEncoder[driveR]*drive_cm_per_tick > distance)
             {
-                turnAngle(pi/4*0.50, -80);
+                driveDist(30, motor_vIs);
+                turnAngle(40, -50);
                 resetDriveEncoders();
                 if(++n_turns >= 3)
                 {
@@ -81,18 +93,16 @@ task main()
             }
         }
     }
+    turnAngle(80, 50);
 
-    //driveDist(20, -40);
-    turnAngle(pi/2*0.6, 80);
-
-    //UNCOMMENT ME: lift_position = 90.0
-    ;
+    //UNCOMMENT ME: lift_position = 90.0;
 
     wait1Msec(5000);
 
-    driveDist(10, 30);
-    //servo[net] = net_open;
-
+    driveDist(17, -30);
+    wait1Msec(500);
+    servo[net] = net_open;
+    wait1Msec(6000);
     return;
 
     switch(n_turns)
@@ -100,11 +110,11 @@ task main()
         case 0:
         {
             driveDist(10, -80);
-            turnAngle(pi/2, 40);
+            turnAngle(80, 50);
             driveDist(90, -80);
-            turnAngle(pi/2, 40);
+            turnAngle(80, 50);
             driveDist(150, -80);
-            turnAngle(-pi/4, 40);
+            turnAngle(40, -50);
         }
         break;
     }
@@ -113,8 +123,8 @@ task main()
     servo[goal] = goal_close;
 
     driveDist(85, 80);
-    turnAngle(pi/4, 40);
+    turnAngle(40, 50);
     driveDist(240, 80);
-    turnAngle(pi/2, 40);
+    turnAngle(80, 50);
     driveDist(90, -80);
 }

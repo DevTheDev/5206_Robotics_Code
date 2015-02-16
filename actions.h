@@ -71,7 +71,7 @@ const float lift_bottom = 0.0;
 const float lift_30 = 8.0;//needs to be lowered for new net
 const float lift_60 = 32.0;
 const float lift_90 = 67.0;//62.0; needs to be lowered for new net
-const float lift_120 = 90.0;//needs to be lowered for new net
+const float lift_120 = 85.0;
 
 float lift_position = 0;//the desired lift position in cm,0 is the position at the start of teleop, max = 32.5 cm
 
@@ -85,90 +85,76 @@ const float lift_slow_constant = 1.0/10.0;
 
 float lift_start = lift_bottom;
 
-void updateLift(){ //TODO: Add constraints on max and min
-#if 0
-    if(lift_position <= lift_bottom){
-		bool do_return = 0;
-		if(nMotorEncoder[liftL]*lift_cm_per_tick <= lift_bottom+lift_threshhold){
-			do_return = 1;
-			motor[liftL] = 0;
-			motor[liftR] = 0;
-		}
-		if(do_return){
-			return;
-		}
-	}
-#endif
-
-    //writeDebugStreamLine("%i", nMotorEncoder[liftL]);
+void updateLift(){ //TODONT: Add constraints on max and min
     motor[liftL] = lift_speed_constant*atan(lift_slow_constant*(lift_position-lift_start-nMotorEncoder[liftL]*lift_cm_per_tick));//this atan is totally arbitrary and was only chosen because gives a good curve(the motor will be at an approx. const. speed far from the wanted point and will slow down near the wanted point)
     motor[liftR] = motor[liftL];
 }
 
-/*
-void updateLift(){ //TODO: Add constraints on max and min
-	if(lift_position > lift_cm_per_tick*nMotorEncoder[liftL]){
-		motor[liftL] = 50;
-	}
-	else if(lift_position < lift_cm_per_tick*nMotorEncoder[liftL]){
-		motor[liftL] = -50;
-	}
-	else{
-		motor[liftL] = 0;
-	}
-	if(lift_position > lift_cm_per_tick*nMotorEncoder[liftR]){
-		motor[liftR] = 50;
-	}
-	else if(lift_position < lift_cm_per_tick*nMotorEncoder[liftR]){
-		motor[liftR] = -50;
-	}
-	else{
-		motor[liftR] = 0;
-	}
+float offset = 0;
+
+void calibrateGyro()
+{
+    const int itts = 500;
+    offset = 0;
+    char load_display[16];
+    for(int i = 0; i < itts; i++)
+    {
+        int line = 3;
+        sprintf(load_display, "%1.3f complete", (float)(i)/itts);
+        displayCenteredTextLine(line++, "Calibrating");
+        displayCenteredTextLine(line++, "Please do not move");
+        displayCenteredTextLine(line++, load_display);
+
+        offset += SensorValue[gyro];
+
+        wait1Msec(5);
+    }
+    offset /= itts;
 }
-*/
+
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
 void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 {
     distance -= 5.0;
     resetDriveEncoders();
 
-    //int correction = 0;
-    while(abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance)
-    {
-        //correction = 0;//power_difference_per_tick*(nMotorEncoder[driveL] - nMotorEncoder[driveR]);
-        motor[driveR] = motor_vIs;//+correction;
-        motor[driveL] = motor_vIs;//-correction;
-    }
+    motor[driveR] = motor_vIs;
+    motor[driveL] = motor_vIs;
+
+    while(abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
+
     motor[driveR] = 0;
     motor[driveL] = 0;
 }
 
 #define robot_half_width 40.0/2.0//middle of the wheel to middle of the wheel
 
+#define gyro_adjustment 60.0/65.0 //TODO: bash this
 //RHR
-void turnAngle(float radians, int motor_vIs){
-    resetDriveEncoders();
+void turnAngle(float degrees, int motor_vIs){
+    clearTimer(T1);
+	motor[driveR] = motor_vIs;
+	motor[driveL] = -(motor_vIs);
+	float theta = 0;
+	char namE[16];
+    sprintf(namE, "Initial: %f", theta);
+    displayCenteredTextLine(1, namE);
+    while(abs(theta) < degrees)
+	{
+	    float dt = time1[T1]/(1000.0);
+        clearTimer(T1);
 
-	int correction = 0;
-	while(absf(nMotorEncoder[driveR]*drive_cm_per_tick*0.65) <= radians*robot_half_width)
-	    {
-        //correction = -power_difference_per_tick*(nMotorEncoder[driveL] + nMotorEncoder[driveR]);
-		motor[driveR] = motor_vIs+correction;
-		motor[driveL] = -(motor_vIs-correction);
+        float omega = SensorValue[gyro]-offset;
+        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        wait1Msec((8-T1)%8);
+        char bad_at_names[16];
+        sprintf(bad_at_names, "Current: %f", theta);
+        displayCenteredTextLine(2, bad_at_names);
+
 	}
 	motor[driveR] = 0;
     motor[driveL] = 0;
-}
-
-void launcherOn(int motor_vIs){
-    //motor[launcher] = motor_vIs;
-}
-
-#define max_auto_launcher 80
-void launcherOff(){
-    clearTimer(T4);
-    while(time1[T4] <= 1000){
-        //motor[launcher] = (float)(clamp(lerp((float)time1[T4]/1000, max_auto_launcher, 0.0), 0.0, max_auto_launcher));
-    }
+    char bad_at_names[16];
+    sprintf(bad_at_names, "Final: %f", theta);
+    displayCenteredTextLine(3, bad_at_names);
 }

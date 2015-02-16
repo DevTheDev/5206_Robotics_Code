@@ -188,7 +188,7 @@ task main()
 
         if(launcher_unjam)
         {
-            clearTimer(T3)
+            clearTimer(T3);
             while(time1[T3] < 100)
             {
                 motor[launcher] = -40;
@@ -196,7 +196,7 @@ task main()
         }
         if(time1[T3] > 1000)
         {
-            motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher) //Coast at the end
+            motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher)); //Coast at the end
         }
         else
         {
