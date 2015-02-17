@@ -120,6 +120,7 @@ float deadzone(float a){
 #define net_pressed joy1press(btnLB)
 #define net_close_btn joy2Btn(btnX)
 #define net_open_btn joy2Btn(btnB)
+#define net_center_btn joy1Btn(btnB)
 
 //Goal Lock Control
 #define goal_open_btn joy2Btn(btnLB)
@@ -228,12 +229,17 @@ task main()
         if(net_close_btn){
             net_down = 1;
         }
+        if(net_center_btn){
+            net_down = 2;
+        }
         if(net_pressed)
         {
             net_down = !net_down;
         }
 
-        servo[net] = net_open + (net_close-net_open)*net_down;
+        const unsigned short net_positions[3] = {net_open, net_close, net_center};
+
+        servo[net] = net_positions[net_down];
 
         //===============================Shrub===============================
         servo[shrub] = 100*joy2toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;

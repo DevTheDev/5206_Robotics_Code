@@ -58,9 +58,11 @@ task main()
     while(externalBattery == -1){
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
+        wait1Msec(2000);
     }
-    playSoundFile("AlignedLoaded.rso");
-    wait1Msec(3000);
+    //playSoundFile("AlignedLoaded.rso");
+    //while(bSoundActive);
+    //wait1Msec(3000);
     playSoundFile("Ready.rso");
     waitForStart();
 
@@ -70,7 +72,6 @@ task main()
 
     driveDist(40, 80);//weird stuff happens if you wait after this
     turnAngle(80, 50);//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
-
     uint8 n_turns = 0;
 
     {
@@ -90,8 +91,20 @@ task main()
             motor[driveR] = motor_vIs;
             if(nMotorEncoder[driveR]*drive_cm_per_tick > distance)
             {
-                driveDist(30, motor_vIs);
-                turnAngle(40, -50);
+                if(n_turns == 1)
+                {
+                    driveDist(26, motor_vIs);
+                }
+                else
+                {
+                    driveDist(19, motor_vIs);
+                }
+                if(n_turns == 3){
+                turnAngle(35, -50);
+                }
+                else{
+                turnAngle(38, -50);
+                }
                 resetDriveEncoders();
                 if(++n_turns >= 3)
                 {
@@ -100,16 +113,41 @@ task main()
             }
         }
     }
-    turnAngle(80, 50);
 
-    //UNCOMMENT ME: lift_position = 90.0;
+    if(n_turns == 2)
+    {
+        driveDist(9, -20);
+    }
+    else if(n_turns == 1)
+    {
+        driveDist(7, -20);
+    }
+    else
+    {
+    }
+        turnAngle(75, 50);
 
     wait1Msec(5000);
-
-    driveDist(17, -30);
+    if(n_turns == 1){
+        driveDist(10, -30);
+    }
+    else{
+        driveDist(15, -30);
+    }
     wait1Msec(500);
     servo[net] = net_open;
     wait1Msec(6000);
+    driveDist(20, 30);
+    if(n_turns == 0)
+    {
+        turnAngle(40, -50);
+    }
+    else
+    {
+        turnAngle(80, -50);
+    }
+    lift_position = lift_90;
+    wait1Msec(7000);
     return;
 
     switch(n_turns)
