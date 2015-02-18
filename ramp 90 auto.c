@@ -1,6 +1,5 @@
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
 #pragma config(Sensor, S2,     gyro,           sensorNone)
-#pragma config(Sensor, S4,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     driveL,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C2_1,     launcher,      tmotorTetrix, openLoop, reversed, encoder)
@@ -15,27 +14,15 @@
 #include "actions.h"
 #include "consts.h"
 
-#include "joystickdriver.c"
-
-//TODO: debug stream
-
-task lift() //TODO: move this to actions?
-{
-    for ever
-    {
+task lift(){
+    for ever{
         updateLift();
     }
 }
 
-
-bool seeIR()
-{
-    return 1;
-}
-
 task main()
 {
-    servo[net] = net_close;
+	servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
@@ -58,79 +45,37 @@ task main()
 
     resetLiftEncoders();
     startTask(lift);
-/*
-    driveDist(110, 15);
-    lift_position = lift_90;
-    servo[shrub] = 227;
-    driveDist(50, 80);
-    servo[shrub] = 127;
-    wait1Msec(400);
-    turnAngle(pi/4, 80);
-    driveDist(90, 80);
-    turnAngle(pi/2*0.75, 80);
-    */
+
     driveDist(150, -15);
-    //playSound(soundBeepBeep);
-    servo[shrub] = 227;
     lift_position = lift_60;
-    wait1Msec(4000);
-    driveDist(60, -80);
-    servo[shrub] = 127;
-
-    motor[driveL] = -80;
-    motor[driveR] = -80;
-    wait1Msec(500);
-//    servo[goal] = goal_close;
-//    wait1Msec(500);
-//    servo[goal] = goal_open;
-//    wait1Msec(500);
+    wait1Msec(3500);//minimize wasted time here for the lift
+    motor[driveR] = -40;
+    motor[driveL] = -40;
+    wait1Msec(500);//bash to figure out how close we need to be
     servo[goal] = goal_close;
-    servo[shrub] = 227;
-    wait1Msec(500);
-    motor[driveL] = 0;
+    wait1Msec(500);//bash to figure out how much time is needed here
     motor[driveR] = 0;
-    wait1Msec(2000);
-    servo[net] = net_open; //add something to move the lift down, and lift deadzone in teleop.
-    wait1Msec(300);
-    lift_position = 35.0;
-    wait1Msec(4000);
-    //goto parking zone
-#if 0
-    turnAngle(pi/4, -80);
-    driveDist(75, 80);
-    turnAngle(pi/4, 80);
-    driveDist(190, 80);
-#endif
-#if 0
-
-    wait1Msec(400);
-    turnAngle(pi/4, 80);
-    driveDist(90, -80);
-    turnAngle(-pi/2*0.75, 80);
-
-    driveDist(60, -80);
-    motor[driveL] = -80;
-    motor[driveR] = -80;
-    wait1Msec(500);
-    servo[goal] = goal_close;
-    servo[shrub] = 227;
-    wait1Msec(100);
-    servo[goal] = goal_open;
-    wait1Msec(100);
-    servo[goal] = goal_close;
-    //servo[goal] = goal_open;
-    //wait1Msec(100);
-    //servo[goal] = goal_close;
-    wait1Msec(1000);
     motor[driveL] = 0;
-    motor[driveR] = 0;
     servo[net] = net_open;
-    driveDist(80, 80);
-    turnAngle(pi/4*0.65, 80);
-    driveDist(180, 80);
-    turnAngle(pi/2, 80);
-    driveDist(60, -80);
-    wait1Msec(0);
-    servo[net] = servo_stop;
-#endif
+    wait1Msec(500);//Time to score the large ball in the 60
+    servo[net] = net_close;
+    turnAngle(160, 50); //Check angle and direction, may want to go further to get both back into the zone
+    servo[goal] = goal_open;
+    //launcher on
+    driveDist(15, 50);//Check distance to get away from goal
+    //might need a wait for the launcher
+    lift_position = lift_90;
+    turnAngle(160, -50);
+    wait1Msec(1000);//minimize wasted time here for the lift
+    motor[driveR] = -40;
+    motor[driveL] = -40;
+    wait1Msec(500);//bash to figure out how close we need to be
+    servo[goal] = goal_close;
+    wait1Msec(500);//bash
+    motor[driveR] = 0;
+    motor[driveL] = 0;
+    servo[net] = net_open;
+    driveDist(40, 50); //Check distance
+    turnAngle(160, 50); //Check angle
+
 }
