@@ -13,6 +13,7 @@
 
 #include "actions.h"
 #include "consts.h"
+#include "menu.h"
 
 task lift(){
     for ever{
@@ -27,6 +28,24 @@ task main()
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
 
+    bool confirmed = 0;
+    int wait_time = 0;
+    bool calibrated = 0;
+    bool parking_zone = 0;
+
+    while(confirmed == 0){
+        char bat[16];
+		sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+		displayMenuItem(bat);
+		menu_size++;
+		char wait[16];
+		sprintf(wait, "");
+		if(doMenuItem("dec wait") && time1[T2] >= 200){
+		    clearTimer(T2);
+		    wait_time -= 500;
+		}
+
+    }
     calibrateGyro();
     eraseDisplay();
     displayCenteredTextLine(3, "Ready");
