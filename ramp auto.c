@@ -35,20 +35,19 @@ bool seeIR()
 
 task main()
 {
+    //Servo Intialization
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
 
+    //Gyro Calibration
     calibrateGyro();
     eraseDisplay();
     displayCenteredTextLine(3, "Ready");
     playSoundFile("Calibrated.rso");
-    char ugh[16];
-    sprintf(ugh, "Offset: %f", offset);
-    displayCenteredTextLine(4, ugh);
 
-    while(externalBattery == -1){
+    while(externalBattery == -1){//Tells us if the robot is off
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
         wait1Msec(2000);
@@ -58,19 +57,8 @@ task main()
 
     resetLiftEncoders();
     startTask(lift);
-/*
-    driveDist(110, 15);
-    lift_position = lift_90;
-    servo[shrub] = 227;
-    driveDist(50, 80);
-    servo[shrub] = 127;
-    wait1Msec(400);
-    turnAngle(pi/4, 80);
-    driveDist(90, 80);
-    turnAngle(pi/2*0.75, 80);
-    */
+
     driveDist(150, -15);
-    //playSound(soundBeepBeep);
     servo[shrub] = 227;
     lift_position = lift_60;
     wait1Msec(4000);
@@ -80,57 +68,22 @@ task main()
     motor[driveL] = -80;
     motor[driveR] = -80;
     wait1Msec(500);
-//    servo[goal] = goal_close;
-//    wait1Msec(500);
-//    servo[goal] = goal_open;
-//    wait1Msec(500);
     servo[goal] = goal_close;
     servo[shrub] = 227;
     wait1Msec(500);
     motor[driveL] = 0;
     motor[driveR] = 0;
     wait1Msec(2000);
-    servo[net] = net_open; //add something to move the lift down, and lift deadzone in teleop.
+    servo[net] = net_open;
     wait1Msec(300);
     lift_position = 35.0;
     wait1Msec(4000);
+
     //goto parking zone
 #if 0
     turnAngle(pi/4, -80);
     driveDist(75, 80);
     turnAngle(pi/4, 80);
     driveDist(190, 80);
-#endif
-#if 0
-
-    wait1Msec(400);
-    turnAngle(pi/4, 80);
-    driveDist(90, -80);
-    turnAngle(-pi/2*0.75, 80);
-
-    driveDist(60, -80);
-    motor[driveL] = -80;
-    motor[driveR] = -80;
-    wait1Msec(500);
-    servo[goal] = goal_close;
-    servo[shrub] = 227;
-    wait1Msec(100);
-    servo[goal] = goal_open;
-    wait1Msec(100);
-    servo[goal] = goal_close;
-    //servo[goal] = goal_open;
-    //wait1Msec(100);
-    //servo[goal] = goal_close;
-    wait1Msec(1000);
-    motor[driveL] = 0;
-    motor[driveR] = 0;
-    servo[net] = net_open;
-    driveDist(80, 80);
-    turnAngle(pi/4*0.65, 80);
-    driveDist(180, 80);
-    turnAngle(pi/2, 80);
-    driveDist(60, -80);
-    wait1Msec(0);
-    servo[net] = servo_stop;
 #endif
 }

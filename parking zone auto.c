@@ -1,6 +1,5 @@
 #pragma config(Sensor, S2,     gyro,           sensorNone)
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S4,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     driveL,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C2_1,     launcher,      tmotorTetrix, openLoop, reversed, encoder)
@@ -38,45 +37,46 @@ bool seeIR(tHTIRS2 * irseeker)
 
 task main()
 {
-    clearScreen();
+    clearScreen();//Turns off built in diagnostics and clears the display
+
+    //IR Initialization
     tHTIRS2 irseeker;
     initSensor(&irseeker, S3);
-
     irseeker.mode = DSP_1200;
 
+    //Servo Initialization
     servo[net] = net_close;
     servo[goal] = goal_open;
-    servo[shrub] = 127;
+    servo[shrub] = servo_stop;
     wait1Msec(100);//wait for everything to stop
+
+    //Gyro Calibration
     calibrateGyro();
     eraseDisplay();
     displayCenteredTextLine(3, "Ready");
     playSoundFile("Calibrated.rso");
-    char ugh[16];
-    sprintf(ugh, "Offset: %f", offset);
-    displayCenteredTextLine(4, ugh);
-    while(externalBattery == -1){
+
+
+    while(externalBattery == -1){//Tells us if the robot is off
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
         wait1Msec(2000);
     }
-    //playSoundFile("AlignedLoaded.rso");
-    //while(bSoundActive);
-    //wait1Msec(3000);
+
     playSoundFile("Ready.rso");
     waitForStart();
 
+    //Begin raising lift
     startTask(lift);
-
     lift_position = lift_120;
 
     driveDist(40, 80);//weird stuff happens if you wait after this
-    turnAngle(80, 50);//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
+    turnAngle(80, 50);
     uint8 n_turns = 0;
 
     {
         int motor_vIs = 20;
-        int distance = 56;
+        int distance = 56;//Length of a section of the octagon
 
         resetDriveEncoders();
 
@@ -99,12 +99,14 @@ task main()
                 {
                     driveDist(19, motor_vIs);
                 }
+
                 if(n_turns == 3){
                 turnAngle(35, -50);
                 }
                 else{
                 turnAngle(38, -50);
                 }
+
                 resetDriveEncoders();
                 if(++n_turns >= 3)
                 {

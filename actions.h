@@ -131,7 +131,7 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 
 #define gyro_adjustment 60.0/65.0 //TODO: bash this
 //RHR
-void turnAngle(float degrees, int motor_vIs){
+void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
     clearTimer(T1);
 	motor[driveR] = motor_vIs;
 	motor[driveL] = -(motor_vIs);
