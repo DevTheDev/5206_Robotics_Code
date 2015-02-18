@@ -25,19 +25,21 @@ int debug = 0;
 task main()
 {
     servo[shrub] = servo_stop;
-    servo[net] = servo_stop;
+    servo[net] = net_close;
 	clearScreen();
+
 	while(1){
-		float dt = time1[T1]/1000.0;
-		clearTimer(T1);
 		int left_lift = 0;
 		int right_lift = 0;
-		char blug[16];
-		sprintf(blug, "Bat: %f V", externalBattery/1000.0);
-		displayMenuItem(blug);
+		char display[16];
+		char bat[16];
+
+		sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+		displayMenuItem(bat);
 		menu_size++;
+
+		//Lift Control
 		if(doMenuItem("lift up")){
-			//lift_position += 1*dt;//Bash
 			left_lift = 50;
 			right_lift = 50;
 		}
@@ -45,19 +47,13 @@ task main()
 			left_lift = -50;
 			right_lift = -50;
 		}
-		/*if(doMenuItem("left lift up")){
-			left_lift = 50;
-		}
-		if(doMenuItem("right lift up")){
-			right_lift = 50;
-		}*/
 		motor[liftL] = left_lift;
 		motor[liftR] = right_lift;
-		//updateLift();
-		char blah[16];
-		sprintf(blah, "intake %i", intake_speed);
+
+		//Intake Control
+		sprintf(display, "intake %i", intake_speed);
 		bool intake_pressed = 0;
-		if(doMenuItem(blah)){
+		if(doMenuItem(display)){
 			intake_pressed = 1;
 		}
 		if(doMenuItem("inc intake") && time1[T2] >= 200){
@@ -68,9 +64,11 @@ task main()
 			clearTimer(T2);
 			-- intake_speed;
 		}
-		sprintf(blah, "launcher %i", launcher_speed);
+
+		//Launcher Controls
+		sprintf(display, "launcher %i", launcher_speed);
 		bool launcher_pressed = 0;
-		if(doMenuItem(blah)){
+		if(doMenuItem(display)){
 			launcher_pressed = 1;
 		}
 		if(doMenuItem("inc launcher") && time1[T2] >= 200){
@@ -81,10 +79,13 @@ task main()
 			clearTimer(T2);
 			-- launcher_speed;
 		}
+
+		//Both Intake and Launcher
 		if(doMenuItem("launch/intake")){
 			intake_pressed = 1;
 			launcher_pressed = 1;
 		}
+
 		{
 			if(launcher_pressed)
 	        {
@@ -96,12 +97,15 @@ task main()
         {
 			motor[intake] = intake_speed*intake_pressed;
 		}
+
 		{
+		    //Goal Lock
 			doToggleMenuItem("shut goal lock\0open goal lock", goal_closed_control);
 			servo[goal] = goal_open + (goal_close-goal_open) * goal_closed_control;
 		}
 		{
-			doToggleMenuItem("raise net\0lower net", net_up); //it's spelled correctly
+		    //Net
+			doToggleMenuItem("open net\0shut net", net_up);
 			servo[net] = net_open + (net_close-net_open) * net_up;
 		}
 		updateMenu();
