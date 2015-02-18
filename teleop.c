@@ -109,7 +109,7 @@ float deadzone(float a){
 
 //Intake Control
 #define intake_control (joy1toggle(btnRB) || joy2Btn(btnRB))
-#define intake_back_control joy2btn(btnBack)
+#define intake_back_control joy2Btn(btnBack)
 
 //Launcher Control
 #define launcher_control (joy1toggle(btnRT) || joy2Btn(btnRT))
@@ -243,5 +243,10 @@ task main()
 
         //===============================Shrub===============================
         servo[shrub] = 100*joy2toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;
+
+        //==========================Low Battery Notification=================
+        if(externalBattery < 1400){
+        servo[shrub] = 100*(sin(10*(float)time1[T1]/1000.0))+127;
+        }
     }
 }

@@ -17,9 +17,7 @@
 
 #include "joystickdriver.c"
 
-//TODO: debug stream
-
-task lift() //TODO: move this to actions?
+task lift()
 {
     for ever
     {
@@ -27,11 +25,6 @@ task lift() //TODO: move this to actions?
     }
 }
 
-
-bool seeIR()
-{
-    return 1;
-}
 
 task main()
 {
@@ -58,6 +51,7 @@ task main()
     resetLiftEncoders();
     startTask(lift);
 
+    //Get off the ramp, and raise the lift to the correct height
     driveDist(150, -15);
     servo[shrub] = 227;
     lift_position = lift_60;
@@ -65,6 +59,7 @@ task main()
     driveDist(60, -80);
     servo[shrub] = 127;
 
+    //Grab the goal (Done without distance for easier multitasking)
     motor[driveL] = -80;
     motor[driveR] = -80;
     wait1Msec(500);
@@ -73,13 +68,13 @@ task main()
     wait1Msec(500);
     motor[driveL] = 0;
     motor[driveR] = 0;
+
+    //Score in the goal
     wait1Msec(2000);
     servo[net] = net_open;
     wait1Msec(300);
-    lift_position = 35.0;
-    wait1Msec(4000);
 
-    //goto parking zone
+    //goto parking zone, currently disabled
 #if 0
     turnAngle(pi/4, -80);
     driveDist(75, 80);
