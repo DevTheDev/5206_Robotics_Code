@@ -1,7 +1,14 @@
+<<<<<<< HEAD
+=======
+#ifndef _consts
+#define _consts
+
+>>>>>>> Kyler's-Code
 /*!
  * consts.c
  * store global consts used in one place
  */
+<<<<<<< HEAD
 #define ever (;;)
 
 // Robot values
@@ -35,3 +42,28 @@
 //#define rightarrow 1
 //#define orangebutton 3
 //#define graybutton 0
+=======
+typedef unsigned char uint8;
+
+#define ever (;;)
+
+#define pi PI
+
+#define launcher_slow_time 1000.0 //How long the launcher slows for after button release
+
+//Servo Values
+#define servo_stop 127 //Stopping point for continuous servos
+
+#define goal_close 95
+#define goal_open 210
+
+#define net_close 15
+#define net_open 55
+#define net_center 60
+
+// Robot specs
+#define WHEEL_RADIUS 2*2.54 //The radius of the wheels, for distance calculation (converted to cm)
+#define encoderticks 1440 //the number of encoder ticks in a rotation
+
+#endif
+>>>>>>> Kyler's-Code
