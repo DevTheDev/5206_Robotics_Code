@@ -71,7 +71,7 @@ task main()
     lift_position = lift_120;
 
     driveDist(40, 80);//weird stuff happens if you wait after this
-    turnAngle(80, 50);
+    turnAngle(90, 50);
     uint8 n_turns = 0;
 
     {
@@ -101,10 +101,10 @@ task main()
                 }
 
                 if(n_turns == 3){
-                turnAngle(35, -50);
+                turnAngle(35*9/8, -50);
                 }
                 else{
-                turnAngle(38, -50);
+                turnAngle(38*9/8, -50);
                 }
 
                 resetDriveEncoders();
@@ -127,7 +127,7 @@ task main()
     else
     {
     }
-        turnAngle(75, 50);
+        turnAngle(75*9/8, 50);
 
     wait1Msec(5000);
     if(n_turns == 1){
@@ -142,11 +142,11 @@ task main()
     driveDist(20, 30);
     if(n_turns == 0)
     {
-        turnAngle(40, -50);
+        turnAngle(45, -50);
     }
     else
     {
-        turnAngle(80, -50);
+        turnAngle(90, -50);
     }
     lift_position = lift_90;
     wait1Msec(7000);
@@ -157,11 +157,11 @@ task main()
         case 0:
         {
             driveDist(10, -80);
-            turnAngle(80, 50);
+            turnAngle(90, 50);
             driveDist(90, -80);
-            turnAngle(80, 50);
+            turnAngle(90, 50);
             driveDist(150, -80);
-            turnAngle(40, -50);
+            turnAngle(45, -50);
         }
         break;
     }
@@ -170,8 +170,8 @@ task main()
     servo[goal] = goal_close;
 
     driveDist(85, 80);
-    turnAngle(40, 50);
+    turnAngle(45, 50);
     driveDist(240, 80);
-    turnAngle(80, 50);
+    turnAngle(90, 50);
     driveDist(90, -80);
 }
