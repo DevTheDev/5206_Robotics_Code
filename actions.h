@@ -129,16 +129,17 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 
 #define robot_half_width 40.0/2.0//middle of the wheel to middle of the wheel
 
-#define gyro_adjustment 60.0/65.0 //TODO: bash this
+#define gyro_adjustment 8.0/9.0
+
 //RHR
 void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
     clearTimer(T1);
 	motor[driveR] = motor_vIs;
 	motor[driveL] = -(motor_vIs);
 	float theta = 0;
-	char namE[16];
-    sprintf(namE, "Initial: %f", theta);
-    displayCenteredTextLine(1, namE);
+	char gyro_value[16];
+    sprintf(gyro_value, "Initial: %f", theta);
+    displayCenteredTextLine(1, gyro_value);
     while(abs(theta) < degrees)
 	{
 	    float dt = time1[T1]/(1000.0);
@@ -147,14 +148,12 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
         float omega = SensorValue[gyro]-offset;
         theta += dt*omega;//*gyro_adjustment; //rectangular approx.
         wait1Msec((8-T1)%8);
-        char bad_at_names[16];
-        sprintf(bad_at_names, "Current: %f", theta);
-        displayCenteredTextLine(2, bad_at_names);
+        sprintf(gyro_value, "Current: %f", theta);
+        displayCenteredTextLine(2, gyro_value);
 
 	}
 	motor[driveR] = 0;
     motor[driveL] = 0;
-    char bad_at_names[16];
-    sprintf(bad_at_names, "Final: %f", theta);
-    displayCenteredTextLine(3, bad_at_names);
+    sprintf(gyro_value, "Final: %f", theta);
+    displayCenteredTextLine(3, gyro_value);
 }
