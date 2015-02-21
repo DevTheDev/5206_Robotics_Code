@@ -26,88 +26,88 @@ task main()
 {
     servo[shrub] = servo_stop;
     servo[net] = net_close;
-	clearScreen();
+    clearScreen();
 
-	while(1){
-		int left_lift = 0;
-		int right_lift = 0;
-		char display[16];
-		char bat[16];
+    while(1){
+        int left_lift = 0;
+        int right_lift = 0;
+        char display[16];
+        char bat[16];
 
-		sprintf(bat, "Bat: %f V", externalBattery/1000.0);
-		displayMenuItem(bat);
-		menu_size++;
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
 
-		//Lift Control
-		if(doMenuItem("lift up")){
-			left_lift = 50;
-			right_lift = 50;
-		}
-		if(doMenuItem("lift down")){
-			left_lift = -50;
-			right_lift = -50;
-		}
-		motor[liftL] = left_lift;
-		motor[liftR] = right_lift;
+        //Lift Control
+        if(doMenuItem("lift up")){
+            left_lift = 50;
+            right_lift = 50;
+        }
+        if(doMenuItem("lift down")){
+            left_lift = -50;
+            right_lift = -50;
+        }
+        motor[liftL] = left_lift;
+        motor[liftR] = right_lift;
 
-		//Intake Control
-		sprintf(display, "intake %i", intake_speed);
-		bool intake_pressed = 0;
-		if(doMenuItem(display)){
-			intake_pressed = 1;
-		}
-		if(doMenuItem("inc intake") && time1[T2] >= 200){
-			clearTimer(T2);
-			intake_speed ++;
-		}
-		if(doMenuItem("dec intake") && time1[T2] >= 200){
-			clearTimer(T2);
-			-- intake_speed;
-		}
+        //Intake Control
+        sprintf(display, "intake %i", intake_speed);
+        bool intake_pressed = 0;
+        if(doMenuItem(display)){
+            intake_pressed = 1;
+        }
+        if(doMenuItem("inc intake") && time1[T2] >= 200){
+            clearTimer(T2);
+            intake_speed ++;
+        }
+        if(doMenuItem("dec intake") && time1[T2] >= 200){
+            clearTimer(T2);
+            -- intake_speed;
+        }
 
-		//Launcher Controls
-		sprintf(display, "launcher %i", launcher_speed);
-		bool launcher_pressed = 0;
-		if(doMenuItem(display)){
-			launcher_pressed = 1;
-		}
-		if(doMenuItem("inc launcher") && time1[T2] >= 200){
-			clearTimer(T2);
-			launcher_speed ++;
-		}
-		if(doMenuItem("dec launcher") && time1[T2] >= 200){
-			clearTimer(T2);
-			-- launcher_speed;
-		}
+        //Launcher Controls
+        sprintf(display, "launcher %i", launcher_speed);
+        bool launcher_pressed = 0;
+        if(doMenuItem(display)){
+            launcher_pressed = 1;
+        }
+        if(doMenuItem("inc launcher") && time1[T2] >= 200){
+            clearTimer(T2);
+            launcher_speed ++;
+        }
+        if(doMenuItem("dec launcher") && time1[T2] >= 200){
+            clearTimer(T2);
+            -- launcher_speed;
+        }
 
-		//Both Intake and Launcher
-		if(doMenuItem("launch/intake")){
-			intake_pressed = 1;
-			launcher_pressed = 1;
-		}
-
-		{
-			if(launcher_pressed)
-	        {
-	            clearTimer(T4);
-	        }
-	        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
-		}
+        //Both Intake and Launcher
+        if(doMenuItem("launch/intake")){
+            intake_pressed = 1;
+            launcher_pressed = 1;
+        }
 
         {
-			motor[intake] = intake_speed*intake_pressed;
-		}
+            if(launcher_pressed)
+            {
+                clearTimer(T4);
+            }
+            motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
+        }
 
-		{
-		    //Goal Lock
-			doToggleMenuItem("shut goal lock\0open goal lock", goal_closed_control);
-			servo[goal] = goal_open + (goal_close-goal_open) * goal_closed_control;
-		}
-		{
-		    //Net
-			doToggleMenuItem("open net\0shut net", net_up);
-			servo[net] = net_open + (net_close-net_open) * net_up;
-		}
-		updateMenu();
-	}
+        {
+            motor[intake] = intake_speed*intake_pressed;
+        }
+
+        {
+            //Goal Lock
+            doToggleMenuItem("shut goal lock\0open goal lock", goal_closed_control);
+            servo[goal] = goal_open + (goal_close-goal_open) * goal_closed_control;
+        }
+        {
+            //Net
+            doToggleMenuItem("open net\0shut net", net_up);
+            servo[net] = net_open + (net_close-net_open) * net_up;
+        }
+        updateMenu();
+    }
 }

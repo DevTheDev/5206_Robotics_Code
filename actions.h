@@ -18,53 +18,14 @@ bool not_jammed = 1;
 short motor_start_time = 0;
 int launcher_last_check = 0;
 
-#if 1
-void initializeLauncherTimer()
-{
-    clearTimer(T3);
-}
-
-void updateLauncher(int launcher_vIs)
-{// it seems to stop after stop_wait after the motor starts
-    if(launcher_last_check == 0 && motor[launcher])
-    {
-        motor_start_time = time1[T3];
-    }
-    launcher_last_check = motor[launcher];
-    if(time1[T3] - launcher_accounted_time > launcher_update_wait)
-    {
-        launcher_accounted_time += launcher_update_wait;
-        launcher_positions[current_launcher_position++] = nMotorEncoder[launcher];
-        unsigned int old_launcher_position = (current_launcher_position + MAX_LAUNCHER_POSITIONS - launcher_stop_wait/launcher_update_wait)%MAX_LAUNCHER_POSITIONS;
-        if(time1[T3]-motor_start_time > launcher_stop_wait &&
-           motor[launcher] > 0 &&
-           launcher_positions[current_launcher_position] - launcher_positions[old_launcher_position] < launcher_tolerance)
-           //don't run the launcher backwards yet
-        {
-            not_jammed = 0;
-        }
-        current_launcher_position++;
-        current_launcher_position %= MAX_LAUNCHER_POSITIONS;
-    }
-    if(not_jammed)
-    {
-        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_vIs, 0.0), 0.0, launcher_vIs));
-    }
-    else
-    {
-        motor[launcher] = 0;
-    }
-}
-#endif
-
 void resetLiftEncoders()
 {
-	nMotorEncoder[liftL] = 0;
+    nMotorEncoder[liftL] = 0;
 }
 
 void resetDriveEncoders()
 {
-	nMotorEncoder[driveR] = 0;
+    nMotorEncoder[driveR] = 0;
 }
 
 const float lift_bottom = 0.0;
@@ -112,6 +73,43 @@ void calibrateGyro()
     offset /= itts;
 }
 
+void calibrateGyroWithLinearRegression()
+{
+    char load_display[16];
+
+    float sigma_x = 0;
+    float sigma_xx = 0;
+    float sigma_y = 0;
+    float sigma_xy = 0;
+    const int n = 500;
+    
+    clearTimer(T1);
+
+    float theta = 0;
+    
+    for(int i = 0; i < n; i++)
+    {
+        int line = 3;
+        sprintf(load_display, "%1.3f complete", (float)(i)/itts);
+        displayCenteredTextLine(line++, "Calibrating");
+        displayCenteredTextLine(line++, "Please do not move");
+        displayCenteredTextLine(line++, load_display);
+
+        float dt = x_i/(1000.0);
+        theta += dt*omega*gyro_adjustment;
+
+        sigma_x += dt;
+        sigma_xx += sq(dt);
+        sigma_y += theta;
+        sigma_xy += dt*theta;
+            
+        wait1Msec(5);
+    }
+    
+    offset = n*sigma_xy - sigma_x*sigma_y
+        / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
+}
+
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
 void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 {
@@ -134,15 +132,15 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 //RHR
 void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
     clearTimer(T1);
-	motor[driveR] = motor_vIs;
-	motor[driveL] = -(motor_vIs);
-	float theta = 0;
-	char gyro_value[16];
+    motor[driveR] = motor_vIs;
+    motor[driveL] = -(motor_vIs);
+    float theta = 0;
+    char gyro_value[16];
     sprintf(gyro_value, "Initial: %f", theta);
     displayCenteredTextLine(1, gyro_value);
     while(abs(theta) < degrees)
-	{
-	    float dt = time1[T1]/(1000.0);
+    {
+        float dt = time1[T1]/(1000.0);
         clearTimer(T1);
 
         float omega = SensorValue[gyro]-offset;
@@ -151,9 +149,25 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
         sprintf(gyro_value, "Current: %f", theta);
         displayCenteredTextLine(2, gyro_value);
 
-	}
-	motor[driveR] = 0;
+    }
+    motor[driveR] = 0;
     motor[driveL] = 0;
     sprintf(gyro_value, "Final: %f", theta);
     displayCenteredTextLine(3, gyro_value);
+}
+
+void startLauncher(float launcher_speed)
+{
+    motor[launcher] = launcher_speed;
+}
+
+void stopLauncher()
+{
+    launcher_speed = motor[launcher]; //WARNING: Make sure reading the motor speed works
+    
+    clearTimer(T4);
+    while(time1[T4] < launcher_slow_time)
+    {
+        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
+    }
 }
