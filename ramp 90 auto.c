@@ -16,14 +16,15 @@
 #include "menu.h"
 
 task lift(){
-    for ever{
+    for ever
+    {
         updateLift();
     }
 }
 
 task main()
 {
-	servo[net] = net_close;
+    servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
@@ -35,15 +36,15 @@ task main()
 
     while(confirmed == 0){
         char bat[16];
-		sprintf(bat, "Bat: %f V", externalBattery/1000.0);
-		displayMenuItem(bat);
-		menu_size++;
-		char wait[16];
-		sprintf(wait, "");
-		if(doMenuItem("dec wait") && time1[T2] >= 200){
-		    clearTimer(T2);
-		    wait_time -= 500;
-		}
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
+        char wait[16];
+        sprintf(wait, "");
+        if(doMenuItem("dec wait") && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time -= 500;
+        }
 
     }
     calibrateGyro();
@@ -78,13 +79,16 @@ task main()
     servo[net] = net_open;
     wait1Msec(500);//Time to score the large ball in the 60
     servo[net] = net_close;
-    turnAngle(160, 50); //Check angle and direction, may want to go further to get both back into the zone
-    servo[goal] = goal_open;
-    //launcher on
+    startLauncher(100);
+    turnAngle(150, 50); //Check angle and direction, may want to go further to get both back into the zone
     driveDist(15, 50);//Check distance to get away from goal
-    //might need a wait for the launcher
+    wait(1000); //might need a wait for the launcher
+    stopLauncher();
     lift_position = lift_90;
-    turnAngle(160, -50);
+    turnAngle(10, 50); // bash angle
+    servo[goal] = goal_open;
+    driveDist(15, 50);
+    turnAngle(180, 50);
     wait1Msec(1000);//minimize wasted time here for the lift
     motor[driveR] = -40;
     motor[driveL] = -40;
@@ -96,5 +100,4 @@ task main()
     servo[net] = net_open;
     driveDist(40, 50); //Check distance
     turnAngle(160, 50); //Check angle
-
 }
