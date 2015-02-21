@@ -25,6 +25,34 @@ task main()
         offset /= itts;
         //offset = 585;
 
+        //calculate offset with linear regression
+        float sigma_x = 0;
+        float sigma_xx = 0;
+        float sigma_y = 0;
+        float sigma_xy = 0;
+        const int n = 500;
+    
+        clearTimer(T1);
+
+        float theta = 0;
+    
+        for(int i = 0; i < n; i++)
+        {
+            float dt = x_i/(1000.0);
+            theta += dt*omega*gyro_adjustment;
+
+            sigma_x += dt;
+            sigma_xx += sq(dt);
+            sigma_y += theta;
+            sigma_xy += dt*theta;
+            
+            wait1Msec(5);
+        }
+    
+        float offset2 = n*sigma_xy - sigma_x*sigma_y
+            / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
+
+        
         float current_speed = 0;
         float previous_speed = 0;
 
@@ -36,9 +64,11 @@ task main()
             float dt = time1[T1]/(1000.0);
             clearTimer(T1);
 
-            current_speed = SensorValue[gyro]-offset;
+            float sensor_value = SensorValue[gyro];
+            current_speed = sensor_value-offset;
             angle_rect += dt*(current_speed); //rectangular approx.
             angle_trap += dt*(current_speed+previous_speed)/2.0; //trapezoidal approx.
+            angle_lr += dt*(sensor_value-offset2);
             previous_speed = current_speed;
 
 	    int line = 0;
@@ -48,6 +78,7 @@ task main()
 	    displayTextLine(line++, "rotation: %4f", SensorValue[gyro]-offset);
 	    displayTextLine(line++, "rect: %4f", angle_rect);
 	    displayTextLine(line++, "trap: %4f", angle_trap);
+	    displayTextLine(line++, "lin reg: %4f", angle_lr);
 
 	    //wait1Msec((8-T1)%8); wait exactly 8 ms has passed since last update
         }

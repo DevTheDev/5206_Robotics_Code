@@ -80,7 +80,7 @@ task main()
     wait1Msec(500);//Time to score the large ball in the 60
     servo[net] = net_close;
     startLauncher(100);
-    turnAngle(150, 50); //Check angle and direction, may want to go further to get both back into the zone
+    turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
     driveDist(15, 50);//Check distance to get away from goal
     wait(1000); //might need a wait for the launcher
     stopLauncher();
@@ -88,7 +88,7 @@ task main()
     turnAngle(10, 50); // bash angle
     servo[goal] = goal_open;
     driveDist(15, 50);
-    turnAngle(180, 50);
+    turnAngle(160, 50);
     wait1Msec(1000);//minimize wasted time here for the lift
     motor[driveR] = -40;
     motor[driveL] = -40;
