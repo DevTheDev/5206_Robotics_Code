@@ -80,9 +80,12 @@ task main()
 
         resetDriveEncoders();
 
+        int case_1_dist = 40; //BASH ME
+        
         for ever
         {
-            if(seeIR(&irseeker))
+            if(seeIR(&irseeker)
+               || (n_turns == 2 && nMotorEncoder[driveR]*drive_cm_per_tick > case_1_dist)) //default case
             {
                 break;
             }
