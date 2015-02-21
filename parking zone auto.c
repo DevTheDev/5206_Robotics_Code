@@ -91,12 +91,10 @@ task main()
             motor[driveR] = motor_vIs;
             if(nMotorEncoder[driveR]*drive_cm_per_tick > distance)
             {
-                if(n_turns == 1)
-                {
+                if(n_turns == 1){
                     driveDist(26, motor_vIs);
                 }
-                else
-                {
+                else{
                     driveDist(19, motor_vIs);
                 }
 
@@ -116,17 +114,13 @@ task main()
         }
     }
 
-    if(n_turns == 2)
-    {
+    if(n_turns == 2){
         driveDist(9, -20);
     }
-    else if(n_turns == 1)
-    {
+    else if(n_turns == 1){
         driveDist(7, -20);
     }
-    else
-    {
-    }
+    else{}
         turnAngle(75*9/8, 50);
 
     wait1Msec(5000);
