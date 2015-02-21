@@ -106,8 +106,8 @@ void calibrateGyroWithLinearRegression()
         wait1Msec(5);
     }
     
-    offset = n*sigma_xy - sigma_x*sigma_y
-        / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
+    offset = -(n*sigma_xy - sigma_x*sigma_y
+               / (n*sigma_xx - sq(sigma_x))); //slope of the least squares fit
 }
 
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
