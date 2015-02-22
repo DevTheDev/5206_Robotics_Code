@@ -31,7 +31,7 @@ void resetDriveEncoders()
 const float lift_bottom = 0.0;
 const float lift_30 = 8.0;//needs to be lowered for new net
 const float lift_60 = 32.0;
-const float lift_90 = 60.0;//62.0; needs to be lowered for new net
+const float lift_90 = 57.0;//62.0; needs to be lowered for new net
 const float lift_120 = 85.0;
 
 float lift_position = 0;//the desired lift position in cm, is the position at the start of teleop, max = 32.5 cm
@@ -82,31 +82,35 @@ void calibrateGyroWithLinearRegression()
     float sigma_y = 0;
     float sigma_xy = 0;
     const int n = 500;
-    
+
     clearTimer(T1);
 
     float theta = 0;
-    
+
+    float new_time = time1[T1]/1000.0;
+    float old_time = new_time;
     for(int i = 0; i < n; i++)
     {
         int line = 3;
-        sprintf(load_display, "%1.3f complete", (float)(i)/itts);
+        sprintf(load_display, "%1.3f complete", (float)(i)/n);
         displayCenteredTextLine(line++, "Calibrating");
         displayCenteredTextLine(line++, "Please do not move");
         displayCenteredTextLine(line++, load_display);
+        float omega = SensorValue[gyro];
+        old_time = new_time;
+        new_time = time1[T1]/1000.0;
+        float dt = new_time-old_time;
+        theta += dt*omega;
 
-        float dt = x_i/(1000.0);
-        theta += dt*omega*gyro_adjustment;
-
-        sigma_x += dt;
-        sigma_xx += sq(dt);
+        sigma_x += new_time;
+        sigma_xx += sq(new_time);
         sigma_y += theta;
-        sigma_xy += dt*theta;
-            
+
+        sigma_xy += new_time*theta;
+
         wait1Msec(5);
     }
-    
-    offset = n*sigma_xy - sigma_x*sigma_y
+    offset = (n*sigma_xy - sigma_x*sigma_y)
                / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
 }
 
@@ -144,7 +148,7 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
         clearTimer(T1);
 
         float omega = SensorValue[gyro]-offset;
-        theta += dt*omega*gyro_adjustment; //rectangular approx.
+        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
         wait1Msec((8-T1)%8);
         sprintf(gyro_value, "Current: %f", theta);
         displayCenteredTextLine(2, gyro_value);
@@ -163,8 +167,8 @@ void startLauncher(float launcher_speed)
 
 void stopLauncher()
 {
-    launcher_speed = motor[launcher]; //WARNING: Make sure reading the motor speed works
-    
+    int launcher_speed = motor[launcher]; //WARNING: Make sure reading the motor speed works
+
     clearTimer(T4);
     while(time1[T4] < launcher_slow_time)
     {

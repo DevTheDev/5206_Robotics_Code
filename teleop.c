@@ -95,6 +95,7 @@ float deadzone(float a){
 //=============================Control==============================
 
 // Drive Control
+#define slow_button joy1toggle(btnA)
 #define single_joystick_drive 1
 #if single_joystick_drive
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
@@ -135,6 +136,8 @@ bool net_down = 0;
 //==================================================================
 task main()
 {
+    waitForStart();
+    servo[shrub] = servo_stop;
     while(1){
         //Control Processing
         prev1Btns = joystick.joy1_Buttons;
@@ -151,7 +154,7 @@ task main()
                 //maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
                 //= maximum speed*(fraction speed)*(direction)
                 float speed = (magnitude-threshold)/(1-threshold);
-                speed = quadBezier(speed, min_drive, bezier_drive_control, max_drive);
+                speed = (slow_button ? 0.25 : 1.0)*quadBezier(speed, min_drive, bezier_drive_control, max_drive);
                 int left_vIs = speed*(left_drive_control/magnitude);
                 int right_vIs = speed*(rght_drive_control/magnitude);
                 motor[driveL] = left_vIs;
@@ -243,10 +246,9 @@ task main()
 
         //===============================Shrub===============================
         servo[shrub] = 100*joy2toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;
-
         //==========================Low Battery Notification=================
-        if(externalBattery < 1400){
-        servo[shrub] = 100*(sin(10*(float)time1[T1]/1000.0))+127;
-        }
+        /*if(externalBattery < 14000){
+        playSound(soundException);
+        }*/
     }
 }

@@ -21,6 +21,7 @@ typedef unsigned char uint8;
 
 #define net_close 15
 #define net_open 55
+//#define net_open 30, small ball only
 #define net_center 60
 
 // Robot specs

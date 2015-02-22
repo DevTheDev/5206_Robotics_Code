@@ -31,33 +31,40 @@ task main()
         float sigma_y = 0;
         float sigma_xy = 0;
         const int n = 500;
-    
+
         clearTimer(T1);
 
         float theta = 0;
-    
-        for(int i = 0; i < n; i++)
-        {
-            float dt = x_i/(1000.0);
-            theta += dt*omega*gyro_adjustment;
 
-            sigma_x += dt;
-            sigma_xx += sq(dt);
-            sigma_y += theta;
-            sigma_xy += dt*theta;
-            
-            wait1Msec(5);
-        }
-    
-        float offset2 = n*sigma_xy - sigma_x*sigma_y
-            / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
+        float new_time = time1[T1]/1000.0;
+        float old_time = new_time;
+	    for(int i = 0; i < n; i++)
+	    {
+	        int line = 3;
+	        float omega = SensorValue[gyro];
+	        old_time = new_time;
+	        new_time = time1[T1]/1000.0;
+	        float dt = new_time-old_time;
+	        theta += dt*omega;
 
-        
+	        sigma_x += new_time;
+	        sigma_xx += new_time*new_time;
+	        sigma_y += theta;
+
+	        sigma_xy += new_time*theta;
+
+	        wait1Msec(5);
+	    }
+	    float offset2 = (n*sigma_xy - sigma_x*sigma_y)
+            / (n*sigma_xx - (sigma_x*sigma_x)); //slope of the least squares fit
+
+
         float current_speed = 0;
         float previous_speed = 0;
 
         float angle_trap = 0;
         float angle_rect = 0;
+        float angle_lr = 0;
         clearTimer(T1);
         while(nNxtButtonPressed != 3)
         {
@@ -73,6 +80,7 @@ task main()
 
 	    int line = 0;
 	    displayTextLine(line++, "offset: %4f", offset);
+	    displayTextLine(line++, "offset2: %4f", offset2);
 	    displayTextLine(line++, "extra raw: %i", SensorRaw[gyro]); //seems the same as SensorValue
 	    displayTextLine(line++, "raw: %i", SensorValue[gyro]);
 	    displayTextLine(line++, "rotation: %4f", SensorValue[gyro]-offset);
