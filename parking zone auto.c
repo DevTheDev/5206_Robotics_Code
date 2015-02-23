@@ -50,21 +50,66 @@ task main()
     servo[shrub] = servo_stop;
     wait1Msec(100);//wait for everything to stop
 
-    //Gyro Calibration
+    bool confirmed = 0;
+    int wait_time = 0;
+    bool calibrated = 0;
+    clearScreen();
+
+    while(!confirmed){
+        int right_lift = 0;
+        int left_lift = 0;
+        char bat[16];
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
+        if(doMenuItem("lift up")){
+            left_lift = 50;
+            right_lift = 50;
+        }
+        if(doMenuItem("lift down")){
+            left_lift = -50;
+            right_lift = -50;
+        }
+        motor[liftL] = left_lift;
+        motor[liftR] = right_lift;
+
+        char wait[16];
+        sprintf(wait, "inc wait: %i", wait_time);
+        if(doMenuItem(wait) && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time +=500;
+        }
+        if(doMenuItem("dec wait") && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time -= 500;
+        }
+        if(doMenuItem("Calibrate")){
+            wait1Msec(2000);
+            calibrateGyro();
+            playSoundFile("Calibrated.rso");
+            calibrated = 1;
+        }
+        if(doMenuItem("Confirm")){
+            confirmed = 1;
+        }
+        updateMenu();
+    }
+    wait1Msec(2000);
+    if(!calibrated){
     calibrateGyro();
-    eraseDisplay();
-    displayCenteredTextLine(3, "Ready");
     playSoundFile("Calibrated.rso");
+    }
 
-
-    while(externalBattery == -1){//Tells us if the robot is off
+    while(externalBattery == -1){
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
         wait1Msec(2000);
     }
-
     playSoundFile("Ready.rso");
     waitForStart();
+
+    wait1Msec(wait_time);
+
 
     //Begin raising lift
     startTask(lift);
@@ -84,7 +129,8 @@ task main()
 
         for ever
         {
-            if(seeIR(&irseeker)
+            if((seeIR(&irseeker)
+                    && (n_turns != 0 || nMotorEncoder[driveR]*drive_cm_per_tick > 10))
                || (n_turns == 2 && nMotorEncoder[driveR]*drive_cm_per_tick > case_1_dist)) //default case
             {
                 break;
@@ -134,7 +180,7 @@ task main()
         driveDist(17, -30);
     }
     else{
-        driveDist(15, -30);
+        driveDist(10, -30);
     }
     wait1Msec(500);
     servo[net] = net_open;

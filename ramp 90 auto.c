@@ -93,12 +93,13 @@ task main()
     playSoundFile("Ready.rso");
     waitForStart();
 
+    wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);
 
-    driveDist(155, -15);
+    driveDist(160, -10);
     lift_position = lift_60;
-    wait1Msec(3500);//minimize wasted time here for the lift
+    wait1Msec(3000);//minimize wasted time here for the lift
     resetDriveEncoders();
     motor[driveR] = -40;
     motor[driveL] = -40;
@@ -123,23 +124,23 @@ task main()
     motor[driveL] = -40;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 5000){};//wait1Msec(900);//bash to figure out how close we need to be
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
     servo[goal] = goal_close;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 5000){};//bash
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(750);
     servo[net] = net_open;
     wait1Msec(750);
     driveDist(40, 50); //Check distance
-    //turnAngle(5, 50);
+    turnAngle(3, -50);
     //turnAngle(10, -50);
     if(parking_zone){
         driveDist(250, 50);
         turnAngle(35, -50);
-        driveDist(20, 50);
+        driveDist(40, 50);
     }
     //turnAngle(160, 50); //Check angle
 }
