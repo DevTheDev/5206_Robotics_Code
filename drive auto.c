@@ -1,5 +1,5 @@
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Sensor, S4,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S2,     gyro,           sensorNone)
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     driveL,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C2_1,     launcher,      tmotorTetrix, openLoop, reversed, encoder)
@@ -13,17 +13,51 @@
 
 #include "actions.h"
 #include "consts.h"
-
+#include "menu.h"
 #include "joystickdriver.c"
 
 task main()
 {
+    int distance = 150;
+    int vIs = 80;
+    bool lift = 1;
+    bool confirmed = 0;
+
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
+    clearScreen();
+
+    while(confirmed == 0){
+        char bat[16];
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
+        char dist[16];
+        sprintf(dist, "Dist Inc: %i cm", distance);
+        if(doMenuItem(dist) && time1[T2] >= 200){
+            clearTimer(T2);
+            distance += 5;
+        }
+        if(doMenuItem("Dist Dec") && time1[T2] >= 200){
+            clearTimer(T2);
+            distance -= 5;
+        }
+        char power[16];
+        sprintf(power, "Power Inc: %i ", vIs);
+        if(doMenuItem(power) && time1[T2] >= 200){
+            clearTimer(T2);
+            vIs += 5;
+        }
+        if(doMenuItem("Power Dec") && time1[T2] >= 200){
+            clearTimer(T2);
+            vIs -= 5;
+        }
+
+    }
 
     waitForStart();
 
     servo[shrub] = 227;
-    driveDist(150, 80);
+    driveDist(distance, 80);
 }
