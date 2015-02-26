@@ -78,7 +78,7 @@ menu: the menu to display
 void displayMenuItem(char * name){
   unsigned int display_position = menu_size-max(menu_position, 7)+7;
   if(display_position >= 0 && display_position < 8){// if you write to a display position below position 7, the NXT will freeze when the program exits
-	  nxtDisplayCenteredTextLine(display_position, (menu_size == menu_position) ? ">%s<" : " %s ", name);
+	  displayCenteredTextLine(display_position, (menu_size == menu_position) ? ">%s<" : " %s ", name);
 	}
 }
 
