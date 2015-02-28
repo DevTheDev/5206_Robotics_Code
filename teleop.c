@@ -95,8 +95,8 @@ float deadzone(float a){
 //=============================Control==============================
 
 // Drive Control
-#define slow_button joy1btn(btnA)
-#define fast_button joy1btn(btnY)
+#define slow_button joy1Btn(btnA)
+#define fast_button joy1Btn(btnY)
 #define single_joystick_drive 1
 #if single_joystick_drive
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
