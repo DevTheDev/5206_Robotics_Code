@@ -45,7 +45,7 @@
 #define threshold 0.1
 #define min_drive 15
 #define bezier_drive_control 10
-#define max_drive 80
+#define max_drive 100 //revert to 80 if driving is strange
 
 //Launcher Constants
 #define max_launcher 100
@@ -96,6 +96,7 @@ float deadzone(float a){
 
 // Drive Control
 #define slow_button joy1toggle(btnA)
+#define fast_button joy1toggle(btnY)
 #define single_joystick_drive 1
 #if single_joystick_drive
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
@@ -133,6 +134,7 @@ float deadzone(float a){
 bool goal_down = 1;
 bool net_down = 0;
 
+float speed_mod = 0.8;
 //==================================================================
 task main()
 {
@@ -154,7 +156,7 @@ task main()
                 //maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
                 //= maximum speed*(fraction speed)*(direction)
                 float speed = (magnitude-threshold)/(1-threshold);
-                speed = (slow_button ? 0.25 : 1.0)*quadBezier(speed, min_drive, bezier_drive_control, max_drive);
+                speed = speed_mod*quadBezier(speed, min_drive, bezier_drive_control, max_drive);
                 int left_vIs = speed*(left_drive_control/magnitude);
                 int right_vIs = speed*(rght_drive_control/magnitude);
                 motor[driveL] = left_vIs;
@@ -164,7 +166,24 @@ task main()
                 motor[driveL] = 0;
                 motor[driveR] = 0;
             }
+            if(fast_button){
+                if(speed_mod != 1){
+                    speed_mod = 1;
+                }
+                else{
+                    speed_mod = 0.8;
+                }
+            }
+            else if(slow_button){
+                if(speed_mod != 0.25){
+                    speed_mod = 0.25;
+                }
+                else{
+                    speed_mod = 0.8;
+                }
+            }
         }
+
 #else
         {//dual joystick drive //square clamping
             int l = max_drive*thresholdify(left_drive_control);
