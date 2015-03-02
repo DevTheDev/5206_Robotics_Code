@@ -97,7 +97,7 @@ task main()
     resetLiftEncoders();
     startTask(lift);
 
-    driveDist(160, -10);
+    driveDist(155, -15); //155 -15 wood, 160 - 10, metal
     lift_position = lift_60;
     wait1Msec(3000);//minimize wasted time here for the lift
     resetDriveEncoders();

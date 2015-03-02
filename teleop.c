@@ -45,7 +45,7 @@
 #define threshold 0.1
 #define min_drive 15
 #define bezier_drive_control 10
-#define max_drive 100 //revert to 80 if driving is strange
+#define max_drive 80 //revert to 80 if driving is strange
 
 //Launcher Constants
 #define max_launcher 100
@@ -95,8 +95,8 @@ float deadzone(float a){
 //=============================Control==============================
 
 // Drive Control
-#define slow_button joy1Btn(btnA)
-#define fast_button joy1Btn(btnY)
+#define slow_button joy1press(btnA)
+#define fast_button joy1press(btnY)
 #define single_joystick_drive 1
 #if single_joystick_drive
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
@@ -167,11 +167,11 @@ task main()
                 motor[driveR] = 0;
             }
             if(fast_button){
-                if(speed_mod != 1){
-                    speed_mod = 1;
+                if(speed_mod != 1.25){
+                    speed_mod = 1.25;
                 }
                 else{
-                    speed_mod = 0.8;
+                    speed_mod = 1;
                 }
             }
             else if(slow_button){
@@ -179,7 +179,7 @@ task main()
                     speed_mod = 0.25;
                 }
                 else{
-                    speed_mod = 0.8;
+                    speed_mod = 1;
                 }
             }
         }
@@ -196,7 +196,7 @@ task main()
         //===============================Intake==============================
         if(intake_back_control)
         {
-            motor[intake] = -45;
+            motor[intake] = -55;
         }
         else
         {

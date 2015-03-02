@@ -60,5 +60,5 @@ task main()
     waitForStart();
 
     servo[shrub] = 227;
-    driveDist(distance, 80);
+    driveDist(distance, vIs);
 }
