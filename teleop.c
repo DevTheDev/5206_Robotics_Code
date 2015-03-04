@@ -122,7 +122,7 @@ float deadzone(float a){
 #define net_pressed joy1press(btnLB)
 #define net_close_btn joy2Btn(btnX)
 #define net_open_btn joy2Btn(btnB)
-#define net_center_btn joy1Btn(btnB)
+#define net_small_btn joy1Btn(btnB)
 
 //Goal Lock Control
 #define goal_open_btn joy2Btn(btnLB)
@@ -251,7 +251,7 @@ task main()
         if(net_close_btn){
             net_down = 1;
         }
-        if(net_center_btn){
+        if(net_small_btn){
             net_down = 2;
         }
         if(net_pressed)
@@ -259,7 +259,7 @@ task main()
             net_down = !net_down;
         }
 
-        const unsigned short net_positions[3] = {net_open, net_close, net_center};
+        const unsigned short net_positions[3] = {net_open, net_close, net_small};
 
         servo[net] = net_positions[net_down];
 

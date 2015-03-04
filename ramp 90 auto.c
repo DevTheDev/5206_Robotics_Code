@@ -22,9 +22,7 @@ task lift(){
     }
 }
 
-#define goal_part 110
-#define net_small 31
-
+#define goal_part 110//This may be the reason we're missing the 60.
 
 task main()
 {
@@ -97,23 +95,25 @@ task main()
     resetLiftEncoders();
     startTask(lift);
 
-    driveDist(155, -15); //155 -15 wood, 160 - 10, metal
+    driveDist(155, -15); //155 -15 wood, 160 -10, metal
     lift_position = lift_60;
     wait1Msec(3000);//minimize wasted time here for the lift
     resetDriveEncoders();
     motor[driveR] = -40;
     motor[driveL] = -40;
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63){};
-    servo[goal] = goal_part;
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+    servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
     resetDriveEncoders();
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12){};
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(500);
     servo[net] = net_small;
     wait1Msec(750);//Time to score the ball in the 60
     turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
-    driveDist(65, -50);//Pushing goal towards PZservo
+    driveDist(65, -50);//Pushing goal towards PZ
     lift_position = lift_90;
     turnAngle(3, 50); // bash angle, aligning with 90
     servo[goal] = goal_open;
@@ -135,7 +135,7 @@ task main()
     servo[net] = net_open;
     wait1Msec(750);
     driveDist(40, 50); //Check distance
-    turnAngle(3, -50);
+    turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
     //turnAngle(10, -50);
     if(parking_zone){
         driveDist(250, 50);
