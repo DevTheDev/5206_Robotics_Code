@@ -61,9 +61,9 @@ void calibrateGyro()
     for(int i = 0; i < itts; i++)
     {
         int line = 3;
-        sprintf(load_display, "%1.3f complete", (float)(i)/itts);
+        sprintf(load_display, "%3.0f'/. complete", (float)(i)*100.0/itts);
         displayCenteredTextLine(line++, "Calibrating");
-        displayCenteredTextLine(line++, "Please do not move");
+        displayCenteredTextLine(line++, "Please don't move");
         displayCenteredTextLine(line++, load_display);
 
         offset += SensorValue[gyro];

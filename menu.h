@@ -124,5 +124,16 @@ void updateMenu(){
 	menu_position = (menu_position+menu_size - pressed(leftarrow) + pressed(rightarrow)) % menu_size;
 	updateButtons();
 	menu_size = 0;
+}
 
+void updateMenu(TSounds move_sound){
+    int d_menu_position = -pressed(leftarrow) + pressed(rightarrow);
+    if(d_menu_position != 0)
+    {
+        PlaySound(move_sound);
+    }
+        
+    menu_position = (menu_position+menu_size + d_menu_position) % menu_size;
+    updateButtons();
+    menu_size = 0;
 }

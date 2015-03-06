@@ -59,15 +59,21 @@ task main()
         sprintf(wait, "inc wait: %i", wait_time);
         if(doMenuItem(wait) && time1[T2] >= 200){
             clearTimer(T2);
-            wait_time +=500;
+            wait_time += 500;
         }
         if(doMenuItem("dec wait") && time1[T2] >= 200){
             clearTimer(T2);
             wait_time -= 500;
         }
         doToggleMenuItem("No PZ\0Yes PZ", parking_zone);
-        if(doMenuItem("Calibrate")){
+        if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
+            clearScreen();
+            displayCenteredTextLine(3, "Waiting for");
+            displayCenteredTextLine(4, "you to move");
+            displayCenteredTextLine(5, "...");
+
             wait1Msec(2000);
+
             calibrateGyro();
             playSoundFile("Calibrated.rso");
             calibrated = 1;
@@ -75,12 +81,22 @@ task main()
         if(doMenuItem("Confirm")){
             confirmed = 1;
         }
-        updateMenu();
+        updateMenu(soundBlip);
     }
-    wait1Msec(2000);
+    clearScreen();
+
+    wait1Msec(2000);//is this needed*
+    
     if(!calibrated){
-    calibrateGyro();
-    playSoundFile("Calibrated.rso");
+        displayCenteredTextLine(2, "Calibrating");
+        displayCenteredTextLine(3, "Waiting for");
+        displayCenteredTextLine(4, "you to move");
+        displayCenteredTextLine(5, "...");
+        wait1Msec(2000);//*when this is here?
+        clearScreen();
+        
+        calibrateGyro();
+        playSoundFile("Calibrated.rso");
     }
 
     while(externalBattery == -1){
@@ -88,9 +104,12 @@ task main()
         while(bSoundActive);
         wait1Msec(2000);
     }
+
+    clearScreen();
+    displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
-
+    
     wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);

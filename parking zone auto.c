@@ -83,8 +83,14 @@ task main()
             clearTimer(T2);
             wait_time -= 500;
         }
-        if(doMenuItem("Calibrate")){
+        if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
+            clearScreen();
+            displayCenteredTextLine(3, "Waiting for");
+            displayCenteredTextLine(4, "you to move");
+            displayCenteredTextLine(5, "...");
+
             wait1Msec(2000);
+
             calibrateGyro();
             playSoundFile("Calibrated.rso");
             calibrated = 1;
@@ -92,12 +98,19 @@ task main()
         if(doMenuItem("Confirm")){
             confirmed = 1;
         }
-        updateMenu();
+        updateMenu(soundBlip);
     }
     wait1Msec(2000);
     if(!calibrated){
-    calibrateGyro();
-    playSoundFile("Calibrated.rso");
+        displayCenteredTextLine(2, "Calibrating");
+        displayCenteredTextLine(3, "Waiting for");
+        displayCenteredTextLine(4, "you to move");
+        displayCenteredTextLine(5, "...");
+        wait1Msec(2000);//*when this is here?
+        clearScreen();
+        
+        calibrateGyro();
+        playSoundFile("Calibrated.rso");
     }
 
     while(externalBattery == -1){
@@ -105,6 +118,8 @@ task main()
         while(bSoundActive);
         wait1Msec(2000);
     }
+
+    displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
 

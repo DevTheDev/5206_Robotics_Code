@@ -204,27 +204,34 @@ task main()
         }
 
         //==============================Launcher=============================
-        if(launcher_control)
-        {
-            clearTimer(T4);
-        }
 
+        int dt = time1[T4];
+        clearTimer(T4);
         if(launcher_unjam)
         {
-            clearTimer(T3);
-            while(time1[T3] < 100)
-            {
-                motor[launcher] = -40;
-            }
+            clear_timer(T3);
         }
-        if(time1[T3] > 1000)
+        
+        if(time1[T3] < 100)
         {
-            motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, max_launcher, 0.0), 0.0, max_launcher)); //Coast at the end
+            motor[launcher] = -40;
         }
         else
         {
-            motor[launcher] = 0;
+            int new_launcher_power = motor[launcher] - dt*max_launcher/launcher_slow_time;
+            if(new_launcher_power < 0)
+            {
+                new_launcher_power = 0;
+            }
+
+            if(launcher_control)
+            {
+                new_launcher_power = max_launcher;
+            }
+
+            motor[launcher] = new_launcher_power;
         }
+
         //================================Lift===============================
         float lift_vel = deadzone(joystick.joy2_y1)*100.0/128.0;
         motor[liftL] = lift_vel;
