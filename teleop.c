@@ -209,9 +209,9 @@ task main()
         clearTimer(T4);
         if(launcher_unjam)
         {
-            clear_timer(T3);
+            cleartimer(T3);
         }
-        
+
         if(time1[T3] < 100)
         {
             motor[launcher] = -40;
