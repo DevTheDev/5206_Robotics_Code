@@ -49,6 +49,8 @@
 
 //Launcher Constants
 #define max_launcher 100
+#define unjam_wait 100
+#define min_unjammed_launcher_speed 5 //in encoder units(either 280 or 1120 ppr) per millisecond
 
 //========================Control Functions=========================
 static unsigned short prev1Btns = 0;
@@ -135,6 +137,11 @@ bool goal_down = 1;
 bool net_down = 0;
 
 float speed_mod = 0.8;
+
+int new_launcher_position = 0;
+int old_launcher_position = 0;
+int jam_time = 0;
+
 //==================================================================
 task main()
 {
@@ -207,9 +214,9 @@ task main()
 
         int dt = time1[T4];
         clearTimer(T4);
-        if(launcher_unjam)
+        if(launcher_unjam || jam_time >= unjam_wait)
         {
-            cleartimer(T3);
+            clearTimer(T3);
         }
 
         if(time1[T3] < 100)
@@ -226,8 +233,21 @@ task main()
 
             if(launcher_control)
             {
+
+                old_launcher_position = new_launcher_position;
+                new_launcher_position = nMotorEncoder[launcher];
+                if(new_launcher_position-old_launcher_position < dt*min_unjammed_launcher_speed)
+                {
+                    jam_time += dt;
+                }
+                else
+                {
+                    jam_time = 0;
+                }
+                
                 new_launcher_power = max_launcher;
             }
+
 
             motor[launcher] = new_launcher_power;
         }
