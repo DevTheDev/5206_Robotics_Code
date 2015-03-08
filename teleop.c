@@ -216,6 +216,7 @@ task main()
         clearTimer(T4);
         if(launcher_unjam || jam_time >= unjam_wait)
         {
+            jam_time = 0;
             clearTimer(T3);
         }
 
