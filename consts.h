@@ -19,8 +19,8 @@ typedef unsigned char uint8;
 #define goal_close 95
 #define goal_open 210
 
-#define net_close 15
-#define net_open 55
+#define net_close 0
+#define net_open 50
 #define net_small 31
 
 // Robot specs
