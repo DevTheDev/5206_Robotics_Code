@@ -149,7 +149,8 @@ task main()
 {
     waitForStart();
     servo[shrub] = servo_stop;
-    clearTimer(T4);
+    clearTimer(T3); //unjam timer
+    clearTimer(T4); //global timer
     while(1){
         //Control Processing
         prev1Btns = joystick.joy1_Buttons;
@@ -222,7 +223,7 @@ task main()
             clearTimer(T3);
         }
 
-        if(time1[T3] < 500)
+        if(time1[T3] < 500 && time1[T4] > 500)
         {
             jam_time = time;
             if(time1[T3] < 200)
@@ -232,6 +233,12 @@ task main()
         }
         else
         {
+            float new_launcher_power = lerp((time-launcher_time)/launcher_slow_time, max_launcher, 0);
+            if(new_launcher_power < 0)
+            {
+                new_launcher_power = 0;
+            }
+
             if(launcher_control)
             {
 
@@ -244,16 +251,11 @@ task main()
                 }
 
                 launcher_time = time;
+                new_launcher_power = max_launcher;
             }
             else
             {
                 jam_time = time;
-            }
-
-            float new_launcher_power = lerp((time-launcher_time)/launcher_slow_time, max_launcher, 0);//motor[launcher] - dt*max_launcher/launcher_slow_time;
-            if(new_launcher_power < 0)
-            {
-                new_launcher_power = 0;
             }
 
             motor[launcher] = new_launcher_power;
