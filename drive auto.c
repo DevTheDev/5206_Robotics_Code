@@ -20,10 +20,12 @@
 task main()
 {
     int distance = 150;
-    int vIs = 80;
+    int angle = 40;
+    int vIs = 100;
     bool lift = 1;
     bool confirmed = 0;
-
+    bool calibrated = 0;
+    
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
@@ -44,6 +46,15 @@ task main()
             clearTimer(T2);
             distance -= 5;
         }
+        sprintf(dist, "Angle Inc: %i cm", angle);
+        if(doMenuItem(dist) && time1[T2] >= 200){
+            clearTimer(T2);
+            angle += 5;
+        }
+        if(doMenuItem("Angle Dec") && time1[T2] >= 200){
+            clearTimer(T2);
+            angle -= 5;
+        }
         char power[16];
         sprintf(power, "Power Inc: %i ", vIs);
         if(doMenuItem(power) && time1[T2] >= 200){
@@ -55,10 +66,49 @@ task main()
             vIs -= 5;
         }
 
+        if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
+            clearScreen();
+            displayCenteredTextLine(3, "Waiting for");
+            displayCenteredTextLine(4, "you to move");
+            displayCenteredTextLine(5, "...");
+
+            wait1Msec(2000);
+
+            calibrateGyro();
+            playSoundFile("Calibrated.rso");
+            calibrated = 1;
+        }
+
+        if(doMenuItem("Confirm")){
+            confirmed = 1;
+        }
+        updateMenu(soundBlip);
     }
+    wait1Msec(2000);
+    if(!calibrated){
+        displayCenteredTextLine(2, "Calibrating");
+        displayCenteredTextLine(3, "Waiting for");
+        displayCenteredTextLine(4, "you to move");
+        displayCenteredTextLine(5, "...");
+        wait1Msec(2000);//*when this is here?
+        clearScreen();
+        
+        calibrateGyro();
+        playSoundFile("Calibrated.rso");
+    }
+
+    while(externalBattery == -1){
+        playSoundFile("RobotOn.rso");
+        while(bSoundActive);
+        wait1Msec(2000);
+    }
+
+    displayCenteredBigTextLine(3, "Ready!");
+    playSoundFile("Ready.rso");
 
     waitForStart();
 
     servo[shrub] = 227;
+    turnAngle(angle, vIs);
     driveDist(distance, vIs);
 }
