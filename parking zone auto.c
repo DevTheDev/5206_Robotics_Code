@@ -108,7 +108,7 @@ task main()
         displayCenteredTextLine(5, "...");
         wait1Msec(2000);//*when this is here?
         clearScreen();
-        
+
         calibrateGyro();
         playSoundFile("Calibrated.rso");
     }
@@ -195,7 +195,7 @@ task main()
         driveDist(17, -30);
     }
     else{
-        driveDist(10, -30);
+        driveDist(15, -30);
     }
     wait1Msec(500);
     servo[net] = net_open;

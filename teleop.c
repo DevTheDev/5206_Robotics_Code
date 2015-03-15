@@ -244,7 +244,7 @@ task main()
         }
         else
         {
-            motor[intake] = intake_control*50;
+            motor[intake] = intake_control*60;
         }
 
         //==============================Launcher=============================
@@ -256,10 +256,10 @@ task main()
             clearTimer(T3);
         }
 
-        if(time1[T3] < 500 && time1[T4] > 500)
+        if(time1[T3] < 650 && time1[T4] > 650)
         {
             jam_time = time;
-            if(time1[T3] < 200)
+            if(time1[T3] < 150)
             {
                 motor[launcher] = -40;
             }
@@ -267,7 +267,7 @@ task main()
         else
         {
             float new_launcher_power = lerp((time-launcher_time)/launcher_slow_time, max_launcher, 0);
-            if(new_launcher_power < 0)
+            if(new_launcher_power < 0 || time1[T4] <= launcher_slow_time)
             {
                 new_launcher_power = 0;
             }
@@ -278,7 +278,7 @@ task main()
                 old_launcher_position = new_launcher_position;
                 new_launcher_position = nMotorEncoder[launcher];
 
-                if(new_launcher_position-old_launcher_position > 0)
+                if(new_launcher_position-old_launcher_position > 1)
                 {
                     jam_time = time;
                 }
@@ -344,7 +344,7 @@ task main()
         servo[net] = net_positions[net_down];
 
         //===============================Shrub===============================
-        servo[shrub] = 100*joy2toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;
+        servo[shrub] = 100*joy1toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;
         //==========================Low Battery Notification=================
         /*if(externalBattery < 14000){
         playSound(soundException);

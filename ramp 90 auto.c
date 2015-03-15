@@ -86,7 +86,7 @@ task main()
     clearScreen();
 
     wait1Msec(2000);//is this needed*
-    
+
     if(!calibrated){
         displayCenteredTextLine(2, "Calibrating");
         displayCenteredTextLine(3, "Waiting for");
@@ -94,7 +94,7 @@ task main()
         displayCenteredTextLine(5, "...");
         wait1Msec(2000);//*when this is here?
         clearScreen();
-        
+
         calibrateGyro();
         playSoundFile("Calibrated.rso");
     }
@@ -109,7 +109,7 @@ task main()
     displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
-    
+
     wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);
