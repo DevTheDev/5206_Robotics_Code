@@ -175,25 +175,3 @@ void stopLauncher()
         motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
     }
 }
-
-void allStop()
-{
-    motor[driveL] = 0;
-    motor[driveR] = 0;
-    motor[intake] = 0;
-    motor[liftL] = 0;
-    motor[liftR] = 0;
-    stopLauncher();
-    servo[shrub] = servo_stop; //Probably want to make this do something special so that we know we're dcd
-    servo[goal] = goal_open;
-    servo[net] = net_open; //Both should be "safe" positions
-}
-
-void checkConnection()
-{
-    nNoMessageCounterLimit = 750; //4ms per check (3 seconds after disconnect)
-    if(bDisconnected)
-    {
-       allStop();
-    }
-}

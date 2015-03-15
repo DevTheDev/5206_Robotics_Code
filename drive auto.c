@@ -25,7 +25,7 @@ task main()
     bool lift = 1;
     bool confirmed = 0;
     bool calibrated = 0;
-    
+
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
@@ -92,7 +92,7 @@ task main()
         displayCenteredTextLine(5, "...");
         wait1Msec(2000);//*when this is here?
         clearScreen();
-        
+
         calibrateGyro();
         playSoundFile("Calibrated.rso");
     }
