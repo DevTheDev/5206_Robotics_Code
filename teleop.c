@@ -316,5 +316,7 @@ task main()
         /*if(externalBattery < 14000){
         playSound(soundException);
         }*/
+        //Prevent damage upon fcs failure, MAKE SURE THIS IS WORKING. IT COULD COST US A MATCH
+        checkConnection();
     }
 }
