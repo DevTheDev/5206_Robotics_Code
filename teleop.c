@@ -113,7 +113,7 @@ void allStop()
     motor[liftL] = 0;
     motor[liftR] = 0;
     stopLauncher();
-    servo[shrub] = servo_stop; //Probably want to make this do something special so that we know we're dcd
+    servo[shrub] = 1/10*(sin((float)time1[T1]/1000.0))+127;
     servo[goal] = goal_open;
     servo[net] = net_open; //Both should be "safe" positions
 }
