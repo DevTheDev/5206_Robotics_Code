@@ -176,6 +176,7 @@ int new_launcher_position = 0;
 int old_launcher_position = 0;
 int jam_time = 0;
 int launcher_time = 0;
+bool intake_on = 1;
 
 //==================================================================
 task main()
@@ -244,7 +245,7 @@ task main()
         }
         else
         {
-            motor[intake] = intake_control*60;
+            motor[intake] = intake_control*60*intake_on;
         }
 
         //==============================Launcher=============================
@@ -254,6 +255,7 @@ task main()
         {
             jam_time = time;
             clearTimer(T3);
+            intake_on = 0;
         }
 
         if(time1[T3] < 650 && time1[T4] > 650)
