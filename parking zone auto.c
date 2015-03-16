@@ -100,13 +100,13 @@ task main()
         }
         updateMenu(soundBlip);
     }
-    wait1Msec(2000);
+
     if(!calibrated){
         displayCenteredTextLine(2, "Calibrating");
         displayCenteredTextLine(3, "Waiting for");
         displayCenteredTextLine(4, "you to move");
         displayCenteredTextLine(5, "...");
-        wait1Msec(2000);//*when this is here?
+        wait1Msec(2000);
         clearScreen();
 
         calibrateGyro();
@@ -185,7 +185,7 @@ task main()
         driveDist(7, -20);
     }
     else{}
-        turnAngle(75, 50);
+    turnAngle(75, 50);
 
     wait1Msec(5000);
     if(n_turns == 1){
@@ -200,16 +200,21 @@ task main()
     wait1Msec(500);
     servo[net] = net_open;
     wait1Msec(6000);
-    driveDist(20, 30);
-    if(n_turns == 0)
+    driveDist(10, 30);
+    lift_position = lift_90;
+    turnAngle(80, -50);
+    driveDist(20, -80);
+    turnAngle(80, 50);
+    driveDist(100, -80);
+    
+    if(n_turns == 0 || n_turns == 1)
     {
         turnAngle(40, -50);
     }
     else
     {
-        turnAngle(80, -50);
+        turnAngle(80, 50);
     }
-    lift_position = lift_90;
     wait1Msec(7000);
     return;
 

@@ -94,38 +94,6 @@ float deadzone(float a){
     return 0;
 }
 
-void stopLauncher()//Duplicated from actions
-{
-    int launcher_speed = motor[launcher]; //WARNING: Make sure reading the motor speed works
-
-    clearTimer(T4);
-    while(time1[T4] < launcher_slow_time)
-    {
-        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
-    }
-}
-
-void allStop()
-{
-    motor[driveL] = 0;
-    motor[driveR] = 0;
-    motor[intake] = 0;
-    motor[liftL] = 0;
-    motor[liftR] = 0;
-    stopLauncher();
-    servo[shrub] = 1/10*(sin((float)time1[T1]/1000.0))+127;
-    servo[goal] = goal_open;
-    servo[net] = net_open; //Both should be "safe" positions
-}
-
-void checkConnection()
-{
-    nNoMessageCounterLimit = 750; //4ms per check (3 seconds after disconnect)
-    if(bDisconnected == 1)
-    {
-       allStop();
-    }
-}
 //=============================Control==============================
 
 // Drive Control
@@ -148,7 +116,8 @@ void checkConnection()
 #define intake_back_control joy2Btn(btnBack)
 
 //Launcher Control
-#define launcher_control (joy1toggle(btnRT) || joy2Btn(btnRT))
+#define launcher_toggle_button btnRT
+#define launcher_control (joy1toggle(launcher_toggle_button) || joy2Btn(btnRT))
 #define launcher_force_unjam joy2Btn(btnBack)
 #define launcher_unjam joy2Btn(btnY)
 
@@ -176,15 +145,40 @@ int new_launcher_position = 0;
 int old_launcher_position = 0;
 int jam_time = 0;
 int launcher_time = 0;
+int unjam_time = 0;
 bool intake_on = 1;
 
+
+//==================================================================
+void allStop()
+{
+    motor[driveL] = 0;
+    motor[driveR] = 0;
+    motor[intake] = 0;
+    motor[liftL] = 0;
+    motor[liftR] = 0;
+    //stopLauncher();
+    toggle1Btns &= ~(2<<launcher_toggle_button);
+    servo[shrub] = 1/10*(sin((float)time1[T1]/1000.0))+127;
+    servo[goal] = goal_open;
+    servo[net] = net_open; //Both should be "safe" positions
+}
+
+void checkConnection()
+{
+    nNoMessageCounterLimit = 750; //4ms per check (3 seconds after disconnect)
+    if(bDisconnected == 1)
+    {
+       allStop();
+    }
+}
 //==================================================================
 task main()
 {
     waitForStart();
     servo[shrub] = servo_stop;
     clearTimer(T3); //unjam timer
-    clearTimer(T4); //global timer
+    
     while(1){
         //Control Processing
         prev1Btns = joystick.joy1_Buttons;
@@ -250,53 +244,64 @@ task main()
 
         //==============================Launcher=============================
 
-        int time = time1[T4];
-        if(launcher_unjam || time-jam_time >= unjam_wait)
+        
+        int dt = time1[T4];
+        clearTimer(T4);
+
+        const int unjam_total = 650;
+        const int unjam_reverse = 150;
+        
+        if(launcher_unjam || jam_time >= unjam_wait)
         {
-            jam_time = time;
-            clearTimer(T3);
+            jam_time = 0;
+            unjam_time = unjam_total;
             intake_on = 0;
         }
 
-        if(time1[T3] < 650 && time1[T4] > 650)
+        if(unjam_time > 0)
         {
-            jam_time = time;
-            if(time1[T3] < 150)
+            if(unjam_time > unjam_total - unjam_reverse)
             {
                 motor[launcher] = -40;//Fix timer reset, stop intake when jammed
             }
             intake_on = 1;
+
+            unjam_time -= dt;
         }
         else
         {
-            float new_launcher_power = lerp((time-launcher_time)/launcher_slow_time, max_launcher, 0);
-            if(new_launcher_power < 0 || time1[T4] <= launcher_slow_time)
-            {
-                new_launcher_power = 0;
-            }
-
+            launcher_time -= dt;
+            
             if(launcher_control)
             {
 
                 old_launcher_position = new_launcher_position;
                 new_launcher_position = nMotorEncoder[launcher];
 
-                if(new_launcher_position-old_launcher_position > 1)
+                if(new_launcher_position-old_launcher_position <= 1)
                 {
-                    jam_time = time;
+                    jam_time += dt;
+                }
+                else
+                {
+                    jam_time = 0;
                 }
 
-                launcher_time = time;
-                new_launcher_power = max_launcher;
+                launcher_time = launcher_slow_time;
             }
             else
             {
-                jam_time = time;
+                jam_time = 0;
+            }
+
+            float new_launcher_power = lerp(((float)launcher_time)/launcher_slow_time, 0, max_launcher);
+            if(new_launcher_power < 0)
+            {
+                new_launcher_power = 0;
             }
 
             motor[launcher] = new_launcher_power;
         }
-
         //================================Lift===============================
         float lift_vel = deadzone(joystick.joy2_y1)*100.0/128.0;
         motor[liftL] = lift_vel;

@@ -85,14 +85,12 @@ task main()
     }
     clearScreen();
 
-    wait1Msec(2000);//is this needed*
-
     if(!calibrated){
         displayCenteredTextLine(2, "Calibrating");
         displayCenteredTextLine(3, "Waiting for");
         displayCenteredTextLine(4, "you to move");
         displayCenteredTextLine(5, "...");
-        wait1Msec(2000);//*when this is here?
+        wait1Msec(2000);
         clearScreen();
 
         calibrateGyro();
@@ -115,6 +113,34 @@ task main()
     startTask(lift);
 
     driveDist(155, -15); //155 -15 wood, 160 -10, metal
+//delete that^ drive dist when we switch to this
+#ifdef avoidstuffaogjoaflpasfl
+    driveDist(110, -15);
+    if(ultrasonic_distance_here < 10)
+    {
+        turnAngle(45, 50);
+        driveDist(-20, 30);
+        turnAngle(45, -50);
+        driveDist(-20, 80);
+        goFor30and90();
+    }
+    else
+    {
+        driveDist(45, -15);
+
+        if(ultrasonic_distance_here < 30)
+        {
+            turnAngle(80, 50);
+            driveDist(-30, 80);
+            goFor30And90();
+        }
+        else
+        {
+            //goFor60and90
+        }
+    }
+#endif
+    
     lift_position = lift_60;
     wait1Msec(3000);//minimize wasted time here for the lift
     resetDriveEncoders();

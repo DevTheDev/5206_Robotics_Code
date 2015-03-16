@@ -84,13 +84,13 @@ task main()
         }
         updateMenu(soundBlip);
     }
-    wait1Msec(2000);
+
     if(!calibrated){
         displayCenteredTextLine(2, "Calibrating");
         displayCenteredTextLine(3, "Waiting for");
         displayCenteredTextLine(4, "you to move");
         displayCenteredTextLine(5, "...");
-        wait1Msec(2000);//*when this is here?
+        wait1Msec(2000);
         clearScreen();
 
         calibrateGyro();
