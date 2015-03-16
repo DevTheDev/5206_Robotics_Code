@@ -265,6 +265,7 @@ task main()
             {
                 motor[launcher] = -40;//Fix timer reset, stop intake when jammed
             }
+            intake_on = 1;
         }
         else
         {
