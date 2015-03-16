@@ -261,7 +261,7 @@ task main()
             jam_time = time;
             if(time1[T3] < 150)
             {
-                motor[launcher] = -40;
+                motor[launcher] = -40;//Fix timer reset, stop intake when jammed
             }
         }
         else
