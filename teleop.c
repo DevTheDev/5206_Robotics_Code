@@ -46,6 +46,11 @@
 #define min_drive 15
 #define bezier_drive_control 10
 #define max_drive 80 //revert to 80 if driving is strange
+//D-Pad Distances
+#define distance_shift 4
+#define distance_back 15
+#define distance_forward sqrt(sq(distance_shift) + sq(distance_back))
+#define theta_shift atan(distance_shift/distance_back)
 
 //Launcher Constants
 #define max_launcher 100
@@ -108,6 +113,16 @@ float deadzone(float a){
 #define rght_drive_control joystick.joy1_y2/127.0
 #endif
 
+//D-Pad Control
+#define joy1x0y1   (joystick.joy1_TopHat == 0)
+#define joy1x1y1   (joystick.joy1_TopHat == 1)
+#define joy1x1y0   (joystick.joy1_TopHat == 2)
+#define joy1x1yN1  (joystick.joy1_TopHat == 3)
+#define joy1x0yN1  (joystick.joy1_TopHat == 4)
+#define joy1xN1yN1 (joystick.joy1_TopHat == 5)
+#define joy1xN1y0  (joystick.joy1_TopHat == 6)
+#define joy1xN1y1  (joystick.joy1_TopHat == 7)
+
 // Lift Control
 #define lift_control (joystick.joy2_y2)/127.0
 
@@ -147,7 +162,15 @@ int jam_time = 0;
 int launcher_time = 0;
 int unjam_time = 0;
 bool intake_on = 1;
+const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;//Should this be in consts?
 
+//D-Pad Toggles (Probably a sloppy way of doing it)
+bool driving_forward = 0;
+bool driving_backward = 0;
+bool turning_left = 0;
+bool turning_right = 0;
+bool shifting_left = 0;
+bool shifting_right = 0;
 
 //==================================================================
 void allStop()
@@ -231,6 +254,27 @@ task main()
             motor[driveR] = r;
         }
 #endif
+        //===============================DPAD================================
+        if(joystick.joy1_TopHat != -1)
+        {
+            nMotorEncoder[driveR] = 0;
+        }
+
+        if(joy1x0y1 || driving_forward)
+        {
+            driving_forward = true;
+            if(abs(nMotorEncoder[driveR]*drive_cm_per_tick) <= 10)
+            {
+                motor[driveR] = 50;
+                motor[driveL] = 50;
+            }
+            else if(abs(nMotorEncoder[driveR]*drive_cm_per_tick) > 10)
+            {
+                motor[driveR] = 0;
+                motor[driveL] = 0;
+                driving_forward = false;
+            }
+        }
 
         //===============================Intake==============================
         if(intake_back_control)
