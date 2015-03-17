@@ -159,7 +159,7 @@ void allStop()
     motor[liftR] = 0;
     //stopLauncher();
     toggle1Btns &= ~(2<<launcher_toggle_button);
-    servo[shrub] = 1/10*(sin((float)time1[T1]/1000.0))+127;
+    servo[shrub] = 250;//Just spin in one direction, no need to do anything else
     servo[goal] = goal_open;
     servo[net] = net_open; //Both should be "safe" positions
 }
@@ -178,7 +178,7 @@ task main()
     waitForStart();
     servo[shrub] = servo_stop;
     clearTimer(T3); //unjam timer
-    
+
     while(1){
         //Control Processing
         prev1Btns = joystick.joy1_Buttons;
@@ -244,13 +244,13 @@ task main()
 
         //==============================Launcher=============================
 
-        
+
         int dt = time1[T4];
         clearTimer(T4);
 
         const int unjam_total = 650;
         const int unjam_reverse = 150;
-        
+
         if(launcher_unjam || jam_time >= unjam_wait)
         {
             jam_time = 0;
@@ -271,7 +271,7 @@ task main()
         else
         {
             launcher_time -= dt;
-            
+
             if(launcher_control)
             {
 
