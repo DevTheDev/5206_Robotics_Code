@@ -46,12 +46,14 @@
 #define min_drive 15
 #define bezier_drive_control 10
 #define max_drive 80 //revert to 80 if driving is strange
+
 //D-Pad Distances
 #define distance_shift 4
 #define distance_back 15
 #define distance_forward sqrt(sq(distance_shift) + sq(distance_back))
 #define theta_shift atan(distance_shift/distance_back)
 #define robot_half_width 20.0
+
 //Launcher Constants
 #define max_launcher 100
 #define unjam_wait 200
@@ -444,6 +446,118 @@ task main()
                         {
                             runMotors(0,0);
                             shifting_left = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(joy1x1yN1 || back_shifting_right)
+        {
+            back_shifting_right = true;
+            shifting_back = true;
+            if(dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(50,50);
+            }
+            else if(!dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_back = false;
+                shifting_turn = true;
+            }
+            else if(!shifting_back)
+            {
+                if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(50, -50);
+                }
+                else if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(0,0);
+                    nMotorEncoder[driveR] = 0;
+                    shifting_turn = false;
+                    shifting_forward = true;
+                }
+                else if(!shifting_turn)
+                {
+                    if(dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(-50,-50);
+                    }
+                    else if(!dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(0,0);
+                        nMotorEncoder[driveR] = 0;
+                        shifting_forward = false;
+                    }
+                    else if(!shifting_forward)
+                    {
+                        if(dpadTurn(theta_shift))
+                        {
+                            runMotors(-50, 50);
+                        }
+                        else if(!dpadTurn(theta_shift))
+                        {
+                            runMotors(0,0);
+                            back_shifting_right = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(joy1xN1yN1 || back_shifting_left)
+        {
+            back_shifting_left = true;
+            shifting_back = true;
+            if(dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(50,50);
+            }
+            else if(!dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_back = false;
+                shifting_turn = true;
+            }
+            else if(!shifting_back)
+            {
+                if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(-50, 50);
+                }
+                else if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(0,0);
+                    nMotorEncoder[driveR] = 0;
+                    shifting_turn = false;
+                    shifting_forward = true;
+                }
+                else if(!shifting_turn)
+                {
+                    if(dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(-50,-50);
+                    }
+                    else if(!dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(0,0);
+                        nMotorEncoder[driveR] = 0;
+                        shifting_forward = false;
+                    }
+                    else if(!shifting_forward)
+                    {
+                        if(dpadTurn(theta_shift))
+                        {
+                            runMotors(50, -50);
+                        }
+                        else if(!dpadTurn(theta_shift))
+                        {
+                            runMotors(0,0);
+                            back_shifting_left = false;
                         }
                     }
                 }
