@@ -51,7 +51,7 @@
 #define distance_back 15
 #define distance_forward sqrt(sq(distance_shift) + sq(distance_back))
 #define theta_shift atan(distance_shift/distance_back)
-
+#define robot_half_width 20.0
 //Launcher Constants
 #define max_launcher 100
 #define unjam_wait 200
@@ -97,6 +97,22 @@ float deadzone(float a){
         return (a+127.0*threshold)/(1.0-threshold);
     }
     return 0;
+}
+//Dpad functions
+void runMotors(int rmotor_vis, int lmotor_vis)
+{
+    motor[driveR] = lmotor_vis;
+    motor[driveL] = rmotor_vis;
+}
+const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;//Should this be in consts?
+bool dpadDrive(int distance)
+{
+    return (abs(nMotorEncoder[driveR]*drive_cm_per_tick) <= distance);
+}
+
+bool dpadTurn(float angle)
+{
+    return (abs(nMotorEncoder[driveR]*0.65*drive_cm_per_tick) <= angle*robot_half_width);
 }
 
 //=============================Control==============================
@@ -146,8 +162,8 @@ float deadzone(float a){
 #define goal_open_btn joy2Btn(btnLB)
 #define goal_close_btn joy2Btn(btnLT)
 #define goal_toggle joy1press(btnLT)
-#define goal_wheel_forward joy1Btn(btnStart)
-#define goal_wheel_backward joy1Btn(btnBack)
+
+#define dpad_toggle joy1toggle(btnBack)
 
 //=========================Initialization===========================
 //Servo Initializations
@@ -162,7 +178,7 @@ int jam_time = 0;
 int launcher_time = 0;
 int unjam_time = 0;
 bool intake_on = 1;
-const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;//Should this be in consts?
+
 
 //D-Pad Toggles (Probably a sloppy way of doing it)
 bool driving_forward = 0;
@@ -171,7 +187,11 @@ bool turning_left = 0;
 bool turning_right = 0;
 bool shifting_left = 0;
 bool shifting_right = 0;
-
+bool back_shifting_right = 0;
+bool back_shifting_left = 0;
+bool shifting_back = 0;
+bool shifting_turn = 0;
+bool shifting_forward = 0;
 //==================================================================
 void allStop()
 {
@@ -255,6 +275,7 @@ task main()
         }
 #endif
         //===============================DPAD================================
+        if(!dpad_toggle){//Allows for us to disable the dpad if for some reason the controller is messed up
         if(joystick.joy1_TopHat != -1)
         {
             nMotorEncoder[driveR] = 0;
@@ -263,19 +284,172 @@ task main()
         if(joy1x0y1 || driving_forward)
         {
             driving_forward = true;
-            if(abs(nMotorEncoder[driveR]*drive_cm_per_tick) <= 10)
+            if(dpadDrive(10))
             {
-                motor[driveR] = 50;
-                motor[driveL] = 50;
+                runMotors(50, 50);
             }
-            else if(abs(nMotorEncoder[driveR]*drive_cm_per_tick) > 10)
+            else if(!dpadDrive(10))
             {
-                motor[driveR] = 0;
-                motor[driveL] = 0;
+                runMotors(0, 0);
                 driving_forward = false;
             }
         }
 
+        if(joy1x0yN1 || driving_backward)
+        {
+            driving_backward = true;
+            if(dpadDrive(10))
+            {
+                runMotors(-50,-50);
+            }
+            else if(!dpadDrive(10))
+            {
+                runMotors(0,0);
+                driving_backward = false;
+            }
+        }
+
+        if(joy1x1y0 || turning_right)
+        {
+            turning_right = true;
+            if(dpadTurn(pi/4))//20.0 is robot_half_width, most likely needs to be changed
+            {
+                runMotors(-50,50);
+            }
+            else if(!dpadTurn(pi/4))
+            {
+                runMotors(0,0);
+                turning_right = false;
+            }
+
+        }
+
+        if(joy1xN1y0 || turning_left)
+        {
+            turning_left = true;
+            if(dpadTurn(pi/4))//20.0 is robot_half_width, most likely needs to be changed
+            {
+                runMotors(50,-50);
+            }
+            else if(!dpadTurn(pi/4))
+            {
+                runMotors(0,0);
+                turning_left = false;
+            }
+        }
+
+        if(joy1x1y1 || shifting_right)
+        {
+            shifting_right = true;
+            shifting_back = true;
+            if(dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(-50,-50);
+            }
+            else if(!dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_back = false;
+                shifting_turn = true;
+            }
+            else if(!shifting_back)
+            {
+                if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(-50, 50);
+                }
+                else if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(0,0);
+                    nMotorEncoder[driveR] = 0;
+                    shifting_turn = false;
+                    shifting_forward = true;
+                }
+                else if(!shifting_turn)
+                {
+                    if(dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(50,50);
+                    }
+                    else if(!dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(0,0);
+                        nMotorEncoder[driveR] = 0;
+                        shifting_forward = false;
+                    }
+                    else if(!shifting_forward)
+                    {
+                        if(dpadTurn(theta_shift))
+                        {
+                            runMotors(50,-50);
+                        }
+                        else if(!dpadTurn(theta_shift))
+                        {
+                            runMotors(0,0);
+                            shifting_right = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(joy1xN1y1 || shifting_left)
+        {
+            shifting_left = true;
+            shifting_back = true;
+            if(dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(-50,-50);
+            }
+            else if(!dpadDrive(distance_back) && shifting_back)
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_back = false;
+                shifting_turn = true;
+            }
+            else if(!shifting_back)
+            {
+                if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(50, -50);
+                }
+                else if(dpadTurn(theta_shift) && shifting_turn)
+                {
+                    runMotors(0,0);
+                    nMotorEncoder[driveR] = 0;
+                    shifting_turn = false;
+                    shifting_forward = true;
+                }
+                else if(!shifting_turn)
+                {
+                    if(dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(50,50);
+                    }
+                    else if(!dpadDrive(distance_forward) && shifting_forward)
+                    {
+                        runMotors(0,0);
+                        nMotorEncoder[driveR] = 0;
+                        shifting_forward = false;
+                    }
+                    else if(!shifting_forward)
+                    {
+                        if(dpadTurn(theta_shift))
+                        {
+                            runMotors(-50,50);
+                        }
+                        else if(!dpadTurn(theta_shift))
+                        {
+                            runMotors(0,0);
+                            shifting_left = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
         //===============================Intake==============================
         if(intake_back_control)
         {
@@ -364,17 +538,6 @@ task main()
         }
 
         servo[goal] = goal_open + (goal_close-goal_open)*goal_down;
-
-        if(goal_wheel_forward){
-            servo[wheel] = servo_stop + 128;
-        }
-        else if(goal_wheel_backward){
-            servo[wheel] = 0;
-        }
-        else{
-            servo[wheel] = servo_stop;
-        }
-
 
         //===========================Net Mechanism==========================
         if(net_open_btn){
