@@ -117,6 +117,7 @@ bool dpadTurn(float angle)
     return (abs(nMotorEncoder[driveR]*0.65*drive_cm_per_tick) <= angle*robot_half_width);
 }
 
+
 //=============================Control==============================
 
 // Drive Control
@@ -214,7 +215,97 @@ void checkConnection()
     nNoMessageCounterLimit = 750; //4ms per check (3 seconds after disconnect)
     if(bDisconnected == 1)
     {
-       allStop();
+        allStop();
+    }
+}
+
+void evaluateTurn(int vIs)
+{
+    if(dpadTurn(pi/4))
+    {
+        runMotors(-vIs, vIs);
+    }
+    else if(!dpadTurn(pi/4))
+    {
+        runMotors(0, 0);
+        nMotorEncoder[driveR] = 0;
+        turning_right = false;
+        turning_left = false;
+        shifting_turn = false;
+    }
+}
+
+void evaluateDistance(int vIs, float distance)
+{
+    if(dpadDrive(distance))
+    {
+        runMotors(vIs, vIs);
+    }
+    else if(!dpadDrive(distance))
+    {
+        runMotors(0, 0);
+        nMotorEncoder[driveR] = 0;
+        driving_forward = false;
+        driving_backward = false;
+        shifting_back = false;
+        shifting_forward = false;
+    }
+}
+
+void evaluateShift(int rturn_vIs, int drive_vIs){
+    shifting_back = true;
+    if(dpadDrive(distance_back) && shifting_back)
+    {
+        runMotors(-drive_vIs,-drive_vIs);
+    }
+    else if(!dpadDrive(distance_back) && shifting_back)
+    {
+        runMotors(0,0);
+        nMotorEncoder[driveR] = 0;
+        shifting_back = false;
+        shifting_turn = true;
+    }
+    else if(!shifting_back)
+    {
+        if(dpadTurn(theta_shift) && shifting_turn)
+        {
+            runMotors(-rturn_vIs, rturn_vIs);
+        }
+        else if(dpadTurn(theta_shift) && shifting_turn)
+        {
+            runMotors(0,0);
+            nMotorEncoder[driveR] = 0;
+            shifting_turn = false;
+            shifting_forward = true;
+        }
+        else if(!shifting_turn)
+        {
+            if(dpadDrive(distance_forward) && shifting_forward)
+            {
+                runMotors(drive_vIs, drive_vIs);
+            }
+            else if(!dpadDrive(distance_forward) && shifting_forward)
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_forward = false;
+            }
+            else if(!shifting_forward)
+            {
+                if(dpadTurn(theta_shift))
+                {
+                    runMotors(rturn_vIs, -rturn_vIs);
+                }
+                else if(!dpadTurn(theta_shift))
+                {
+                    runMotors(0,0);
+                    shifting_right = false;
+                    shifting_left = false;
+                    back_shifting_right = false;
+                    back_shifting_left = false;
+                }
+            }
+        }
     }
 }
 //==================================================================
@@ -278,302 +369,65 @@ task main()
 #endif
         //===============================DPAD================================
         if(!dpad_toggle){//Allows for us to disable the dpad if for some reason the controller is messed up
-        if(joystick.joy1_TopHat != -1)
-        {
-            nMotorEncoder[driveR] = 0;
-        }
-
-        if(joy1x0y1 || driving_forward)
-        {
-            driving_forward = true;
-            if(dpadDrive(10))
+            if(joystick.joy1_TopHat != -1)
             {
-                runMotors(50, 50);
-            }
-            else if(!dpadDrive(10))
-            {
-                runMotors(0, 0);
-                driving_forward = false;
-            }
-        }
-
-        if(joy1x0yN1 || driving_backward)
-        {
-            driving_backward = true;
-            if(dpadDrive(10))
-            {
-                runMotors(-50,-50);
-            }
-            else if(!dpadDrive(10))
-            {
-                runMotors(0,0);
-                driving_backward = false;
-            }
-        }
-
-        if(joy1x1y0 || turning_right)
-        {
-            turning_right = true;
-            if(dpadTurn(pi/4))//20.0 is robot_half_width, most likely needs to be changed
-            {
-                runMotors(-50,50);
-            }
-            else if(!dpadTurn(pi/4))
-            {
-                runMotors(0,0);
-                turning_right = false;
-            }
-
-        }
-
-        if(joy1xN1y0 || turning_left)
-        {
-            turning_left = true;
-            if(dpadTurn(pi/4))//20.0 is robot_half_width, most likely needs to be changed
-            {
-                runMotors(50,-50);
-            }
-            else if(!dpadTurn(pi/4))
-            {
-                runMotors(0,0);
-                turning_left = false;
-            }
-        }
-
-        if(joy1x1y1 || shifting_right)
-        {
-            shifting_right = true;
-            shifting_back = true;
-            if(dpadDrive(distance_back) && shifting_back)
-            {
-                runMotors(-50,-50);
-            }
-            else if(!dpadDrive(distance_back) && shifting_back)
-            {
-                runMotors(0,0);
                 nMotorEncoder[driveR] = 0;
-                shifting_back = false;
-                shifting_turn = true;
             }
-            else if(!shifting_back)
-            {
-                if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(-50, 50);
-                }
-                else if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(0,0);
-                    nMotorEncoder[driveR] = 0;
-                    shifting_turn = false;
-                    shifting_forward = true;
-                }
-                else if(!shifting_turn)
-                {
-                    if(dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(50,50);
-                    }
-                    else if(!dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(0,0);
-                        nMotorEncoder[driveR] = 0;
-                        shifting_forward = false;
-                    }
-                    else if(!shifting_forward)
-                    {
-                        if(dpadTurn(theta_shift))
-                        {
-                            runMotors(50,-50);
-                        }
-                        else if(!dpadTurn(theta_shift))
-                        {
-                            runMotors(0,0);
-                            shifting_right = false;
-                        }
-                    }
-                }
-            }
-        }
 
-        if(joy1xN1y1 || shifting_left)
-        {
-            shifting_left = true;
-            shifting_back = true;
-            if(dpadDrive(distance_back) && shifting_back)
+            driving_forward  = joy1x0y1;
+            driving_backward = joy1x0yN1;
+            if(driving_forward)
             {
-                runMotors(-50,-50);
+                evaluateDistance(50, 10);
             }
-            else if(!dpadDrive(distance_back) && shifting_back)
-            {
-                runMotors(0,0);
-                nMotorEncoder[driveR] = 0;
-                shifting_back = false;
-                shifting_turn = true;
-            }
-            else if(!shifting_back)
-            {
-                if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(50, -50);
-                }
-                else if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(0,0);
-                    nMotorEncoder[driveR] = 0;
-                    shifting_turn = false;
-                    shifting_forward = true;
-                }
-                else if(!shifting_turn)
-                {
-                    if(dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(50,50);
-                    }
-                    else if(!dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(0,0);
-                        nMotorEncoder[driveR] = 0;
-                        shifting_forward = false;
-                    }
-                    else if(!shifting_forward)
-                    {
-                        if(dpadTurn(theta_shift))
-                        {
-                            runMotors(-50,50);
-                        }
-                        else if(!dpadTurn(theta_shift))
-                        {
-                            runMotors(0,0);
-                            shifting_left = false;
-                        }
-                    }
-                }
-            }
-        }
 
-        if(joy1x1yN1 || back_shifting_right)
-        {
-            back_shifting_right = true;
-            shifting_back = true;
-            if(dpadDrive(distance_back) && shifting_back)
+            if(driving_backward)
             {
-                runMotors(50,50);
+                evaluateDistance(-50, 10);
             }
-            else if(!dpadDrive(distance_back) && shifting_back)
-            {
-                runMotors(0,0);
-                nMotorEncoder[driveR] = 0;
-                shifting_back = false;
-                shifting_turn = true;
-            }
-            else if(!shifting_back)
-            {
-                if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(50, -50);
-                }
-                else if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(0,0);
-                    nMotorEncoder[driveR] = 0;
-                    shifting_turn = false;
-                    shifting_forward = true;
-                }
-                else if(!shifting_turn)
-                {
-                    if(dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(-50,-50);
-                    }
-                    else if(!dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(0,0);
-                        nMotorEncoder[driveR] = 0;
-                        shifting_forward = false;
-                    }
-                    else if(!shifting_forward)
-                    {
-                        if(dpadTurn(theta_shift))
-                        {
-                            runMotors(-50, 50);
-                        }
-                        else if(!dpadTurn(theta_shift))
-                        {
-                            runMotors(0,0);
-                            back_shifting_right = false;
-                        }
-                    }
-                }
-            }
-        }
 
-        if(joy1xN1yN1 || back_shifting_left)
-        {
-            back_shifting_left = true;
-            shifting_back = true;
-            if(dpadDrive(distance_back) && shifting_back)
+            turning_right = joy1x1y0;
+            turning_left  = joy1xN1y0;
+            if(turning_right)
             {
-                runMotors(50,50);
+                evaluateTurn(50);
             }
-            else if(!dpadDrive(distance_back) && shifting_back)
+            if(turning_left)
             {
-                runMotors(0,0);
-                nMotorEncoder[driveR] = 0;
-                shifting_back = false;
-                shifting_turn = true;
+                evaluateTurn(-50);
             }
-            else if(!shifting_back)
+
+            shifting_right = joy1x1y1;
+            shifting_left = joy1xN1y1;
+            back_shifting_right = joy1x1yN1;
+            back_shifting_left = joy1xN1yN1;
+            if(shifting_right)
             {
-                if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(-50, 50);
-                }
-                else if(dpadTurn(theta_shift) && shifting_turn)
-                {
-                    runMotors(0,0);
-                    nMotorEncoder[driveR] = 0;
-                    shifting_turn = false;
-                    shifting_forward = true;
-                }
-                else if(!shifting_turn)
-                {
-                    if(dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(-50,-50);
-                    }
-                    else if(!dpadDrive(distance_forward) && shifting_forward)
-                    {
-                        runMotors(0,0);
-                        nMotorEncoder[driveR] = 0;
-                        shifting_forward = false;
-                    }
-                    else if(!shifting_forward)
-                    {
-                        if(dpadTurn(theta_shift))
-                        {
-                            runMotors(50, -50);
-                        }
-                        else if(!dpadTurn(theta_shift))
-                        {
-                            runMotors(0,0);
-                            back_shifting_left = false;
-                        }
-                    }
-                }
+                evaluateShift(50, 50);
             }
-        }
+            if(shifting_left)
+            {
+                evaluateShift(-50, 50);
+            }
+            if(back_shifting_right)
+            {
+                evaluateShift(-50, -50);
+            }
+            if(back_shifting_left)
+            {
+                evaluateShift(50, -50);
+            }
         }
         else if(dpad_toggle)
         {
-           turning_left = false;
-           turning_right = false;
-           shifting_back = false;
-           shifting_forward = false;
-           shifting_left = false;
-           shifting_right = false;
-           back_shifting_left = false;
-           back_shifting_right = false;
+            turning_left = false;
+            turning_right = false;
+            shifting_back = false;
+            shifting_forward = false;
+            shifting_left = false;
+            shifting_right = false;
+            back_shifting_left = false;
+            back_shifting_right = false;
         }
         //===============================Intake==============================
         if(intake_back_control)
