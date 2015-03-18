@@ -221,11 +221,11 @@ void checkConnection()
 
 void evaluateTurn(int vIs)
 {
-    if(dpadTurn(pi/4))
+    if(dpadTurn(pi/2))
     {
         runMotors(-vIs, vIs);
     }
-    else if(!dpadTurn(pi/4))
+    else if(!dpadTurn(pi/2))
     {
         runMotors(0, 0);
         nMotorEncoder[driveR] = 0;
