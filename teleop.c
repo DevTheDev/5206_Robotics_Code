@@ -563,7 +563,18 @@ task main()
                 }
             }
         }
-    }
+        }
+        else if(dpad_toggle)
+        {
+           turning_left = false;
+           turning_right = false;
+           shifting_back = false;
+           shifting_forward = false;
+           shifting_left = false;
+           shifting_right = false;
+           back_shifting_left = false;
+           back_shifting_right = false;
+        }
         //===============================Intake==============================
         if(intake_back_control)
         {
