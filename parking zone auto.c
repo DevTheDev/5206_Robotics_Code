@@ -50,21 +50,81 @@ task main()
     servo[shrub] = servo_stop;
     wait1Msec(100);//wait for everything to stop
 
-    //Gyro Calibration
-    calibrateGyro();
-    eraseDisplay();
-    displayCenteredTextLine(3, "Ready");
-    playSoundFile("Calibrated.rso");
+    bool confirmed = 0;
+    int wait_time = 0;
+    bool calibrated = 0;
+    clearScreen();
 
+    while(!confirmed){
+        int right_lift = 0;
+        int left_lift = 0;
+        char bat[16];
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
+        if(doMenuItem("lift up")){
+            left_lift = 50;
+            right_lift = 50;
+        }
+        if(doMenuItem("lift down")){
+            left_lift = -50;
+            right_lift = -50;
+        }
+        motor[liftL] = left_lift;
+        motor[liftR] = right_lift;
 
-    while(externalBattery == -1){//Tells us if the robot is off
+        char wait[16];
+        sprintf(wait, "inc wait: %i", wait_time);
+        if(doMenuItem(wait) && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time +=500;
+        }
+        if(doMenuItem("dec wait") && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time -= 500;
+        }
+        if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
+            clearScreen();
+            displayCenteredTextLine(3, "Waiting for");
+            displayCenteredTextLine(4, "you to move");
+            displayCenteredTextLine(5, "...");
+
+            wait1Msec(2000);
+
+            calibrateGyro();
+            playSoundFile("Calibrated.rso");
+            calibrated = 1;
+        }
+        if(doMenuItem("Confirm")){
+            confirmed = 1;
+        }
+        updateMenu(soundBlip);
+    }
+
+    if(!calibrated){
+        displayCenteredTextLine(2, "Calibrating");
+        displayCenteredTextLine(3, "Waiting for");
+        displayCenteredTextLine(4, "you to move");
+        displayCenteredTextLine(5, "...");
+        wait1Msec(2000);
+        clearScreen();
+
+        calibrateGyro();
+        playSoundFile("Calibrated.rso");
+    }
+
+    while(externalBattery == -1){
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
         wait1Msec(2000);
     }
 
+    displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
+
+    wait1Msec(wait_time);
+
 
     //Begin raising lift
     startTask(lift);
@@ -80,9 +140,13 @@ task main()
 
         resetDriveEncoders();
 
+        int case_1_dist = 40; //BASH ME
+
         for ever
         {
-            if(seeIR(&irseeker))
+            if((seeIR(&irseeker)
+                    && (n_turns != 0 || nMotorEncoder[driveR]*drive_cm_per_tick > 10))
+               || (n_turns == 2 && nMotorEncoder[driveR]*drive_cm_per_tick > case_1_dist)) //default case
             {
                 break;
             }
@@ -91,12 +155,10 @@ task main()
             motor[driveR] = motor_vIs;
             if(nMotorEncoder[driveR]*drive_cm_per_tick > distance)
             {
-                if(n_turns == 1)
-                {
+                if(n_turns == 1){
                     driveDist(26, motor_vIs);
                 }
-                else
-                {
+                else{
                     driveDist(19, motor_vIs);
                 }
 
@@ -116,22 +178,21 @@ task main()
         }
     }
 
-    if(n_turns == 2)
-    {
-        driveDist(9, -20);
-    }
-    else if(n_turns == 1)
-    {
+    if(n_turns == 2){
         driveDist(7, -20);
     }
-    else
-    {
+    else if(n_turns == 1){
+        driveDist(7, -20);
     }
-        turnAngle(75, 50);
+    else{}
+    turnAngle(75, 50);
 
     wait1Msec(5000);
     if(n_turns == 1){
         driveDist(10, -30);
+    }
+    else if(n_turns == 2){
+        driveDist(17, -30);
     }
     else{
         driveDist(15, -30);
@@ -139,16 +200,21 @@ task main()
     wait1Msec(500);
     servo[net] = net_open;
     wait1Msec(6000);
-    driveDist(20, 30);
-    if(n_turns == 0)
+    driveDist(10, 30);
+    lift_position = lift_90;
+    turnAngle(80, -50);
+    driveDist(20, -80);
+    turnAngle(80, 50);
+    driveDist(100, -80);
+    
+    if(n_turns == 0 || n_turns == 1)
     {
         turnAngle(40, -50);
     }
     else
     {
-        turnAngle(80, -50);
+        turnAngle(80, 50);
     }
-    lift_position = lift_90;
     wait1Msec(7000);
     return;
 
@@ -173,5 +239,5 @@ task main()
     turnAngle(40, 50);
     driveDist(240, 80);
     turnAngle(80, 50);
-    driveDist(90, -80);
+    driveDist(80, -80);
 }

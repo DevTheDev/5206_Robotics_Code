@@ -16,14 +16,17 @@
 #include "menu.h"
 
 task lift(){
-    for ever{
+    for ever
+    {
         updateLift();
     }
 }
 
+#define goal_part 110//This may be the reason we're missing the 60.
+
 task main()
 {
-	servo[net] = net_close;
+    servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
@@ -31,70 +34,158 @@ task main()
     bool confirmed = 0;
     int wait_time = 0;
     bool calibrated = 0;
-    bool parking_zone = 0;
+    bool parking_zone = 1;
+    clearScreen();
 
-    while(confirmed == 0){
+    while(!confirmed){
+        int right_lift = 0;
+        int left_lift = 0;
         char bat[16];
-		sprintf(bat, "Bat: %f V", externalBattery/1000.0);
-		displayMenuItem(bat);
-		menu_size++;
-		char wait[16];
-		sprintf(wait, "");
-		if(doMenuItem("dec wait") && time1[T2] >= 200){
-		    clearTimer(T2);
-		    wait_time -= 500;
-		}
+        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        displayMenuItem(bat);
+        menu_size++;
+        if(doMenuItem("lift up")){
+            left_lift = 50;
+            right_lift = 50;
+        }
+        if(doMenuItem("lift down")){
+            left_lift = -50;
+            right_lift = -50;
+        }
+        motor[liftL] = left_lift;
+        motor[liftR] = right_lift;
 
+        char wait[16];
+        sprintf(wait, "inc wait: %i", wait_time);
+        if(doMenuItem(wait) && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time += 500;
+        }
+        if(doMenuItem("dec wait") && time1[T2] >= 200){
+            clearTimer(T2);
+            wait_time -= 500;
+        }
+        doToggleMenuItem("No PZ\0Yes PZ", parking_zone);
+        if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
+            clearScreen();
+            displayCenteredTextLine(3, "Waiting for");
+            displayCenteredTextLine(4, "you to move");
+            displayCenteredTextLine(5, "...");
+
+            wait1Msec(2000);
+
+            calibrateGyro();
+            playSoundFile("Calibrated.rso");
+            calibrated = 1;
+        }
+        if(doMenuItem("Confirm")){
+            confirmed = 1;
+        }
+        updateMenu(soundBlip);
     }
-    calibrateGyro();
-    eraseDisplay();
-    displayCenteredTextLine(3, "Ready");
-    playSoundFile("Calibrated.rso");
-    char ugh[16];
-    sprintf(ugh, "Offset: %f", offset);
-    displayCenteredTextLine(4, ugh);
+    clearScreen();
+
+    if(!calibrated){
+        displayCenteredTextLine(2, "Calibrating");
+        displayCenteredTextLine(3, "Waiting for");
+        displayCenteredTextLine(4, "you to move");
+        displayCenteredTextLine(5, "...");
+        wait1Msec(2000);
+        clearScreen();
+
+        calibrateGyro();
+        playSoundFile("Calibrated.rso");
+    }
 
     while(externalBattery == -1){
         playSoundFile("RobotOn.rso");
         while(bSoundActive);
         wait1Msec(2000);
     }
+
+    clearScreen();
+    displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
 
+    wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);
 
-    driveDist(150, -15);
+    driveDist(155, -15); //155 -15 wood, 160 -10, metal
+//delete that^ drive dist when we switch to this
+#ifdef avoidstuffaogjoaflpasfl
+    driveDist(110, -15);
+    if(ultrasonic_distance_here < 10)
+    {
+        turnAngle(45, 50);
+        driveDist(-20, 30);
+        turnAngle(45, -50);
+        driveDist(-20, 80);
+        goFor30and90();
+    }
+    else
+    {
+        driveDist(45, -15);
+
+        if(ultrasonic_distance_here < 30)
+        {
+            turnAngle(80, 50);
+            driveDist(-30, 80);
+            goFor30And90();
+        }
+        else
+        {
+            //goFor60and90
+        }
+    }
+#endif
+    
     lift_position = lift_60;
-    wait1Msec(3500);//minimize wasted time here for the lift
+    wait1Msec(3000);//minimize wasted time here for the lift
+    resetDriveEncoders();
     motor[driveR] = -40;
     motor[driveL] = -40;
-    wait1Msec(500);//bash to figure out how close we need to be
-    servo[goal] = goal_close;
-    wait1Msec(500);//bash to figure out how much time is needed here
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+    servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
+    resetDriveEncoders();
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
     motor[driveR] = 0;
     motor[driveL] = 0;
-    servo[net] = net_open;
-    wait1Msec(500);//Time to score the large ball in the 60
-    servo[net] = net_close;
-    turnAngle(160, 50); //Check angle and direction, may want to go further to get both back into the zone
-    servo[goal] = goal_open;
-    //launcher on
-    driveDist(15, 50);//Check distance to get away from goal
-    //might need a wait for the launcher
+    wait1Msec(500);
+    servo[net] = net_small;
+    wait1Msec(750);//Time to score the ball in the 60
+    turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
+    driveDist(65, -50);//Pushing goal towards PZ
     lift_position = lift_90;
-    turnAngle(160, -50);
+    turnAngle(3, 50); // bash angle, aligning with 90
+    servo[goal] = goal_open;
+    driveDist(35, 50);//Drive away from goal
+    turnAngle(170, -50);
     wait1Msec(1000);//minimize wasted time here for the lift
     motor[driveR] = -40;
     motor[driveL] = -40;
-    wait1Msec(500);//bash to figure out how close we need to be
+    resetDriveEncoders();
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
     servo[goal] = goal_close;
-    wait1Msec(500);//bash
+    resetDriveEncoders();
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
     motor[driveR] = 0;
     motor[driveL] = 0;
+    wait1Msec(750);
     servo[net] = net_open;
+    wait1Msec(750);
     driveDist(40, 50); //Check distance
-    turnAngle(160, 50); //Check angle
-
+    turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+    //turnAngle(10, -50);
+    if(parking_zone){
+        driveDist(250, 50);
+        turnAngle(35, -50);
+        driveDist(40, 50);
+    }
+    //turnAngle(160, 50); //Check angle
 }

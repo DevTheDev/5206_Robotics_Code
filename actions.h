@@ -18,62 +18,23 @@ bool not_jammed = 1;
 short motor_start_time = 0;
 int launcher_last_check = 0;
 
-#if 1
-void initializeLauncherTimer()
-{
-    clearTimer(T3);
-}
-
-void updateLauncher(int launcher_vIs)
-{// it seems to stop after stop_wait after the motor starts
-    if(launcher_last_check == 0 && motor[launcher])
-    {
-        motor_start_time = time1[T3];
-    }
-    launcher_last_check = motor[launcher];
-    if(time1[T3] - launcher_accounted_time > launcher_update_wait)
-    {
-        launcher_accounted_time += launcher_update_wait;
-        launcher_positions[current_launcher_position++] = nMotorEncoder[launcher];
-        unsigned int old_launcher_position = (current_launcher_position + MAX_LAUNCHER_POSITIONS - launcher_stop_wait/launcher_update_wait)%MAX_LAUNCHER_POSITIONS;
-        if(time1[T3]-motor_start_time > launcher_stop_wait &&
-           motor[launcher] > 0 &&
-           launcher_positions[current_launcher_position] - launcher_positions[old_launcher_position] < launcher_tolerance)
-           //don't run the launcher backwards yet
-        {
-            not_jammed = 0;
-        }
-        current_launcher_position++;
-        current_launcher_position %= MAX_LAUNCHER_POSITIONS;
-    }
-    if(not_jammed)
-    {
-        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_vIs, 0.0), 0.0, launcher_vIs));
-    }
-    else
-    {
-        motor[launcher] = 0;
-    }
-}
-#endif
-
 void resetLiftEncoders()
 {
-	nMotorEncoder[liftL] = 0;
+    nMotorEncoder[liftL] = 0;
 }
 
 void resetDriveEncoders()
 {
-	nMotorEncoder[driveR] = 0;
+    nMotorEncoder[driveR] = 0;
 }
 
 const float lift_bottom = 0.0;
 const float lift_30 = 8.0;//needs to be lowered for new net
 const float lift_60 = 32.0;
-const float lift_90 = 60.0;//62.0; needs to be lowered for new net
+const float lift_90 = 58.0;//62.0; needs to be lowered for new net
 const float lift_120 = 85.0;
 
-float lift_position = 0;//the desired lift position in cm,0 is the position at the start of teleop, max = 32.5 cm
+float lift_position = 0;//the desired lift position in cm, is the position at the start of teleop, max = 32.5 cm
 
 const float power_difference_per_tick = 5;
 
@@ -100,9 +61,9 @@ void calibrateGyro()
     for(int i = 0; i < itts; i++)
     {
         int line = 3;
-        sprintf(load_display, "%1.3f complete", (float)(i)/itts);
+        sprintf(load_display, "%3.0f'/. complete", (float)(i)*100.0/itts);
         displayCenteredTextLine(line++, "Calibrating");
-        displayCenteredTextLine(line++, "Please do not move");
+        displayCenteredTextLine(line++, "Please don't move");
         displayCenteredTextLine(line++, load_display);
 
         offset += SensorValue[gyro];
@@ -110,6 +71,47 @@ void calibrateGyro()
         wait1Msec(5);
     }
     offset /= itts;
+}
+
+void calibrateGyroWithLinearRegression()
+{
+    char load_display[16];
+
+    float sigma_x = 0;
+    float sigma_xx = 0;
+    float sigma_y = 0;
+    float sigma_xy = 0;
+    const int n = 500;
+
+    clearTimer(T1);
+
+    float theta = 0;
+
+    float new_time = time1[T1]/1000.0;
+    float old_time = new_time;
+    for(int i = 0; i < n; i++)
+    {
+        int line = 3;
+        sprintf(load_display, "%1.3f complete", (float)(i)/n);
+        displayCenteredTextLine(line++, "Calibrating");
+        displayCenteredTextLine(line++, "Please do not move");
+        displayCenteredTextLine(line++, load_display);
+        float omega = SensorValue[gyro];
+        old_time = new_time;
+        new_time = time1[T1]/1000.0;
+        float dt = new_time-old_time;
+        theta += dt*omega;
+
+        sigma_x += new_time;
+        sigma_xx += sq(new_time);
+        sigma_y += theta;
+
+        sigma_xy += new_time*theta;
+
+        wait1Msec(5);
+    }
+    offset = (n*sigma_xy - sigma_x*sigma_y)
+               / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
 }
 
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
@@ -129,32 +131,47 @@ void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 
 #define robot_half_width 40.0/2.0//middle of the wheel to middle of the wheel
 
-#define gyro_adjustment 60.0/65.0 //TODO: bash this
+#define gyro_adjustment 8.0/9.0
+
 //RHR
 void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn, 40 deg at 50 power = 45 deg turn
     clearTimer(T1);
-	motor[driveR] = motor_vIs;
-	motor[driveL] = -(motor_vIs);
-	float theta = 0;
-	char namE[16];
-    sprintf(namE, "Initial: %f", theta);
-    displayCenteredTextLine(1, namE);
+    motor[driveR] = motor_vIs;
+    motor[driveL] = -(motor_vIs);
+    float theta = 0;
+    char gyro_value[16];
+    sprintf(gyro_value, "Initial: %f", theta);
+    displayCenteredTextLine(1, gyro_value);
     while(abs(theta) < degrees)
-	{
-	    float dt = time1[T1]/(1000.0);
+    {
+        float dt = time1[T1]/(1000.0);
         clearTimer(T1);
 
         float omega = SensorValue[gyro]-offset;
         theta += dt*omega;//*gyro_adjustment; //rectangular approx.
         wait1Msec((8-T1)%8);
-        char bad_at_names[16];
-        sprintf(bad_at_names, "Current: %f", theta);
-        displayCenteredTextLine(2, bad_at_names);
+        sprintf(gyro_value, "Current: %f", theta);
+        displayCenteredTextLine(2, gyro_value);
 
-	}
-	motor[driveR] = 0;
+    }
+    motor[driveR] = 0;
     motor[driveL] = 0;
-    char bad_at_names[16];
-    sprintf(bad_at_names, "Final: %f", theta);
-    displayCenteredTextLine(3, bad_at_names);
+    sprintf(gyro_value, "Final: %f", theta);
+    displayCenteredTextLine(3, gyro_value);
+}
+
+void startLauncher(float launcher_speed)
+{
+    motor[launcher] = launcher_speed;
+}
+
+void stopLauncher()
+{
+    int launcher_speed = motor[launcher]; //WARNING: Make sure reading the motor speed works
+
+    clearTimer(T4);
+    while(time1[T4] < launcher_slow_time)
+    {
+        motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
+    }
 }

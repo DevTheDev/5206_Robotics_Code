@@ -36,4 +36,5 @@ float quadBezier(float t, float p1, float p2, float p3)
     return sq(1-t)*p1 + 2.0*t*(1-t)*p2 + sq(t)*p3;
 }
 
+
 #endif

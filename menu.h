@@ -78,7 +78,7 @@ menu: the menu to display
 void displayMenuItem(char * name){
   unsigned int display_position = menu_size-max(menu_position, 7)+7;
   if(display_position >= 0 && display_position < 8){// if you write to a display position below position 7, the NXT will freeze when the program exits
-	  nxtDisplayCenteredTextLine(display_position, (menu_size == menu_position) ? ">%s<" : " %s ", name);
+	  displayCenteredTextLine(display_position, (menu_size == menu_position) ? ">%s<" : " %s ", name);
 	}
 }
 
@@ -124,5 +124,16 @@ void updateMenu(){
 	menu_position = (menu_position+menu_size - pressed(leftarrow) + pressed(rightarrow)) % menu_size;
 	updateButtons();
 	menu_size = 0;
+}
 
+void updateMenu(TSounds move_sound){
+    int d_menu_position = -pressed(leftarrow) + pressed(rightarrow);
+    if(d_menu_position != 0)
+    {
+        playSound(move_sound);
+    }
+        
+    menu_position = (menu_position+menu_size + d_menu_position) % menu_size;
+    updateButtons();
+    menu_size = 0;
 }

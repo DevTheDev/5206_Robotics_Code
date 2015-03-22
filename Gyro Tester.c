@@ -25,29 +25,68 @@ task main()
         offset /= itts;
         //offset = 585;
 
+        //calculate offset with linear regression
+        float sigma_x = 0;
+        float sigma_xx = 0;
+        float sigma_y = 0;
+        float sigma_xy = 0;
+        const int n = 500;
+
+        clearTimer(T1);
+
+        float theta = 0;
+
+        float new_time = time1[T1]/1000.0;
+        float old_time = new_time;
+	    for(int i = 0; i < n; i++)
+	    {
+	        int line = 3;
+	        float omega = SensorValue[gyro];
+	        old_time = new_time;
+	        new_time = time1[T1]/1000.0;
+	        float dt = new_time-old_time;
+	        theta += dt*omega;
+
+	        sigma_x += new_time;
+	        sigma_xx += new_time*new_time;
+	        sigma_y += theta;
+
+	        sigma_xy += new_time*theta;
+
+	        wait1Msec(5);
+	    }
+	    float offset2 = (n*sigma_xy - sigma_x*sigma_y)
+            / (n*sigma_xx - (sigma_x*sigma_x)); //slope of the least squares fit
+
+
         float current_speed = 0;
         float previous_speed = 0;
 
         float angle_trap = 0;
         float angle_rect = 0;
+        float angle_lr = 0;
         clearTimer(T1);
         while(nNxtButtonPressed != 3)
         {
             float dt = time1[T1]/(1000.0);
             clearTimer(T1);
 
-            current_speed = SensorValue[gyro]-offset;
+            float sensor_value = SensorValue[gyro];
+            current_speed = sensor_value-offset;
             angle_rect += dt*(current_speed); //rectangular approx.
             angle_trap += dt*(current_speed+previous_speed)/2.0; //trapezoidal approx.
+            angle_lr += dt*(sensor_value-offset2);
             previous_speed = current_speed;
 
 	    int line = 0;
 	    displayTextLine(line++, "offset: %4f", offset);
+	    displayTextLine(line++, "offset2: %4f", offset2);
 	    displayTextLine(line++, "extra raw: %i", SensorRaw[gyro]); //seems the same as SensorValue
 	    displayTextLine(line++, "raw: %i", SensorValue[gyro]);
 	    displayTextLine(line++, "rotation: %4f", SensorValue[gyro]-offset);
 	    displayTextLine(line++, "rect: %4f", angle_rect);
 	    displayTextLine(line++, "trap: %4f", angle_trap);
+	    displayTextLine(line++, "lin reg: %4f", angle_lr);
 
 	    //wait1Msec((8-T1)%8); wait exactly 8 ms has passed since last update
         }
