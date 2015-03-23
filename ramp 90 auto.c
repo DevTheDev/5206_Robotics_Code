@@ -1,5 +1,6 @@
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
 #pragma config(Sensor, S2,     gyro,           sensorNone)
+#pragma config(Sensor, S1,     US,             sensorSONAR)
 #pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C1_2,     driveL,        tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S4_C2_1,     launcher,      tmotorTetrix, openLoop, reversed, encoder)
@@ -108,6 +109,8 @@ task main()
     playSoundFile("Ready.rso");
     waitForStart();
 
+    startTask(ultrasonic_loop);
+    
     wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);

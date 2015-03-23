@@ -114,6 +114,18 @@ void calibrateGyroWithLinearRegression()
                / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
 }
 
+float US_dist = 0.0;
+task ultrasonic_loop()
+{
+    float US_error_est = 1.0;
+    US_dist = 0.0;
+
+    for ever
+    {
+        kalmanUpdate(&US_dist, &US_error_est, SensorValue[US], 4.0, 10.0);
+    }
+}
+
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
 void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 {
@@ -158,6 +170,28 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
     motor[driveL] = 0;
     sprintf(gyro_value, "Final: %f", theta);
     displayCenteredTextLine(3, gyro_value);
+}
+
+//normal turnAngle, but with a kalman filter on the gyro
+#define degrees_per_second_per_unit_motor_vIs 1
+void kalmanTurnAngle(float degrees, int motor_vIs)
+{
+    clearTimer(T1);
+    motor[driveR] = motor_vIs;
+    motor[driveL] = -(motor_vIs);
+    float theta = 0;
+    float omega = 0;
+    float error_est = 0;
+    while(abs(theta) < degrees)
+    {
+        float dt = time1[T1]/(1000.0);
+        clearTimer(T1);
+
+        kalmanUpdate(&omega, &error_est, SensorValue[gyro] - offset, motor_vIs*degrees_per_second_per_unit_motor_vIs, 1.0, 1.0);
+        theta += dt*omega;
+    }
+    motor[driveL] = 0;
+    motor[driveR] = 0;
 }
 
 void startLauncher(float launcher_speed)
