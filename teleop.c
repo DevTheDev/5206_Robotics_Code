@@ -192,9 +192,7 @@ bool shifting_left = 0;
 bool shifting_right = 0;
 bool back_shifting_right = 0;
 bool back_shifting_left = 0;
-bool shifting_back = 0;
-bool shifting_turn = 0;
-bool shifting_forward = 0;
+int shifting_state = 0;
 int last_dpad = -1;
 bool dpad_active = 0;
 //==================================================================
@@ -234,7 +232,6 @@ void evaluateTurn(int vIs)
         nMotorEncoder[driveR] = 0;
         turning_right = false;
         turning_left = false;
-        shifting_turn = false;
         dpad_active = false;
     }
 }
@@ -252,71 +249,71 @@ void evaluateDistance(int vIs, float distance)
         nMotorEncoder[driveR] = 0;
         driving_forward = false;
         driving_backward = false;
-        shifting_back = false;
-        shifting_forward = false;
         dpad_active = false;
     }
 }
 
 void evaluateShift(int rturn_vIs, int drive_vIs)
 {
+
     dpad_active = true;
-    //shifting_back = true;
-    if(dpadDrive(distance_back) && shifting_back)
+    switch (shifting_state)
     {
-        runMotors(-drive_vIs,-drive_vIs);
-    }
-    else if(!dpadDrive(distance_back) && shifting_back)
-    {
-        runMotors(0,0);
-        nMotorEncoder[driveR] = 0;
-        shifting_back = false;
-        shifting_turn = true;
-    }
-    else if(!shifting_back)
-    {
-        if(dpadTurn(theta_shift) && shifting_turn)
-        {
-            runMotors(-rturn_vIs, rturn_vIs);
-        }
-        else if(!dpadTurn(theta_shift) && shifting_turn)
-        {
-            runMotors(0,0);
-            nMotorEncoder[driveR] = 0;
-            shifting_turn = false;
-            shifting_forward = true;
-        }
-        else if(!shifting_turn)
-        {
-            if(dpadDrive(distance_forward) && shifting_forward)
+        case 1:
+            if(dpadTurn(theta_shift))
             {
-                runMotors(drive_vIs, drive_vIs);
+                runMotors(-rturn_vIs, rturn_vIs);
             }
-            else if(!dpadDrive(distance_forward) && shifting_forward)
+            else if(!dpadTurn(theta_shift))
             {
                 runMotors(0,0);
                 nMotorEncoder[driveR] = 0;
-                shifting_forward = false;
+                shifting_state++;
             }
-            else if(!shifting_forward)
+            break;
+        case 2:
+            if(dpadTurn(theta_shift))
             {
-                if(dpadTurn(theta_shift))
-                {
-                    runMotors(rturn_vIs, -rturn_vIs);
-                }
-                else if(!dpadTurn(theta_shift))
-                {
+                runMotors(-rturn_vIs, rturn_vIs);
+            }
+            else if(!dpadTurn(theta_shift))
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_state++;
+            }
+            break;
+        case 3:
+            if(dpadDrive(distance_forward))
+            {
+                runMotors(drive_vIs, drive_vIs);
+            }
+            else if(!dpadDrive(distance_forward))
+            {
+                runMotors(0,0);
+                nMotorEncoder[driveR] = 0;
+                shifting_state++;
+            }
+            break;
+         case 4:
+            if(dpadTurn(theta_shift))
+            {
+                runMotors(rturn_vIs, -rturn_vIs);
+            }
+            else if(!dpadTurn(theta_shift))
+            {
                     runMotors(0,0);
                     shifting_right = false;
                     shifting_left = false;
                     back_shifting_right = false;
                     back_shifting_left = false;
                     dpad_active = false;
-                }
             }
+            break;
         }
     }
-}
+
+
 //==================================================================
 task main()
 {
@@ -415,7 +412,7 @@ task main()
             }
             if(joy1x1y1 || joy1xN1y1 || joy1xN1yN1 || joy1x1yN1)
             {
-                shifting_back = true;
+                shifting_state = 0;
             }
             if(shifting_left || joy1xN1y1)
             {
@@ -437,8 +434,7 @@ task main()
         {
             turning_left = false;
             turning_right = false;
-            shifting_back = false;
-            shifting_forward = false;
+            shifting_state = 0;
             shifting_left = false;
             shifting_right = false;
             back_shifting_left = false;
