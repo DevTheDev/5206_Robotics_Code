@@ -116,7 +116,7 @@ task main()
 //delete that^ drive dist when we switch to this
 #ifdef avoidstuffaogjoaflpasfl
     driveDist(110, -15);
-    if(ultrasonic_distance_here < 10)
+    if(ultrasonic_distance_here < 70)
     {
         turnAngle(45, 50);
         driveDist(-20, 30);
@@ -140,7 +140,7 @@ task main()
         }
     }
 #endif
-    
+
     lift_position = lift_60;
     wait1Msec(3000);//minimize wasted time here for the lift
     resetDriveEncoders();

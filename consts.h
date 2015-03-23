@@ -19,9 +19,10 @@ typedef unsigned char uint8;
 #define goal_close 85
 #define goal_open 210
 
-#define net_close 0
+#define net_close 14
 #define net_open 40
-#define net_small 15
+#define net_endgame 20
+#define net_small 25
 
 // Robot specs
 #define WHEEL_RADIUS 2*2.54 //The radius of the wheels, for distance calculation (converted to cm)

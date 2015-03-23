@@ -48,7 +48,7 @@
 #define max_drive 80 //revert to 80 if driving is strange
 
 //D-Pad Distances
-#define distance_shift 4
+#define distance_shift 10
 #define distance_back 15
 #define distance_forward sqrt(sq(distance_shift) + sq(distance_back))
 #define theta_shift atan(distance_shift/distance_back)
@@ -133,14 +133,14 @@ bool dpadTurn(float angle)
 #endif
 
 //D-Pad Control
-#define joy1x0y1   (joystick.joy1_TopHat == 0)
-#define joy1x1y1   (joystick.joy1_TopHat == 1)
-#define joy1x1y0   (joystick.joy1_TopHat == 2)
-#define joy1x1yN1  (joystick.joy1_TopHat == 3)
-#define joy1x0yN1  (joystick.joy1_TopHat == 4)
-#define joy1xN1yN1 (joystick.joy1_TopHat == 5)
-#define joy1xN1y0  (joystick.joy1_TopHat == 6)
-#define joy1xN1y1  (joystick.joy1_TopHat == 7)
+#define joy1x0y1   (joystick.joy1_TopHat == 0 && last_dpad != 0)
+#define joy1x1y1   (joystick.joy1_TopHat == 1 && last_dpad != 1)
+#define joy1x1y0   (joystick.joy1_TopHat == 2 && last_dpad != 2)
+#define joy1x1yN1  (joystick.joy1_TopHat == 3 && last_dpad != 3)
+#define joy1x0yN1  (joystick.joy1_TopHat == 4 && last_dpad != 4)
+#define joy1xN1yN1 (joystick.joy1_TopHat == 5 && last_dpad != 5)
+#define joy1xN1y0  (joystick.joy1_TopHat == 6 && last_dpad != 6)
+#define joy1xN1y1  (joystick.joy1_TopHat == 7 && last_dpad != 7)
 
 // Lift Control
 #define lift_control (joystick.joy2_y2)/127.0
@@ -195,6 +195,8 @@ bool back_shifting_left = 0;
 bool shifting_back = 0;
 bool shifting_turn = 0;
 bool shifting_forward = 0;
+int last_dpad = -1;
+bool dpad_active = 0;
 //==================================================================
 void allStop()
 {
@@ -221,6 +223,7 @@ void checkConnection()
 
 void evaluateTurn(int vIs)
 {
+    dpad_active = true;
     if(dpadTurn(pi/2))
     {
         runMotors(-vIs, vIs);
@@ -232,11 +235,13 @@ void evaluateTurn(int vIs)
         turning_right = false;
         turning_left = false;
         shifting_turn = false;
+        dpad_active = false;
     }
 }
 
 void evaluateDistance(int vIs, float distance)
 {
+    dpad_active = true;
     if(dpadDrive(distance))
     {
         runMotors(vIs, vIs);
@@ -249,11 +254,14 @@ void evaluateDistance(int vIs, float distance)
         driving_backward = false;
         shifting_back = false;
         shifting_forward = false;
+        dpad_active = false;
     }
 }
 
-void evaluateShift(int rturn_vIs, int drive_vIs){
-    shifting_back = true;
+void evaluateShift(int rturn_vIs, int drive_vIs)
+{
+    dpad_active = true;
+    //shifting_back = true;
     if(dpadDrive(distance_back) && shifting_back)
     {
         runMotors(-drive_vIs,-drive_vIs);
@@ -271,7 +279,7 @@ void evaluateShift(int rturn_vIs, int drive_vIs){
         {
             runMotors(-rturn_vIs, rturn_vIs);
         }
-        else if(dpadTurn(theta_shift) && shifting_turn)
+        else if(!dpadTurn(theta_shift) && shifting_turn)
         {
             runMotors(0,0);
             nMotorEncoder[driveR] = 0;
@@ -303,6 +311,7 @@ void evaluateShift(int rturn_vIs, int drive_vIs){
                     shifting_left = false;
                     back_shifting_right = false;
                     back_shifting_left = false;
+                    dpad_active = false;
                 }
             }
         }
@@ -319,13 +328,14 @@ task main()
         //Control Processing
         prev1Btns = joystick.joy1_Buttons;
         prev2Btns = joystick.joy2_Buttons;
+        last_dpad = joystick.joy1_TopHat;
         getJoystickSettings(joystick);
         toggle1Btns = (toggle1Btns^((joystick.joy1_Buttons) & (~prev1Btns)));//invert toggle1Btns when the button goes from low to high
         toggle2Btns = (toggle2Btns^((joystick.joy2_Buttons) & (~prev2Btns)));//invert toggle2Btns when the button goes from low to high
 
 //===============================Drive===============================
 #if single_joystick_drive
-        {//circle clamping
+        if(!dpad_active){//circle clamping
             float magnitude = sqrt(left_drive_control*left_drive_control+rght_drive_control*rght_drive_control);//the magnitude of the joystick vector
             if(magnitude >= threshold){
                 //maximum speed*(the magnitude of the joystick mapped from threshold to 1 to 0 to 1)*(the normalized joystick)
@@ -374,47 +384,52 @@ task main()
                 nMotorEncoder[driveR] = 0;
             }
 
-            driving_forward  = joy1x0y1;
-            driving_backward = joy1x0yN1;
-            if(driving_forward)
+            if(driving_forward || joy1x0y1)
             {
+                driving_forward = true;
                 evaluateDistance(50, 10);
             }
 
-            if(driving_backward)
+            if(driving_backward || joy1x0yN1)
             {
+                driving_backward = true;
                 evaluateDistance(-50, 10);
             }
 
-            turning_right = joy1x1y0;
-            turning_left  = joy1xN1y0;
-            if(turning_right)
+            if(turning_right || joy1x1y0)
             {
+                turning_right = true;
                 evaluateTurn(50);
             }
-            if(turning_left)
+            if(turning_left || joy1xN1y0)
             {
+                turning_left = true;
                 evaluateTurn(-50);
             }
 
-            shifting_right = joy1x1y1;
-            shifting_left = joy1xN1y1;
-            back_shifting_right = joy1x1yN1;
-            back_shifting_left = joy1xN1yN1;
-            if(shifting_right)
+
+            if(shifting_right || joy1x1y1)
             {
+                shifting_right = true;
                 evaluateShift(50, 50);
             }
-            if(shifting_left)
+            if(joy1x1y1 || joy1xN1y1 || joy1xN1yN1 || joy1x1yN1)
             {
+                shifting_back = true;
+            }
+            if(shifting_left || joy1xN1y1)
+            {
+                shifting_left = true;
                 evaluateShift(-50, 50);
             }
-            if(back_shifting_right)
+            if(back_shifting_right || joy1x1yN1)
             {
+                back_shifting_right = true;
                 evaluateShift(-50, -50);
             }
-            if(back_shifting_left)
+            if(back_shifting_left || joy1xN1yN1)
             {
+                back_shifting_left = true;
                 evaluateShift(50, -50);
             }
         }
@@ -428,45 +443,50 @@ task main()
             shifting_right = false;
             back_shifting_left = false;
             back_shifting_right = false;
-        }
-        //===============================Intake==============================
-        if(intake_back_control)
-        {
-            motor[intake] = -55;
-        }
-        else
-        {
-            motor[intake] = intake_control*60*intake_on;
+            dpad_active = false;
         }
 
         //==============================Launcher=============================
 
-
         int dt = time1[T4];
         clearTimer(T4);
 
-        const int unjam_total = 650;
-        const int unjam_reverse = 150;
+        const int unjam_total = 500;
 
         if(launcher_unjam || jam_time >= unjam_wait)
         {
             jam_time = 0;
             unjam_time = unjam_total;
             intake_on = 0;
+            nMotorEncoder[launcher] = 0;
         }
 
         if(unjam_time > 0)
         {
-            if(unjam_time > unjam_total - unjam_reverse)
+            motor[intake] = 0;
+            if(nMotorEncoder[launcher] > -100)
             {
                 motor[launcher] = -40;//Fix timer reset, stop intake when jammed
             }
-            intake_on = 1;
+            else
+            {
+                motor[launcher] = 0;
+            }
 
             unjam_time -= dt;
         }
         else
         {
+            //===============t================Intake==============================
+	        if(intake_back_control)
+	        {
+	            motor[intake] = -55;
+	        }
+	        else
+	        {
+	            motor[intake] = intake_control*60;
+	        }
+
             launcher_time -= dt;
 
             if(launcher_control)
@@ -533,7 +553,7 @@ task main()
             net_down = !net_down;
         }
 
-        const unsigned short net_positions[3] = {net_open, net_close, net_small};
+        const unsigned short net_positions[3] = {net_open, net_close, net_endgame};
 
         servo[net] = net_positions[net_down];
 
