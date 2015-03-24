@@ -198,25 +198,25 @@ bool dpad_active = 0;
 //==================================================================
 void allStop()
 {
-    motor[driveL] = 0;
-    motor[driveR] = 0;
-    motor[intake] = 0;
-    motor[liftL] = 0;
-    motor[liftR] = 0;
-    //stopLauncher();
+    joystick.joy1_x1 = 0;
+    joystick.joy1_y1 = 0;
+    joystick.joy2_y1 = 0;
+    toggle1Btns &= ~(2<<intake_control);
     toggle1Btns &= ~(2<<launcher_toggle_button);
-    servo[shrub] = 250;//Just spin in one direction, no need to do anything else
-    servo[goal] = goal_open;
-    servo[net] = net_open; //Both should be "safe" positions
+    servo[shrub] = 50*(sin((float)time1[T1]/1000.0)) + 127;//Sin wave means DC'd regular for epicycle
+    goal_down = 0;
+    net_down = 0; //Both should be "safe" positions
 }
 
-void checkConnection()
+bool checkConnection()
 {
     nNoMessageCounterLimit = 750; //4ms per check (3 seconds after disconnect)
     if(bDisconnected == 1)
     {
         allStop();
+        return 1;
     }
+    return 0;
 }
 
 void evaluateTurn(int vIs)
@@ -554,12 +554,13 @@ task main()
         servo[net] = net_positions[net_down];
 
         //===============================Shrub===============================
-        servo[shrub] = 100*joy1toggle(btnStart)*(sin((float)time1[T1]/1000.0))+127;
+        if(!checkConnection())//Prevent damage upon fcs failure, MAKE SURE THIS IS WORKING. IT COULD COST US A MATCH
+        {
+        servo[shrub] = 100 * joy1toggle(btnStart) + 127;
+        }
         //==========================Low Battery Notification=================
         /*if(externalBattery < 14000){
         playSound(soundException);
         }*/
-        //Prevent damage upon fcs failure, MAKE SURE THIS IS WORKING. IT COULD COST US A MATCH
-        checkConnection();
     }
 }
