@@ -51,7 +51,7 @@
 #define distance_shift 10
 #define distance_back 15
 #define distance_forward sqrt(sq(distance_shift) + sq(distance_back))
-#define theta_shift atan(distance_shift/distance_back)
+#define theta_shift atan2(distance_shift,distance_back)//Evidently this is a known bug in robotc, atan doesn't like fractions
 #define robot_half_width 20.0
 
 //Launcher Constants
