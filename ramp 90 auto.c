@@ -25,8 +25,50 @@ task lift(){
 
 #define goal_part 110//This may be the reason we're missing the 60.
 
+void goFor30And90(bool parking_zone)
+{
+    lift_position = lift_30;
+    driveDist(-80, 20);
+    motor[driveR] = -40;
+    motor[driveR] = -40;
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+    servo[goal] = goal_part;
+    resetDriveEncoders();
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
+    motor[driveR] = 0;
+    motor[driveL] = 0;
+    wait1Msec(500);
+    servo[net] = net_small;
+    wait1Msec(500);
+    lift_position = lift_90;
+    driveDist(80, 20);
+    turnAngle(130, -50);
+    servo[goal] = goal_open;
+    driveDist(35, 50);
+    turnAngle(170, -50);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+    servo[goal] = goal_close;
+    resetDriveEncoders();
+    clearTimer(T1);
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
+    motor[driveR] = 0;
+    motor[driveL] = 0;
+    wait1Msec(500);
+    servo[net] = net_open;
+    wait1Msec(500);
+    driveDist(40, 50); //Check distance
+    turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+}
+
 task main()
 {
+    //IR Initialization
+    tHTIRS2 irseeker;
+    initSensor(&irseeker, S3);
+    irseeker.mode = DSP_1200;
+
     servo[net] = net_close;
     servo[goal] = goal_open;
     servo[shrub] = 127;
@@ -36,6 +78,7 @@ task main()
     int wait_time = 0;
     bool calibrated = 0;
     bool parking_zone = 1;
+    bool kickstand = 0;
     clearScreen();
 
     while(!confirmed){
@@ -67,6 +110,10 @@ task main()
             wait_time -= 500;
         }
         doToggleMenuItem("No PZ\0Yes PZ", parking_zone);
+        if(parking_zone)
+        {
+            doToggleMenuItem("No kickstand\0Yes kickstand", kickstand);
+        }
         if(doMenuItem((calibrated) ? "Calibrate*" : "Calibrate")){
             clearScreen();
             displayCenteredTextLine(3, "Waiting for");
@@ -83,6 +130,7 @@ task main()
             confirmed = 1;
         }
         updateMenu(soundBlip);
+        
     }
     clearScreen();
 
@@ -115,80 +163,105 @@ task main()
     resetLiftEncoders();
     startTask(lift);
 
-    driveDist(155, -15); //155 -15 wood, 160 -10, metal
-//delete that^ drive dist when we switch to this
-#ifdef avoidstuffaogjoaflpasfl
+//155 -15 wood, 160 -10, metal
     driveDist(110, -15);
-    if(ultrasonic_distance_here < 70)
+    if(US_dist < 70)
     {
         turnAngle(45, 50);
         driveDist(-20, 30);
         turnAngle(45, -50);
         driveDist(-20, 80);
-        goFor30and90();
+        goFor30and90(parking_zone);
     }
     else
     {
         driveDist(45, -15);
 
-        if(ultrasonic_distance_here < 30)
+        if(US_dist < 30)
         {
             turnAngle(80, 50);
             driveDist(-30, 80);
-            goFor30And90();
+            goFor30And90(parking_zone);
         }
         else
         {
-            //goFor60and90
+            lift_position = lift_60;
+            wait1Msec(3000);//minimize wasted time here for the lift
+            resetDriveEncoders();
+            motor[driveR] = -40;
+            motor[driveL] = -40;
+            clearTimer(T1);
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+            servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
+            resetDriveEncoders();
+            clearTimer(T1);
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
+            motor[driveR] = 0;
+            motor[driveL] = 0;
+            wait1Msec(500);
+            servo[net] = net_small;
+            wait1Msec(750);//Time to score the ball in the 60
+            turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
+            driveDist(65, -50);//Pushing goal towards PZ
+            lift_position = lift_90;
+            turnAngle(3, 50); // bash angle, aligning with 90
+            servo[goal] = goal_open;
+            driveDist(35, 50);//Drive away from goal
+            turnAngle(170, -50);
+            wait1Msec(1000);//minimize wasted time here for the lift
+            motor[driveR] = -40;
+            motor[driveL] = -40;
+            resetDriveEncoders();
+            clearTimer(T1);
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+            servo[goal] = goal_close;
+            resetDriveEncoders();
+            clearTimer(T1);
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
+            motor[driveR] = 0;
+            motor[driveL] = 0;
+            wait1Msec(750);
+            servo[net] = net_open;
+            wait1Msec(750);
+            driveDist(40, 50); //Check distance
+            turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+            //turnAngle(10, -50);
         }
     }
-#endif
-
-    lift_position = lift_60;
-    wait1Msec(3000);//minimize wasted time here for the lift
-    resetDriveEncoders();
-    motor[driveR] = -40;
-    motor[driveL] = -40;
-    clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
-    servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
-    resetDriveEncoders();
-    clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
-    motor[driveR] = 0;
-    motor[driveL] = 0;
-    wait1Msec(500);
-    servo[net] = net_small;
-    wait1Msec(750);//Time to score the ball in the 60
-    turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
-    driveDist(65, -50);//Pushing goal towards PZ
-    lift_position = lift_90;
-    turnAngle(3, 50); // bash angle, aligning with 90
-    servo[goal] = goal_open;
-    driveDist(35, 50);//Drive away from goal
-    turnAngle(170, -50);
-    wait1Msec(1000);//minimize wasted time here for the lift
-    motor[driveR] = -40;
-    motor[driveL] = -40;
-    resetDriveEncoders();
-    clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
-    servo[goal] = goal_close;
-    resetDriveEncoders();
-    clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
-    motor[driveR] = 0;
-    motor[driveL] = 0;
-    wait1Msec(750);
-    servo[net] = net_open;
-    wait1Msec(750);
-    driveDist(40, 50); //Check distance
-    turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
-    //turnAngle(10, -50);
     if(parking_zone){
-        driveDist(250, 50);
+        float ir_dist;
+        motor[driveR] = 60;
+        motor[driveL] = 60;
+        while(nMotorEncoder[driveR]*drive_cm_per_tick > -5)
+        {
+            if(seeIR(&irseeker))
+            {
+                ir_dist = nMotorEncoder[driveR]*drive_cm_per_tick;
+            }
+        };//bash
+        motor[driveR] = 0;
+        motor[driveL] = 0;
         turnAngle(35, -50);
         driveDist(40, 50);
+        if(kickstand)
+        {
+            driveDist(30, -40);
+            {//case 1
+                turnAngle(80, 50);
+                driveDist(30, 80);
+                turnAngle(80, 50);
+                driveDist(40, 100);
+            }
+            {//case 2
+                turnAngle(80, 50);
+                driveDist(30, 80);
+                turnAngle(40, 50);
+                driveDist(40, 100);
+            }
+            {//case 3
+                driveDist(70, 100);
+            }
+        }
     }
-    //turnAngle(160, 50); //Check angle
+    //turnAngle(160, 50); //Check angle    
 }

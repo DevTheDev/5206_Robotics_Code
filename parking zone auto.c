@@ -28,13 +28,6 @@ task lift() //TODO: move this to actions?
     }
 }
 
-
-bool seeIR(tHTIRS2 * irseeker)
-{
-    readSensor(irseeker);
-    return irseeker->acDirection == 6;
-}
-
 task main()
 {
     clearScreen();//Turns off built in diagnostics and clears the display

@@ -5,6 +5,8 @@ Tele-op should be done in-line unless it needs to do something that might be nee
 #include "consts.h"
 #include "misc.h"
 
+#include "3rd Party Sensor Drivers\drivers\hitechnic-irseeker-v2.h"
+
 #define launcher_update_wait 16 //the rate at which we check for a jam
 #define launcher_stop_wait 96 //the time the motor needs to be stopped for a jam to be detected
 
@@ -52,6 +54,12 @@ void updateLift(){ //TODONT: Add constraints on max and min
 }
 
 float offset = 0;
+
+bool seeIR(tHTIRS2 * irseeker)
+{
+    readSensor(irseeker);
+    return irseeker->acDirection == 6;
+}
 
 void calibrateGyro()
 {
@@ -115,14 +123,17 @@ void calibrateGyroWithLinearRegression()
 }
 
 float US_dist = 0.0;
+float US_dist_temp = US_dist;
 task ultrasonic_loop()
 {
     float US_error_est = 1.0;
+    US_dist_temp = 0.0;
     US_dist = 0.0;
 
     for ever
     {
-        kalmanUpdate(&US_dist, &US_error_est, SensorValue[US], 4.0, 10.0);
+        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 4.0, 10.0);
+        US_dist = US_dist_temp; //just to be safe with multitasking, should check if a incomplete update is possible
     }
 }
 

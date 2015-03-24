@@ -7,8 +7,6 @@
  */
 typedef unsigned char uint8;
 
-#define ever (;;)
-
 #define pi PI
 
 #define launcher_slow_time 1000.0 //How long the launcher slows for after button release

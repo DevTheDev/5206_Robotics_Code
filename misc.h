@@ -3,6 +3,8 @@
 
 #define kilobyte 1024
 
+#define ever (;;)
+
 int max(int a, int b){
   if(a > b){
     return a;
@@ -49,7 +51,7 @@ inline void kalmanUpdate(float * value, float * error_estimate, float new_value,
 {
     *value += control_input;
     *error_estimate += signal_noise;
-    
+
     float gain = *error_estimate / (*error_estimate + signal_noise);
     *value = lerp(gain, *value, new_value);
     *error_estimate *= (1 - gain);
@@ -59,7 +61,7 @@ inline void kalmanUpdate(float * value, float * error_estimate, float new_value,
 inline void kalmanUpdate(float * value, float * error_estimate, float new_value, float signal_noise, float process_noise)
 {
     *error_estimate += signal_noise;
-    
+
     float gain = *error_estimate / (*error_estimate + signal_noise);
     *value = lerp(gain, *value, new_value);
     *error_estimate *= (1 - gain);
