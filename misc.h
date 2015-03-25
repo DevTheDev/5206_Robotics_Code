@@ -47,10 +47,10 @@ float quadBezier(float t, float p1, float p2, float p3)
   R = signal_noise
   Q = process_noise
 */
-inline void kalmanUpdate(float * value, float * error_estimate, float new_value, float control_input, float signal_noise, float process_noise)
+void kalmanUpdate(float * value, float * error_estimate, float new_value, float control_input, float signal_noise, float process_noise)
 {
     *value += control_input;
-    *error_estimate += signal_noise;
+    *error_estimate += process_noise;
 
     float gain = *error_estimate / (*error_estimate + signal_noise);
     *value = lerp(gain, *value, new_value);
@@ -58,9 +58,9 @@ inline void kalmanUpdate(float * value, float * error_estimate, float new_value,
 }
 
 //same as the above function, but without a control input of 0
-inline void kalmanUpdate(float * value, float * error_estimate, float new_value, float signal_noise, float process_noise)
+void kalmanUpdate(float * value, float * error_estimate, float new_value, float signal_noise, float process_noise)
 {
-    *error_estimate += signal_noise;
+    *error_estimate += process_noise;
 
     float gain = *error_estimate / (*error_estimate + signal_noise);
     *value = lerp(gain, *value, new_value);

@@ -5,26 +5,18 @@
 
 float US_dist = 0.0;
 float US_dist_temp = US_dist;
-task ultrasonic_loop()
-{
-    float US_error_est = 1.0;
-    US_dist_temp = 0.0;
-    US_dist = 0.0;
-
-    for ever
-    {
-        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 4.0, 10.0);
-        US_dist = US_dist_temp; //just to be safe with multitasking, should check if a incomplete update is possible
-    }
-}
+float US_error_est = 1.0;
 
 task main()
 {
-    startTask(ultrasonic_loop);
     float a = 0;
     while(1){
         a = 0.9*a + 0.1*SensorValue(US);
-        writeDebugStreamLine("%i, %i, %i", SensorValue(US), a, US_dist);
+
+        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 40.0, 1.0);
+        US_dist = US_dist_temp; //just to be safe with multitasking, should check if an incomplete update is possible
+
+        writeDebugStreamLine("%3i, %3i, %3i, %5f", SensorValue(US), a, US_dist, US_error_est);
         wait1Msec(8);
     }
 }
