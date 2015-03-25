@@ -25,14 +25,14 @@ task lift(){
 
 #define goal_part 110//This may be the reason we're missing the 60.
 
-void goFor30And90(bool parking_zone)
+void goFor30And90(bool parking_zone)//further on the 30, turn other way
 {
     lift_position = lift_30;
     driveDist(-80, 20);
-    motor[driveR] = -40;
+    motor[driveL] = -40;
     motor[driveR] = -40;
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -113 && time1[T1] < 2000){};
     servo[goal] = goal_part;
     resetDriveEncoders();
     clearTimer(T1);
@@ -130,7 +130,7 @@ task main()
             confirmed = 1;
         }
         updateMenu(soundBlip);
-        
+
     }
     clearScreen();
 
@@ -157,16 +157,38 @@ task main()
     playSoundFile("Ready.rso");
     waitForStart();
 
+    TFileHandle file;
+    TFileIOResult error;
+    char filename[] = "ramp90US.txt";
+    short filesize = 3000;
+    delete(filename, error);
+    OpenRead(file, error, filename, filesize);
     startTask(ultrasonic_loop);
-    
+
     wait1Msec(wait_time);
     resetLiftEncoders();
     startTask(lift);
 
 //155 -15 wood, 160 -10, metal
-    driveDist(110, -15);
-    if(US_dist < 70)
+    driveDist(100, -25);
+    //motor[driveL] = 3;
+    //motor[driveR] = 3;
+    bool blocked = 0;
+    wait1Msec(500);
+    clearTimer(T1);
+    while(time1[T1} < 500)
     {
+        if(US_dist < 70)
+        {
+            blocked = 1;
+            break;
+        }
+    }
+    if(blocked)
+    {
+        playSound(soundException);
+        while(bSoundActive){};
+        return;
         turnAngle(45, 50);
         driveDist(-20, 30);
         turnAngle(45, -50);
@@ -175,16 +197,30 @@ task main()
     }
     else
     {
-        driveDist(45, -15);
+        driveDist(55, -15);
 
-        if(US_dist < 30)
+	    clearTimer(T1);
+	    while(time1[T1} < 500)
+	    {
+	        WriteByte(file, error, (char)US_dist);
+	        if(US_dist < 70)
+	        {
+	            blocked = 1;
+	            break;
+	        }
+	    }
+	    if(blocked)
         {
+            playSound(soundBeepBeep);
+            while(bSoundActive){};
             turnAngle(80, 50);
-            driveDist(-30, 80);
+            driveDist(40, -80);
+            turnAngle(75, -50);
             goFor30And90(parking_zone);
         }
         else
         {
+            playSound(soundFastUpwardTones);
             lift_position = lift_60;
             wait1Msec(3000);//minimize wasted time here for the lift
             resetDriveEncoders();
@@ -204,16 +240,17 @@ task main()
             turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
             driveDist(65, -50);//Pushing goal towards PZ
             lift_position = lift_90;
+            servo[net] = net_close;
             turnAngle(3, 50); // bash angle, aligning with 90
             servo[goal] = goal_open;
             driveDist(35, 50);//Drive away from goal
-            turnAngle(170, -50);
+            turnAngle(160, -50);
             wait1Msec(1000);//minimize wasted time here for the lift
             motor[driveR] = -40;
             motor[driveL] = -40;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -53 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
             servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
@@ -224,7 +261,7 @@ task main()
             servo[net] = net_open;
             wait1Msec(750);
             driveDist(40, 50); //Check distance
-            turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+            //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
             //turnAngle(10, -50);
         }
     }
@@ -232,7 +269,8 @@ task main()
         float ir_dist;
         motor[driveR] = 60;
         motor[driveL] = 60;
-        while(nMotorEncoder[driveR]*drive_cm_per_tick > -5)
+        clearTimer(T1);
+        while(nMotorEncoder[driveR]*drive_cm_per_tick < 250 && time1[T1] < 4000)
         {
             if(seeIR(&irseeker))
             {
@@ -263,5 +301,5 @@ task main()
             }
         }
     }
-    //turnAngle(160, 50); //Check angle    
+    //turnAngle(160, 50); //Check angle
 }

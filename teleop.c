@@ -260,11 +260,11 @@ void evaluateShift(int rturn_vIs, int drive_vIs)
     switch (shifting_state)
     {
         case 1:
-            if(dpadTurn(theta_shift))
+            if(dpadDrive(distance_back))
             {
-                runMotors(-rturn_vIs, rturn_vIs);
+                runMotors(drive_vIs, drive_vIs);
             }
-            else if(!dpadTurn(theta_shift))
+            else if(!dpadTurn(distance_back))
             {
                 runMotors(0,0);
                 nMotorEncoder[driveR] = 0;
@@ -404,15 +404,15 @@ task main()
                 evaluateTurn(-50);
             }
 
+            if(joy1x1y1 || joy1xN1y1 || joy1xN1yN1 || joy1x1yN1)
+            {
+                shifting_state = 1;
+            }
 
             if(shifting_right || joy1x1y1)
             {
                 shifting_right = true;
                 evaluateShift(50, 50);
-            }
-            if(joy1x1y1 || joy1xN1y1 || joy1xN1yN1 || joy1x1yN1)
-            {
-                shifting_state = 0;
             }
             if(shifting_left || joy1xN1y1)
             {
@@ -556,7 +556,7 @@ task main()
         //===============================Shrub===============================
         if(!checkConnection())//Prevent damage upon fcs failure, MAKE SURE THIS IS WORKING. IT COULD COST US A MATCH
         {
-        servo[shrub] = 100 * joy1toggle(btnStart) + 127;
+        servo[shrub] = 100 * joy1toggle(btnX) + 127;
         }
         //==========================Low Battery Notification=================
         /*if(externalBattery < 14000){
