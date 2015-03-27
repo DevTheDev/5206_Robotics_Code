@@ -33,7 +33,7 @@ void resetDriveEncoders()
 const float lift_bottom = 0.0;
 const float lift_30 = 8.0;//needs to be lowered for new net
 const float lift_60 = 32.0;
-const float lift_90 = 58.0;//62.0; needs to be lowered for new net
+const float lift_90 = 57.0;//62.0; needs to be lowered for new net
 const float lift_120 = 85.0;
 
 float lift_position = 0;//the desired lift position in cm, is the position at the start of teleop, max = 32.5 cm

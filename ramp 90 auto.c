@@ -28,38 +28,46 @@ task lift(){
 void goFor30And90(bool parking_zone)//further on the 30, turn other way
 {
     lift_position = lift_30;
-    driveDist(-80, 20);
+    driveDist(68, -80);
     motor[driveL] = -40;
     motor[driveR] = -40;
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -113 && time1[T1] < 2000){};
+    resetDriveEncoders();
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -56 && time1[T1] < 2000){};
     servo[goal] = goal_part;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -16 && time1[T1] < 2000){};
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(500);
     servo[net] = net_small;
     wait1Msec(500);
     lift_position = lift_90;
-    driveDist(80, 20);
-    turnAngle(130, -50);
+    driveDist(135, 80);
+    turnAngle(160, 50);
     servo[goal] = goal_open;
-    driveDist(35, 50);
-    turnAngle(170, -50);
+    driveDist(95, 50);
+    turnAngle(200, -50);
+    resetDriveEncoders();
+    clearTimer(T1);
+    motor[driveL] = -40;
+    motor[driveR] = -40;
     while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
     servo[goal] = goal_close;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -7 && time1[T1] < 2000){};//bash
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(500);
     servo[net] = net_open;
     wait1Msec(500);
-    driveDist(40, 50); //Check distance
-    turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+    driveDist(68, 50); //Check distance
+    turnAngle(35, 50);
+    driveDist(200, 60);
+    turnAngle(35, -50);
+    driveDist(20, 50);
 }
 
 task main()
@@ -156,13 +164,20 @@ task main()
     displayCenteredBigTextLine(3, "Ready!");
     playSoundFile("Ready.rso");
     waitForStart();
-
+    //Off ramp
     TFileHandle file;
     TFileIOResult error;
     char filename[] = "ramp90US.txt";
     short filesize = 3000;
     delete(filename, error);
-    OpenRead(file, error, filename, filesize);
+    OpenWrite(file, error, filename, filesize);
+    //On ramp
+    TFileHandle file2;
+    TFileIOResult error2;
+    char filename2[] = "ramp90USramp.txt";
+    short filesize2 = 3000;
+    delete(filename2, error2);
+    OpenWrite(file2, error2, filename2, filesize2);
     startTask(ultrasonic_loop);
 
     wait1Msec(wait_time);
@@ -170,7 +185,7 @@ task main()
     startTask(lift);
 
 //155 -15 wood, 160 -10, metal
-    driveDist(100, -25);
+    driveDist(100, -30);
     //motor[driveL] = 3;
     //motor[driveR] = 3;
     bool blocked = 0;
@@ -178,7 +193,8 @@ task main()
     clearTimer(T1);
     while(time1[T1} < 500)
     {
-        if(US_dist < 70)
+        WriteByte(file2, error2, (char)US_dist);
+        if(US_dist < 50)
         {
             blocked = 1;
             break;
@@ -203,7 +219,7 @@ task main()
 	    while(time1[T1} < 500)
 	    {
 	        WriteByte(file, error, (char)US_dist);
-	        if(US_dist < 70)
+	        if(US_dist < 50)
 	        {
 	            blocked = 1;
 	            break;
@@ -213,9 +229,9 @@ task main()
         {
             playSound(soundBeepBeep);
             while(bSoundActive){};
-            turnAngle(80, 50);
-            driveDist(40, -80);
-            turnAngle(75, -50);
+            turnAngle(75, 50);
+            driveDist(45, -50);
+            turnAngle(72, -50);
             goFor30And90(parking_zone);
         }
         else
@@ -250,11 +266,11 @@ task main()
             motor[driveL] = -40;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -53 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -48 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
             servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -5 && time1[T1] < 2000){};//bash
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -8 && time1[T1] < 2000){};//bash
             motor[driveR] = 0;
             motor[driveL] = 0;
             wait1Msec(750);
@@ -263,9 +279,12 @@ task main()
             driveDist(40, 50); //Check distance
             //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
             //turnAngle(10, -50);
+            driveDist(100, 60);
+            turnAngle(35, -50);
+            driveDist(40, 50);
         }
     }
-    if(parking_zone){
+    if(false && parking_zone){
         float ir_dist;
         motor[driveR] = 60;
         motor[driveL] = 60;
