@@ -169,7 +169,7 @@ task main()
     //Off ramp
     TFileHandle file;
     TFileIOResult error;
-    char filename[] = "ramp90US.txt";
+    char filename[] = "ramp90USground.txt";
     short filesize = 3000;
     delete(filename, error);
     OpenWrite(file, error, filename, filesize);
@@ -207,10 +207,14 @@ task main()
         playSound(soundException);
         while(bSoundActive){};
         return;
-        turnAngle(45, 50);
-        driveDist(-20, 30);
-        turnAngle(45, -50);
-        driveDist(-20, 80);
+        turnAngle(80, 50);//Between 45 and 90, want to minimize both distance and danger.
+        driveDist(40, -30);
+        resetDriveEncoders();
+        clearTimer(T1);
+        while(nMotorEncoder[driveR]*drive_cm_per_tick < 15 && time1[T1] < 1500){};//Realign with the ramp
+        driveDist(15, -80);
+        turnAngle(80, -50);//Aligned with the 30
+        driveDist(20, -80);//Correct to start of goFor30and90
         goFor30and90(parking_zone);
     }
     else
@@ -240,12 +244,12 @@ task main()
         {
             playSound(soundFastUpwardTones);
             lift_position = lift_60;
-            wait1Msec(3000);//minimize wasted time here for the lift
+            wait1Msec(2500);//minimize wasted time here for the lift
             resetDriveEncoders();
             motor[driveR] = -40;
             motor[driveL] = -40;
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -65 && time1[T1] < 2000){};//63 to 65.
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
             servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
             resetDriveEncoders();
             clearTimer(T1);
@@ -279,9 +283,11 @@ task main()
             servo[net] = net_open;
             wait1Msec(750);
             driveDist(40, 50); //Check distance
-            driveDist(150, 60);//Pz?
+            //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
+            //turnAngle(10, -50);
+            driveDist(100, 60);
             turnAngle(35, -50);
-            driveDist(50, 50);
+            driveDist(40, 50);
         }
     }
     if(false && parking_zone){
