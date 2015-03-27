@@ -23,7 +23,6 @@ task lift(){
     }
 }
 
-#define goal_part 110//This may be the reason we're missing the 60.
 
 void goFor30And90(bool parking_zone)//further on the 30, turn other way
 {
@@ -34,7 +33,7 @@ void goFor30And90(bool parking_zone)//further on the 30, turn other way
     clearTimer(T1);
     resetDriveEncoders();
     while(nMotorEncoder[driveR]*drive_cm_per_tick > -56 && time1[T1] < 2000){};
-    servo[goal] = goal_part;
+    servo[goal] = goal_close;
     resetDriveEncoders();
     clearTimer(T1);
     while(nMotorEncoder[driveR]*drive_cm_per_tick > -16 && time1[T1] < 2000){};
@@ -53,11 +52,11 @@ void goFor30And90(bool parking_zone)//further on the 30, turn other way
     clearTimer(T1);
     motor[driveL] = -40;
     motor[driveR] = -40;
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 4000){};//bash to figure out how close we need to be
     servo[goal] = goal_close;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -7 && time1[T1] < 2000){};//bash
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -7 && time1[T1] < 4000){};//bash, set times high for testing purposes.
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(500);
@@ -235,7 +234,7 @@ task main()
         {
             playSound(soundBeepBeep);
             while(bSoundActive){};
-            turnAngle(75, 50);
+            turnAngle(75, 50);//I want to take a minute to check these. Seems strange that it's only messed up here.
             driveDist(45, -50);
             turnAngle(72, -50);
             goFor30And90(parking_zone);
@@ -250,7 +249,7 @@ task main()
             motor[driveL] = -40;
             clearTimer(T1);
             while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
-            servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
+            servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
             while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
