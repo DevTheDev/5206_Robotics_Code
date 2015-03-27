@@ -32,11 +32,11 @@ void goFor30And90(bool parking_zone)//further on the 30, turn other way
     motor[driveR] = -40;
     clearTimer(T1);
     resetDriveEncoders();
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -56 && time1[T1] < 2000){};
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -56 && time1[T1] < 4000){};//Set times high for testing.
     servo[goal] = goal_close;
     resetDriveEncoders();
     clearTimer(T1);
-    while(nMotorEncoder[driveR]*drive_cm_per_tick > -16 && time1[T1] < 2000){};
+    while(nMotorEncoder[driveR]*drive_cm_per_tick > -16 && time1[T1] < 4000){};
     motor[driveR] = 0;
     motor[driveL] = 0;
     wait1Msec(500);
@@ -76,7 +76,7 @@ task main()
     initSensor(&irseeker, S3);
     irseeker.mode = DSP_1200;
 
-    servo[net] = 255;
+    servo[net] = 50;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
@@ -255,7 +255,7 @@ task main()
             while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
             motor[driveR] = 0;
             motor[driveL] = 0;
-            wait1Msec(500);
+            wait1Msec(750);
             servo[net] = net_small;
             wait1Msec(750);//Time to score the ball in the 60
             turnAngle(130, 50); //Check angle and direction, may want to go further to get both back into the zone
@@ -275,7 +275,8 @@ task main()
             servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -8 && time1[T1] < 2000){};//bash
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -9
+                && time1[T1] < 2000){};//bash
             motor[driveR] = 0;
             motor[driveL] = 0;
             wait1Msec(750);
@@ -284,9 +285,9 @@ task main()
             driveDist(40, 50); //Check distance
             //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
             //turnAngle(10, -50);
-            driveDist(100, 60);
+            driveDist(225, 60);
             turnAngle(35, -50);
-            driveDist(40, 50);
+            driveDist(60, 50);
         }
     }
     if(false && parking_zone){
