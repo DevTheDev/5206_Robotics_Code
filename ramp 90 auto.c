@@ -77,7 +77,7 @@ task main()
     initSensor(&irseeker, S3);
     irseeker.mode = DSP_1200;
 
-    servo[net] = net_close;
+    servo[net] = 255;
     servo[goal] = goal_open;
     servo[shrub] = 127;
     wait1Msec(100);//wait for everything to stop
@@ -93,7 +93,7 @@ task main()
         int right_lift = 0;
         int left_lift = 0;
         char bat[16];
-        sprintf(bat, "Bat: %f V", externalBattery/1000.0);
+        sprintf(bat, "R90 Bat: %.2f V", externalBattery/1000.0);
         displayMenuItem(bat);
         menu_size++;
         if(doMenuItem("lift up")){
@@ -141,6 +141,8 @@ task main()
 
     }
     clearScreen();
+
+    servo[net] = net_close;
 
     if(!calibrated){
         displayCenteredTextLine(2, "Calibrating");
@@ -243,7 +245,7 @@ task main()
             motor[driveR] = -40;
             motor[driveL] = -40;
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -63 && time1[T1] < 2000){};
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -65 && time1[T1] < 2000){};//63 to 65.
             servo[goal] = goal_part;//See above comment (ln 25), could be messing up the 60
             resetDriveEncoders();
             clearTimer(T1);
@@ -277,11 +279,9 @@ task main()
             servo[net] = net_open;
             wait1Msec(750);
             driveDist(40, 50); //Check distance
-            //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
-            //turnAngle(10, -50);
-            driveDist(100, 60);
+            driveDist(150, 60);//Pz?
             turnAngle(35, -50);
-            driveDist(40, 50);
+            driveDist(50, 50);
         }
     }
     if(false && parking_zone){

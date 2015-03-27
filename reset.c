@@ -116,6 +116,6 @@ task main()
             //servoChangeRate[shrub] = (sin(time1[t3]/1000) + 1)*255;
 
         }
-        updateMenu();
+        updateMenu(soundBlip);
     }
 }
