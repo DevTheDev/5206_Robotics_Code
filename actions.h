@@ -63,6 +63,13 @@ bool seeIR(tHTIRS2 * irseeker)
 
 void calibrateGyro()
 {
+    TFileHandle file;
+    TFileIOResult error;
+    char filename[] = "GyroOffset.txt";
+    short filesize = 1024;
+    delete(filename, error);
+    OpenWrite(file, error, filename, filesize);
+
     const int itts = 500;
     offset = 0;
     char load_display[16];
@@ -74,7 +81,9 @@ void calibrateGyro()
         displayCenteredTextLine(line++, "Please don't move");
         displayCenteredTextLine(line++, load_display);
 
-        offset += SensorValue[gyro];
+        int value = SensorValue[gyro];
+        WriteLong(file, error, value);
+        offset += value;
 
         wait1Msec(5);
     }

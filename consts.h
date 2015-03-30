@@ -14,12 +14,12 @@ typedef unsigned char uint8;
 //Servo Values
 #define servo_stop 127 //Stopping point for continuous servos
 
-#define goal_close 85
+#define goal_close 60
 #define goal_open 210
 
 #define net_close 11
-#define net_open 40
-#define net_endgame 20
+#define net_open 47
+#define net_endgame 25
 #define net_small 25
 
 // Robot specs
