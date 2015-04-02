@@ -106,10 +106,10 @@ int main(int nargs, char ** args){
     float c = .096;
     float d = .096;
     float l_out = d;
-    float r = .09;
+    float r = .1043;//.09;
 
     float rho = 0.0;//775*(sq(0.019)-sq(0.016)); //The "optimal" launcher is a relativistic fly wheel
-    float m_b = .03;
+    float m_b = .0117;//.03;
 
     float omega_m = 13.51;
     float Tau_m = 2.0*2.472;
