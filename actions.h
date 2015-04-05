@@ -50,7 +50,7 @@ float lift_start = lift_bottom;
 
 void updateLift(){ //TODONT: Add constraints on max and min
     motor[liftL] = lift_speed_constant*atan(lift_slow_constant*(lift_position-lift_start-nMotorEncoder[liftL]*lift_cm_per_tick));//this atan is totally arbitrary and was only chosen because gives a good curve(the motor will be at an approx. const. speed far from the wanted point and will slow down near the wanted point)
-    motor[liftR] = motor[liftL];
+    //motor[liftR] = motor[liftL];
 }
 
 float offset = 0;

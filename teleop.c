@@ -1,10 +1,10 @@
 #pragma config(Hubs,  S4, HTMotor,  HTMotor,  HTMotor,  HTServo)
-#pragma config(Motor,  mtr_S4_C1_1,     intake,        tmotorTetrix, openLoop, reversed)
-#pragma config(Motor,  mtr_S4_C1_2,     driveL,        tmotorTetrix, openLoop, reversed)
+#pragma config(Motor,  mtr_S4_C1_1,     driveL,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S4_C1_2,     motorE,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S4_C2_1,     launcher,      tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S4_C2_2,     liftL,         tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S4_C3_1,     driveR,        tmotorTetrix, openLoop, reversed, encoder)
-#pragma config(Motor,  mtr_S4_C3_2,     liftR,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S4_C3_2,     intake,        tmotorTetrix, openLoop, reversed)
 #pragma config(Servo,  srvo_S4_C4_1,    goal,                 tServoStandard)
 #pragma config(Servo,  srvo_S4_C4_2,    shrub,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S4_C4_3,    net,                  tServoStandard)
@@ -517,7 +517,7 @@ task main()
         //================================Lift===============================
         float lift_vel = deadzone(joystick.joy2_y1)*100.0/128.0;
         motor[liftL] = lift_vel;
-        motor[liftR] = lift_vel;
+        //motor[liftR] = lift_vel;
 
         //===========================Goal Mechanism==========================
         if(goal_open_btn){
