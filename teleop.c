@@ -57,6 +57,7 @@
 #define max_launcher 100
 #define unjam_wait 200
 
+
 //========================Control Functions=========================
 static unsigned short prev1Btns = 0;
 static unsigned short toggle1Btns = 0;
@@ -116,7 +117,10 @@ bool dpadTurn(float angle)
     return (abs(nMotorEncoder[driveR]*0.65*drive_cm_per_tick) <= angle*robot_half_width);
 }
 
-
+int getLauncherPower()
+{
+    return (int) clamp(1350/externalBattery * 100, 90, 100);
+}
 //=============================Control==============================
 
 // Drive Control
@@ -124,8 +128,13 @@ bool dpadTurn(float angle)
 #define fast_button joy1press(btnY)
 #define single_joystick_drive 1
 #if single_joystick_drive
+#if 1 //NORMAL DRIVE
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
 #define rght_drive_control (joystick.joy1_y1 - joystick.joy1_x1)/127.0
+#else
+#define left_drive_control (-joystick.joy1_y1 + joystick.joy1_x1)/127.0
+#define rght_drive_control (-joystick.joy1_y1 - joystick.joy1_x1)/127.0
+#endif
 #else //dual joystick drive
 #define left_drive_control joystick.joy1_y1/127.0
 #define rght_drive_control joystick.joy1_y2/127.0
@@ -506,7 +515,7 @@ task main()
                 jam_time = 0;
             }
 
-            float new_launcher_power = lerp(((float)launcher_time)/launcher_slow_time, 0, max_launcher);
+            float new_launcher_power = lerp(((float)launcher_time)/launcher_slow_time, 0, getLauncherPower());
             if(new_launcher_power < 0)
             {
                 new_launcher_power = 0;

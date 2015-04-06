@@ -24,6 +24,12 @@ int debug = 0;
 
 task main()
 {
+	int new_launcher_position = 0;
+	int old_launcher_position = 0;
+	int jam_time = 0;
+	int launcher_time = 0;
+	int unjam_time = 0;
+	bool intake_on = 1;
     servo[shrub] = servo_stop;
     servo[net] = net_close;
 
@@ -80,11 +86,83 @@ task main()
             -- launcher_speed;
         }
 
-        //Both Intake and Launcher
+        //Intake and Launcher
         if(doMenuItem("launch/intake")){
             intake_pressed = 1;
             launcher_pressed = 1;
         }
+
+		//Launcher Constants
+		#define max_launcher 100
+		#define unjam_wait 200
+
+		int dt = time1[T4];
+        clearTimer(T4);
+
+        const int unjam_total = 500;
+
+        if(jam_time >= unjam_wait)
+        {
+            jam_time = 0;
+            unjam_time = unjam_total;
+            intake_on = 0;
+            nMotorEncoder[launcher] = 0;
+        }
+
+        if(unjam_time > 0)
+        {
+            motor[intake] = 0;
+            if(nMotorEncoder[launcher] > -100)
+            {
+                motor[launcher] = -40;//Fix timer reset, stop intake when jammed
+            }
+            else
+            {
+                motor[launcher] = 0;
+            }
+
+            unjam_time -= dt;
+        }
+        else
+        {
+            motor[intake] = intake_pressed*intake_speed;
+
+            launcher_time -= dt;
+
+            if(launcher_pressed)
+            {
+
+                old_launcher_position = new_launcher_position;
+                new_launcher_position = nMotorEncoder[launcher];
+
+                if(new_launcher_position-old_launcher_position <= 1)
+                {
+                    jam_time += dt;
+                }
+                else
+                {
+                    jam_time = 0;
+                }
+
+                launcher_time = launcher_slow_time;
+            }
+            else
+            {
+                jam_time = 0;
+            }
+
+            float new_launcher_power = lerp(((float)launcher_time)/launcher_slow_time, 0, launcher_speed);
+            if(new_launcher_power < 0)
+            {
+                new_launcher_power = 0;
+            }
+
+            motor[launcher] = new_launcher_power;
+        }
+
+        /*
+        //Both Intake and Launcher
+
 
         {
             if(launcher_pressed)
@@ -97,7 +175,7 @@ task main()
         {
             motor[intake] = intake_speed*intake_pressed;
         }
-
+*/
         {
             //Goal Lock
             doToggleMenuItem("shut goal lock\0open goal lock", goal_closed_control);
