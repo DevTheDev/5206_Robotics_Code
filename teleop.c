@@ -44,7 +44,7 @@
 #define threshold 0.1
 #define min_drive 15
 #define bezier_drive_control 10
-#define max_drive 80 //revert to 80 if driving is strange
+#define max_drive 100 //revert to 80 if driving is strange
 
 //D-Pad Distances
 #define distance_shift 10
