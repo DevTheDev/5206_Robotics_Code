@@ -128,7 +128,7 @@ int getLauncherPower()
 #define fast_button joy1press(btnY)
 #define single_joystick_drive 1
 #if single_joystick_drive
-#if 1 //NORMAL DRIVE
+#if 0 //NORMAL DRIVE
 #define left_drive_control (joystick.joy1_y1 + joystick.joy1_x1)/127.0
 #define rght_drive_control (joystick.joy1_y1 - joystick.joy1_x1)/127.0
 #else
