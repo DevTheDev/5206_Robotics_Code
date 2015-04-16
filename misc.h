@@ -1,6 +1,10 @@
 #ifndef _misc
 #define _misc
 
+typedef unsigned int uint;
+typedef unsigned char uint8;
+typedef unsigned char int8;
+
 #define kilobyte 1024
 
 #define ever (;;)

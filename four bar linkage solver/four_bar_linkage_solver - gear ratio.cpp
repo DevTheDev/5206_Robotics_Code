@@ -97,7 +97,7 @@ float v_f(float theta_0, float theta_f, float omega_m, float Tau_m, float m_b, f
 
     float K_bars_0 = (1.0/2.0)*I_bars(theta_0, rho, a, b, c, d, l_out, R)*sq(omega_0);
 
-    return sqrt((2.0*K_bars_0 + 2.0*Tau_m*abs(invGetAngle(theta_f, a, b, c, d)-invGetAngle(theta_0, a, b, c, d)) + m_b*sq(v_0)) / (m_b + I_bars(theta_f, rho, a, b, c, d, l_out, R)/sq(r*gamma(theta_f, a, b, c, d, R))));
+    return sqrt((2.0*K_bars_0 + 2.0*Tau_m*abs(invGetAngle(theta_f, a, b, c, d)-invGetAngle(theta_0, a, b, c, d))/R + m_b*sq(v_0)) / (m_b + I_bars(theta_f, rho, a, b, c, d, l_out, R)/sq(r*gamma(theta_f, a, b, c, d, R))));
 }
 
 int main(int nargs, char ** args){
@@ -106,10 +106,10 @@ int main(int nargs, char ** args){
     float c = .096;
     float d = .096;
     float l_out = d;
-    float r = .1043;//.09;
+    float r = .09;//.1043;
 
-    float rho = 0.0;//775*(sq(0.019)-sq(0.016)); //The "optimal" launcher is a relativistic fly wheel
-    float m_b = .0117;//.03;
+    float rho = 0.0;//2700*(sq(0.019)-sq(0.016)); //The "optimal" launcher is a relativistic fly wheel
+    float m_b = .03;//.0117;
 
     float omega_m = 13.51;
     float Tau_m = 2.0*2.472;
@@ -117,10 +117,14 @@ int main(int nargs, char ** args){
     float theta_0 = 0.0;
     float theta_f = -pi/2;
 
-    float R = 1.0;
+    float R = 1.5;
     
     float v_f_Tau = v_f(theta_0, theta_f, omega_m, Tau_m, m_b, rho, a, b, c, d, l_out, r, R);
     float v_f_omega = r*gamma(theta_f, a, b, c, d, R)*omega_m;
+
+    printf("\n");
+    printf("v_f_Tau: %f\nv_f_omega: %f\nR: %f\ngamma: %f\n", v_f_Tau, v_f_omega, R, gamma(theta_f, a, b, c, d, R));
+    printf("\n");
     
     while(abs(v_f_Tau-v_f_omega) > tolerance)
     {
@@ -135,6 +139,14 @@ int main(int nargs, char ** args){
         v_f_Tau = v_f(theta_0, theta_f, omega_m, Tau_m, m_b, rho, a, b, c, d, l_out, r, R);
         v_f_omega = r*gamma(theta_f, a, b, c, d, R)*omega_m;
     }
+
+    printf("v_f_Tau: %f\nv_f_omega: %f\nR: %f\ngamma: %f\n", v_f_Tau, v_f_omega, R, gamma(theta_f, a, b, c, d, R));
+
+    printf("\n");
+
+    R = 2.0;
+    v_f_Tau = v_f(theta_0, theta_f, omega_m, Tau_m, m_b, rho, a, b, c, d, l_out, r, R);
+    v_f_omega = r*gamma(theta_f, a, b, c, d, R)*omega_m;
 
     printf("v_f_Tau: %f\nv_f_omega: %f\nR: %f\ngamma: %f\n", v_f_Tau, v_f_omega, R, gamma(theta_f, a, b, c, d, R));
 
