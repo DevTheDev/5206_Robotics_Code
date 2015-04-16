@@ -29,7 +29,7 @@ float dotme(float2 a)
     return a.x*a.x+a.y*a.y;
 }
 
-const float us_max_range = 80;
+const float us_max_range = 200;
 
 const float min_neighbor_radius = 20.0;
 const float max_neighbor_radius = 40.1;
@@ -38,7 +38,7 @@ const uint max_neighbors = 8;
 struct point
 {
     float2 posit;
-    int8 neighbors[max_neighbors];
+    uint8 neighbors[max_neighbors];
     uint8 n_neighbors;
 };
 
@@ -56,30 +56,31 @@ void addUSPoint(world * w, float us)
     float2 us_pos;
 
     float2 rel_us_pos;
-    rel_us_pos.x = 20*cos(pi/2 + w->robot_angle);//TODO: measure this
-    rel_us_pos.y = 20*sin(pi/2 + w->robot_angle);
+    rel_us_pos.x = 20*cos(pi/4 + w->robot_angle*degrees_to_radians);//TODO: measure this
+    rel_us_pos.y = 20*sin(pi/4 + w->robot_angle*degrees_to_radians);
     add(w->robot_pos, rel_us_pos, us_pos);
 
     float2 hit_pos;
     float2 rel_hit_pos;
-    rel_hit_pos.x = us*cos(w->robot_angle);
-    rel_hit_pos.y = us*sin(w->robot_angle);
+    rel_hit_pos.x = us*cos(w->robot_angle*degrees_to_radians);
+    rel_hit_pos.y = us*sin(w->robot_angle*degrees_to_radians);
 
-    add(us_pos, rel_hit_pos, hit_pos);
+    add(us_pos, rel_hit_pos, &hit_pos);
 
     if(us <= us_max_range && w->n_points < n_max_points)
     {
-        w->points[w->n_points].posit = hit_pos;
+        w->points[w->n_points].posit.x = hit_pos.x;
+        w->points[w->n_points].posit.y = hit_pos.y;
         w->points[w->n_points].n_neighbors = 0;
         w->points[w->n_points].neighbors[0] = 0x80;
 
-        int8 to_link[max_neighbors];
+        uint8 to_link[max_neighbors];
         uint n_to_link = 0;
 
         for(int i = w->n_points-1; i >= 0; i--) //the more recent points are more likely to be close
         {
             float2 rel_pos;
-            subt(w->points[w->n_points].posit, w->points[i].posit, rel_pos);
+            subt(w->points[w->n_points].posit, w->points[i].posit, &rel_pos);
             if(dotme(rel_pos) < sq(min_neighbor_radius))
             {
                 goto dont_add;
@@ -99,7 +100,7 @@ void addUSPoint(world * w, float us)
                 w->points[to_link[i]].neighbors[w->points[to_link[i]].n_neighbors++] = w->n_points;
                 w->points[w->n_points].neighbors[w->points[w->n_points].n_neighbors++] = to_link[i];
 
-                drawLine(hit_pos.x, hit_pos.y, w->points[to_link[i]].posit.x, w->points[to_link[i]].posit.y);
+                drawLine(w->points[w->n_points].posit.x/3, w->points[w->n_points].posit.y/3, w->points[to_link[i]].posit.x/3, w->points[to_link[i]].posit.y/3);
             }
         }
 
@@ -184,10 +185,12 @@ ints[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
     }
     #endif
 }
+
 float netDist(float pos_0, float pos_f)
 {
     return pos_f - pos_0;
 }
+
 #if 0
 void gotox(float2 robot_position, world facing_dir, float x_coord, int motor_vIs)//Just an example for my benefit, so I can rewrite it to take a single distance. I doubt we'd want to move x and then move y.
 {
@@ -223,18 +226,24 @@ void gotox(float2 robot_position, world facing_dir, float x_coord, int motor_vIs
 }
 #endif
 
+void collisionTurn(float angle, int motor_vIs)
+{
+
+}
+
 void orientAngle(world facing_dir, float final_angle, int motor_vIs)
 {
     if(facing_dir.robot_angle < final_angle)
     {
-       collsionTurn(final_angle - facing_dir.robot_angle, motor_vIs);
+       collisionTurn(final_angle - facing_dir.robot_angle, motor_vIs);
     }
     else if(facing_dir.robot_angle > final_angle)
     {
-        collsionTurn(facing_dir.robot_angle - final_angle, motor_vIs);
+        collisionTurn(facing_dir.robot_angle - final_angle, motor_vIs);
     }
     facing_dir.robot_angle = final_angle;
 }
+
 void gotoCoord(float2 current_posit, float x_f, float y_f, int motor_vIs)
 {
     float distance = sqrt(sq(x_f - current_posit.x) + sq(y_f - current_posit.y));

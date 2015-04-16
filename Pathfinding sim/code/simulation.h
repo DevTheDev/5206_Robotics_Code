@@ -882,6 +882,7 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
             drawCircleSafe(bitmap, stride, w->points[i].pos.x, w->points[i].pos.y, 2, 0xFFFFFF);
             drawCircleSafe(bitmap, stride, w->points[i].pos.x, w->points[i].pos.y, min_neighbor_radius, 0x777777);
 
+            #if 0
             for(int n = w->points[i].n_neighbors-1; n >= 0; n--)
             {
                 float2 rel_start = sub(w->points[i].pos, us_pos);
@@ -949,6 +950,7 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
                     }
                 }
             }
+            #endif
         }
     }
 }

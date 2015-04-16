@@ -3,7 +3,8 @@
 
 typedef unsigned int uint;
 typedef unsigned char uint8;
-typedef unsigned char int8;
+
+#define degrees_to_radians (pi/180)
 
 #define kilobyte 1024
 
