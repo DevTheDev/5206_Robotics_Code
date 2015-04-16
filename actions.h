@@ -67,7 +67,7 @@ void calibrateGyro()
     TFileIOResult error;
     char filename[] = "GyroOffset.txt";
     short filesize = 1024;
-    delete(filename, error);
+    Delete(filename, error);
     OpenWrite(file, error, filename, filesize);
 
     const int itts = 500;

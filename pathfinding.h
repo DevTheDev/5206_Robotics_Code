@@ -37,7 +37,7 @@ const float max_neighbor_radius = 40.1;
 const uint max_neighbors = 8;
 struct point
 {
-    float2 pos;
+    float2 posit;
     int8 neighbors[max_neighbors];
     uint8 n_neighbors;
 };
@@ -69,7 +69,7 @@ void addUSPoint(world * w, float us)
 
     if(us <= us_max_range && w->n_points < n_max_points)
     {
-        w->points[w->n_points].pos = hit_pos;
+        w->points[w->n_points].posit = hit_pos;
         w->points[w->n_points].n_neighbors = 0;
         w->points[w->n_points].neighbors[0] = 0x80;
 
@@ -79,7 +79,7 @@ void addUSPoint(world * w, float us)
         for(int i = w->n_points-1; i >= 0; i--) //the more recent points are more likely to be close
         {
             float2 rel_pos;
-            sub(w->points[w->n_points].pos, w->points[i].pos, rel_pos);
+            sub(w->points[w->n_points].posit, w->points[i].posit, rel_pos);
             if(dotme(rel_pos) < sq(min_neighbor_radius))
             {
                 goto dont_add;
@@ -99,7 +99,7 @@ void addUSPoint(world * w, float us)
                 w->points[to_link[i]].neighbors[w->points[to_link[i]].n_neighbors++] = w->n_points;
                 w->points[w->n_points].neighbors[w->points[w->n_points].n_neighbors++] = to_link[i];
 
-                drawLine(hit_pos.x, hit_pos.y, w->points[to_link[i]].pos.x, w->points[to_link[i]].pos.y);
+                drawLine(hit_pos.x, hit_pos.y, w->points[to_link[i]].posit.x, w->points[to_link[i]].posit.y);
             }
         }
 
@@ -125,7 +125,7 @@ void addUSPoint(world * w, float us)
 
             float d = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
 
-            if((US(w) != 255 || abs(dot(normalize(sub(w->points[i].pos, w->points[w->points[i].neighbors[n]].pos)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
+            if((US(w) != 255 || abs(dot(normalize(sub(w->points[i].posit w->points[w->points[i].neighbors[n]].posit)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
                && d > 0
                && x0*x1 < 0) //if seeing through where a wall should be, then remove the wall
             {
@@ -142,7 +142,9 @@ void addUSPoint(world * w, float us)
                 w->points[i].neighbors[n] = w->points[i].neighbors[--w->points[i].n_neighbors];
             }
         }
-
+ints[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
+                    {
+                        if(w->points[w->point
         if(w->points[i].n_neighbors == 0 && w->points[i].neighbors[0] < 0)
         {
             if(dot(w->black_knight.dir, normalize(sub(w->points[i].pos, us_pos))) < 0.8)
@@ -151,9 +153,7 @@ void addUSPoint(world * w, float us)
 
                 for(int n = w->points[w->n_points].n_neighbors-1; n >= 0; n--)
                 {
-                    for(int o = w->points[w->points[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
-                    {
-                        if(w->points[w->points[w->n_points].neighbors[n]].neighbors[o] == w->n_points)
+                    for(int o = w->points[w->pos[w->n_points].neighbors[n]].neighbors[o] == w->n_points)
                         {
                             w->points[w->points[w->n_points].neighbors[n]].neighbors[o] = i;
                             break;
