@@ -12,7 +12,7 @@ void dot(float2 a, float2 b, float2 * out)
   out->y = a.y*b.y;
 }
 
-void sub(float2 a, float2 b, float2 * out)
+void subs(float2 a, float2 b, float2 * out)
 {
   out->x = a.x-b.x;
   out->y = a.y-b.y;
@@ -79,7 +79,7 @@ void addUSPoint(world * w, float us)
         for(int i = w->n_points-1; i >= 0; i--) //the more recent points are more likely to be close
         {
             float2 rel_pos;
-            sub(w->points[w->n_points].posit, w->points[i].posit, rel_pos);
+            subs(w->points[w->n_points].posit, w->points[i].posit, rel_pos);
             if(dotme(rel_pos) < sq(min_neighbor_radius))
             {
                 goto dont_add;
@@ -116,8 +116,8 @@ void addUSPoint(world * w, float us)
     {
         for(int n = w->points[i].n_neighbors-1; n >= 0; n--)
         {
-            float2 rel_start = sub(w->points[i].pos, us_pos);
-            float2 rel_end = sub(w->points[w->points[i].neighbors[n]].pos, us_pos);
+            float2 rel_start = subs(w->points[i].pos, us_pos);
+            float2 rel_end = subs(w->points[w->points[i].neighbors[n]].pos, us_pos);
             float y0 = dot(rel_start, w->black_knight.dir);
             float y1 = dot(rel_end, w->black_knight.dir);
             float x0 = dot(rel_start, perp(w->black_knight.dir));
@@ -125,7 +125,7 @@ void addUSPoint(world * w, float us)
 
             float d = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
 
-            if((US(w) != 255 || abs(dot(normalize(sub(w->points[i].posit w->points[w->points[i].neighbors[n]].posit)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
+            if((US(w) != 255 || abs(dot(normalize(subs(w->points[i].posit w->points[w->points[i].neighbors[n]].posit)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
                && d > 0
                && x0*x1 < 0) //if seeing through where a wall should be, then remove the wall
             {
@@ -147,7 +147,7 @@ ints[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
                         if(w->points[w->point
         if(w->points[i].n_neighbors == 0 && w->points[i].neighbors[0] < 0)
         {
-            if(dot(w->black_knight.dir, normalize(sub(w->points[i].pos, us_pos))) < 0.8)
+            if(dot(w->black_knight.dir, normalize(subs(w->points[i].pos, us_pos))) < 0.8)
             {
                 w->points[i] = w->points[--w->n_points];
 
