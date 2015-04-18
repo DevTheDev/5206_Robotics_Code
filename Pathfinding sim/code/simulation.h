@@ -10,10 +10,10 @@ struct memory_pool
     void * start;
 };
 
-uint32 sphereLambertian(int x0, int y0, int x, int y)
+uint32 sphereLambertian(int x_0, int y_0, int x, int y)
 {
-    float xc = x0-250;
-    float yc = y0-250;
+    float xc = x_0-250;
+    float yc = y_0-250;
     float nx = x/100.0;
     float ny = y/100.0;
     float nz = sqrt(1.0-sq(nx)-sq(ny));
@@ -28,10 +28,10 @@ uint32 sphereLambertian(int x0, int y0, int x, int y)
     return brightness<<16|brightness<<8|brightness;
 }
 
-uint32 flatLambertian(int x0, int y0, int x, int y)
+uint32 flatLambertian(int x_0, int y_0, int x, int y)
 {
-    float xc = x0+x-250;
-    float yc = y0+y-250;
+    float xc = x_0+x-250;
+    float yc = y_0+y-250;
     float normsq = xc*xc + yc*yc + 1000.0;
     float invnorm = invsqrt(normsq);
     float lx = xc*invnorm;
@@ -41,42 +41,42 @@ uint32 flatLambertian(int x0, int y0, int x, int y)
     return brightness<<16|brightness<<8|brightness;
 }
 
-void drawLine(uint32 * bitmap, uint stride, int x0, int y0, int x1, int y1, uint32 color)
+void drawLine(uint32 * bitmap, uint stride, int x_0, int y_0, int x_1, int y_1, uint32 color)
 {
-    if(abs(x1-x0) > abs(y1-y0))
+    if(abs(x_1-x_0) > abs(y_1-y_0))
     {
-        if(x0 > x1)
+        if(x_0 > x_1)
         {
-            auto swapper = x1;
-            x1 = x0;
-            x0 = swapper;
-            swapper = y1;
-            y1 = y0;
-            y0 = swapper;
+            auto swapper = x_1;
+            x_1 = x_0;
+            x_0 = swapper;
+            swapper = y_1;
+            y_1 = y_0;
+            y_0 = swapper;
         }
     
-        int m = (y1-y0);
-        for(int x = x0; x < x1; x++)
+        int m = (y_1-y_0);
+        for(int x = x_0; x < x_1; x++)
         {
-            int y = m*(x-x0)/(x1-x0)+y0;
+            int y = m*(x-x_0)/(x_1-x_0)+y_0;
             bitmap[x+y*stride] = color;
         }
     }
     else
     {
-        if(y0 > y1)
+        if(y_0 > y_1)
         {
-            auto swapper = x1;
-            x1 = x0;
-            x0 = swapper;
-            swapper = y1;
-            y1 = y0;
-            y0 = swapper;
+            auto swapper = x_1;
+            x_1 = x_0;
+            x_0 = swapper;
+            swapper = y_1;
+            y_1 = y_0;
+            y_0 = swapper;
         }
-        int m = (x1-x0);
-        for(int y = y0; y < y1; y++)
+        int m = (x_1-x_0);
+        for(int y = y_0; y < y_1; y++)
         {
-            int x = m*(y-y0)/(y1-y0)+x0;
+            int x = m*(y-y_0)/(y_1-y_0)+x_0;
             bitmap[x+y*stride] = color;
         }
     }
@@ -87,24 +87,24 @@ void drawLine(uint32 * bitmap, uint stride, float2 p0, float2 p1, uint32 color)
     drawLine(bitmap, stride, p0.x, p0.y, p1.x, p1.y, color);
 }
 
-void drawLineSafe(uint32 * bitmap, uint stride, int x0, int y0, int x1, int y1, uint32 color)
+void drawLineSafe(uint32 * bitmap, uint stride, int x_0, int y_0, int x_1, int y_1, uint32 color)
 {
-    if(abs(x1-x0) > abs(y1-y0))
+    if(abs(x_1-x_0) > abs(y_1-y_0))
     {
-        if(x0 > x1)
+        if(x_0 > x_1)
         {
-            auto swapper = x1;
-            x1 = x0;
-            x0 = swapper;
-            swapper = y1;
-            y1 = y0;
-            y0 = swapper;
+            auto swapper = x_1;
+            x_1 = x_0;
+            x_0 = swapper;
+            swapper = y_1;
+            y_1 = y_0;
+            y_0 = swapper;
         }
     
-        int m = (y1-y0);
-        for(int x = x0; x < x1; x++)
+        int m = (y_1-y_0);
+        for(int x = x_0; x < x_1; x++)
         {
-            int y = m*(x-x0)/(x1-x0)+y0;
+            int y = m*(x-x_0)/(x_1-x_0)+y_0;
             if(x >= 0 && x < stride && y >= 0 && y <= 512)
             {
                 bitmap[x+y*stride] = color;
@@ -113,19 +113,19 @@ void drawLineSafe(uint32 * bitmap, uint stride, int x0, int y0, int x1, int y1, 
     }
     else
     {
-        if(y0 > y1)
+        if(y_0 > y_1)
         {
-            auto swapper = x1;
-            x1 = x0;
-            x0 = swapper;
-            swapper = y1;
-            y1 = y0;
-            y0 = swapper;
+            auto swapper = x_1;
+            x_1 = x_0;
+            x_0 = swapper;
+            swapper = y_1;
+            y_1 = y_0;
+            y_0 = swapper;
         }
-        int m = (x1-x0);
-        for(int y = y0; y < y1; y++)
+        int m = (x_1-x_0);
+        for(int y = y_0; y < y_1; y++)
         {
-            int x = m*(y-y0)/(y1-y0)+x0;
+            int x = m*(y-y_0)/(y_1-y_0)+x_0;
             if(x >= 0 && x < stride && y >= 0 && y <= 512)
             {
                 bitmap[x+y*stride] = color;
@@ -140,7 +140,7 @@ void drawLineSafe(uint32 * bitmap, uint stride, float2 p0, float2 p1, uint32 col
 }
 
 
-void drawCircleSafe(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 color)
+void drawCircleSafe(uint32 * bitmap, uint stride, int x_0, int y_0, int r, uint32 color)
 {
     
     int x = r;
@@ -148,14 +148,14 @@ void drawCircleSafe(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 
     int err = 1-x;
     while(x >= y)
     {
-        if(x0+x > 0 && x0+x < 512 && y0+y > 0 && y0+y < 512) bitmap[x0+x+stride*(y0+y)] = color;
-        if(x0+y > 0 && x0+y < 512 && y0+x > 0 && y0+x < 512) bitmap[x0+y+stride*(y0+x)] = color;
-        if(x0-x > 0 && x0-x < 512 && y0-y > 0 && y0-y < 512) bitmap[x0-x+stride*(y0-y)] = color;
-        if(x0-y > 0 && x0-y < 512 && y0-x > 0 && y0-x < 512) bitmap[x0-y+stride*(y0-x)] = color;
-        if(x0+x > 0 && x0+x < 512 && y0-y > 0 && y0-y < 512) bitmap[x0+x+stride*(y0-y)] = color;
-        if(x0+y > 0 && x0+y < 512 && y0-x > 0 && y0-x < 512) bitmap[x0+y+stride*(y0-x)] = color;
-        if(x0-x > 0 && x0-x < 512 && y0+y > 0 && y0+y < 512) bitmap[x0-x+stride*(y0+y)] = color;
-        if(x0-y > 0 && x0-y < 512 && y0+x > 0 && y0+x < 512) bitmap[x0-y+stride*(y0+x)] = color;
+        if(x_0+x > 0 && x_0+x < 512 && y_0+y > 0 && y_0+y < 512) bitmap[x_0+x+stride*(y_0+y)] = color;
+        if(x_0+y > 0 && x_0+y < 512 && y_0+x > 0 && y_0+x < 512) bitmap[x_0+y+stride*(y_0+x)] = color;
+        if(x_0-x > 0 && x_0-x < 512 && y_0-y > 0 && y_0-y < 512) bitmap[x_0-x+stride*(y_0-y)] = color;
+        if(x_0-y > 0 && x_0-y < 512 && y_0-x > 0 && y_0-x < 512) bitmap[x_0-y+stride*(y_0-x)] = color;
+        if(x_0+x > 0 && x_0+x < 512 && y_0-y > 0 && y_0-y < 512) bitmap[x_0+x+stride*(y_0-y)] = color;
+        if(x_0+y > 0 && x_0+y < 512 && y_0-x > 0 && y_0-x < 512) bitmap[x_0+y+stride*(y_0-x)] = color;
+        if(x_0-x > 0 && x_0-x < 512 && y_0+y > 0 && y_0+y < 512) bitmap[x_0-x+stride*(y_0+y)] = color;
+        if(x_0-y > 0 && x_0-y < 512 && y_0+x > 0 && y_0+x < 512) bitmap[x_0-y+stride*(y_0+x)] = color;
                 
         y++;
         if (err < 0){
@@ -168,7 +168,7 @@ void drawCircleSafe(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 
     }
 }
 
-void drawCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 color)
+void drawCircle(uint32 * bitmap, uint stride, int x_0, int y_0, int r, uint32 color)
 {
     
     int x = r;
@@ -176,14 +176,14 @@ void drawCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 colo
     int err = 1-x;
     while(x >= y)
     {
-        bitmap[x0+x+stride*(y0+y)] = color;
-        bitmap[x0+y+stride*(y0+x)] = color;
-        bitmap[x0-x+stride*(y0-y)] = color;
-        bitmap[x0-y+stride*(y0-x)] = color;
-        bitmap[x0+x+stride*(y0-y)] = color;
-        bitmap[x0+y+stride*(y0-x)] = color;
-        bitmap[x0-x+stride*(y0+y)] = color;
-        bitmap[x0-y+stride*(y0+x)] = color;
+        bitmap[x_0+x+stride*(y_0+y)] = color;
+        bitmap[x_0+y+stride*(y_0+x)] = color;
+        bitmap[x_0-x+stride*(y_0-y)] = color;
+        bitmap[x_0-y+stride*(y_0-x)] = color;
+        bitmap[x_0+x+stride*(y_0-y)] = color;
+        bitmap[x_0+y+stride*(y_0-x)] = color;
+        bitmap[x_0-x+stride*(y_0+y)] = color;
+        bitmap[x_0-y+stride*(y_0+x)] = color;
                 
         y++;
         if (err < 0){
@@ -196,7 +196,7 @@ void drawCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 colo
     }
 }
 
-void fillCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 color)
+void fillCircle(uint32 * bitmap, uint stride, int x_0, int y_0, int r, uint32 color)
 {
     
     int x = r;
@@ -204,19 +204,19 @@ void fillCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 colo
     int err = 1-x;
     while(x >= y)
     {
-        for(int i = x0-x+stride*(y0-y); i <= x0+x+stride*(y0-y); i++)
+        for(int i = x_0-x+stride*(y_0-y); i <= x_0+x+stride*(y_0-y); i++)
         {
             bitmap[i] = color;
         }
-        for(int i = x0-y+stride*(y0-x); i <= x0+y+stride*(y0-x); i++)
+        for(int i = x_0-y+stride*(y_0-x); i <= x_0+y+stride*(y_0-x); i++)
         {
             bitmap[i] = color;
         }
-        for(int i = x0-x+stride*(y0+y); i <= x0+x+stride*(y0+y); i++)
+        for(int i = x_0-x+stride*(y_0+y); i <= x_0+x+stride*(y_0+y); i++)
         {
             bitmap[i] = color;
         }
-        for(int i = x0-y+stride*(y0+x); i <= x0+y+stride*(y0+x); i++)
+        for(int i = x_0-y+stride*(y_0+x); i <= x_0+y+stride*(y_0+x); i++)
         {
             bitmap[i] = color;
         }        
@@ -231,7 +231,7 @@ void fillCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32 colo
     }
 }
 
-void shadeCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32(*color)(int x0, int y0, int x, int y))
+void shadeCircle(uint32 * bitmap, uint stride, int x_0, int y_0, int r, uint32(*color)(int x_0, int y_0, int x, int y))
 {
     
     int x = r;
@@ -239,21 +239,21 @@ void shadeCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32(*co
     int err = 1-x;
     while(x >= y)
     {
-        for(int i = x0-y+stride*(y0-x); i <= x0+y+stride*(y0-x); i++)
+        for(int i = x_0-y+stride*(y_0-x); i <= x_0+y+stride*(y_0-x); i++)
         {
-            bitmap[i] = color(x0, y0, i-x0-stride*(y0-x), -x);
+            bitmap[i] = color(x_0, y_0, i-x_0-stride*(y_0-x), -x);
         }
-        for(int i = x0-x+stride*(y0-y); i <= x0+x+stride*(y0-y); i++)
+        for(int i = x_0-x+stride*(y_0-y); i <= x_0+x+stride*(y_0-y); i++)
         {
-            bitmap[i] = color(x0, y0, i-x0-stride*(y0-y), -y);
+            bitmap[i] = color(x_0, y_0, i-x_0-stride*(y_0-y), -y);
         }
-        for(int i = x0-x+stride*(y0+y); i <= x0+x+stride*(y0+y); i++)
+        for(int i = x_0-x+stride*(y_0+y); i <= x_0+x+stride*(y_0+y); i++)
         {
-            bitmap[i] = color(x0, y0, i-x0-stride*(y0+y), y);
+            bitmap[i] = color(x_0, y_0, i-x_0-stride*(y_0+y), y);
         }
-        for(int i = x0-y+stride*(y0+x); i <= x0+y+stride*(y0+x); i++)
+        for(int i = x_0-y+stride*(y_0+x); i <= x_0+y+stride*(y_0+x); i++)
         {
-            bitmap[i] = color(x0, y0, i-x0-stride*(y0+x), x);
+            bitmap[i] = color(x_0, y_0, i-x_0-stride*(y_0+x), x);
         }        
         y++;
         if (err < 0){
@@ -267,19 +267,19 @@ void shadeCircle(uint32 * bitmap, uint stride, int x0, int y0, int r, uint32(*co
 }
 
 
-void drawRectangle(uint32 * bitmap, uint stride, int x0, int y0, int w, int h, uint32 color)
+void drawRectangle(uint32 * bitmap, uint stride, int x_0, int y_0, int w, int h, uint32 color)
 {
-    int i = x0+y0*stride;
-    for(; i < x0+y0*stride + w; i++)
+    int i = x_0+y_0*stride;
+    for(; i < x_0+y_0*stride + w; i++)
     {
         bitmap[i] = color;
     }
-    for(i = x0+(y0+1)*stride; i < x0+(y0+h-1)*stride; i += stride)
+    for(i = x_0+(y_0+1)*stride; i < x_0+(y_0+h-1)*stride; i += stride)
     {
         bitmap[i] = color;
         bitmap[i+w-1] = color;
     }
-    for(; i < x0+(y0+h-1)*stride + w; i++)
+    for(; i < x_0+(y_0+h-1)*stride + w; i++)
     {
         bitmap[i] = color;
     }
@@ -376,7 +376,7 @@ void fillRegularNgon(uint32 * bitmap, uint stride, uint n, float2 center, float2
     fillNgon(bitmap, stride, n, verts, color);
 }
 
-void fillDigit(uint32 * bitmap, uint stride, uint n, int x0, int y0, uint32 color)
+void fillDigit(uint32 * bitmap, uint stride, uint n, int x_0, int y_0, uint32 color)
 {
     char digit_bitmaps[10][26] = {
         {"XXXXXX   XX   XX   XXXXXX"},//0
@@ -400,7 +400,7 @@ void fillDigit(uint32 * bitmap, uint stride, uint n, int x0, int y0, uint32 colo
             int i = x/scale+y/scale*5;
             if(digit_bitmaps[n][i] == 'X')
             {
-                bitmap[x+x0+(y+y0)*stride] = color;
+                bitmap[x+x_0+(y+y_0)*stride] = color;
             }
         }
     }
@@ -445,6 +445,9 @@ struct detection_point
 const int tube_radius = 4.04*inches;
 const int base_radius = 10*inches;
 
+const int graph_y_scale = 64;
+const int graph_x_scale = 32;
+
 const int grid_stride = 64;
 const int grid_size = 8;
 const uint n_max_points = 127;
@@ -458,7 +461,279 @@ struct world
     uint16 grid[256];
     detection_point points[n_max_points];
     uint n_points;
+    uint32 unwalkable[(512/graph_x_scale+1)*4*(512/graph_y_scale)/32];
 };
+
+
+struct link
+{
+    int x_0;
+    int y_0;
+    int x_1;
+    int y_1;
+};
+
+uint indexFromLink(uint width, int x_0, int y_0, uint type)
+{    
+    return y_0*4*width+x_0*4+type;
+}
+
+link linkFromIndex(uint width, uint i)
+{
+    //TODO: special case for x == width
+    link out;
+    int y = i/(4*width);
+    int x = (i-y*4*width)/4;
+    int type = (i-y*4*width-x*4)%width;
+
+    /*
+      type == 1 -> |
+      type == 0 ->  _
+      type == 2 ->  \
+      type == 3 ->  /
+      
+      00  0 +1
+      00 +1  0
+      00 +1 +1
+      00 +1 -1
+
+      0, type == 3, type != 0, !(type & 1)
+     */
+    out.x_0 = x;
+    out.y_0 = y;
+    out.x_1 = x + (type!=0);
+    out.y_1 = y + !(type&1)-(type==3);
+    return out;
+}
+
+const float2 robot_rel_corner = {9*inches, 9*inches};
+
+void cutOffGraph(world * w, uint graph_width, int xp, int yp)
+{
+    for(int x = xp/graph_x_scale-2; x <= xp/graph_x_scale+3; x++)//TODO: actually use the graph_x_scale
+    {
+        for(int y = yp/graph_y_scale-2; y <= yp/graph_y_scale+3; y++)
+        {
+            for(uint type = 0; type < 4; type++)
+            {
+                uint graph_index = indexFromLink(graph_width, x, y, type);
+                link link = linkFromIndex(graph_width, graph_index);
+                float sq_dist_to_end = sq(xp-link.x_0*graph_x_scale)+sq(yp-link.y_0*graph_y_scale);
+                float sq_dist_to_end1 = sq(xp-link.x_1*graph_x_scale)+sq(yp-link.y_1*graph_y_scale);
+                float sq_end_to_end = sq((link.x_0-link.x_1)*graph_x_scale) + sq((link.y_0-link.y_1)*graph_y_scale);
+                if(sq_dist_to_end-sq((yp-link.y_0*graph_y_scale)*(link.y_0-link.y_1))/sq_end_to_end-sq((xp-link.x_0*graph_x_scale)*(link.x_0-link.x_1))/sq_end_to_end < sq(9*inches)
+                    &&
+                   (((xp-link.x_0*graph_x_scale)*(link.x_0-link.x_1)*graph_x_scale+(yp-link.y_0*graph_y_scale)*(link.y_0-link.y_1)*graph_y_scale)
+                    *((xp-link.x_1*graph_x_scale)*(link.x_0-link.x_1)*graph_x_scale+(yp-link.y_1*graph_y_scale)*(link.y_0-link.y_1)*graph_y_scale) < 0)
+                   || sq_dist_to_end < sq(9*inches)
+                   || sq_dist_to_end1 < sq(9*inches))
+                {
+                    w->unwalkable[graph_index/32] |= 1<<graph_index%32;
+                }
+            }
+        }
+    }
+}
+
+int getCurrentRobotLink(world *w)
+{
+    float theta = 180.0/pi*atan2(w->black_knight.dir.y, w->black_knight.dir.x);
+    int xp = (w->black_knight.pos.x)/graph_x_scale;
+    int yp = (w->black_knight.pos.y)/graph_y_scale;
+
+    if(theta < 0)
+    {
+        theta += 360;
+    }
+    if(theta > 360)
+    {
+        assert(0);
+    }
+    
+    const float cutoff_angle = 180/pi*atan(2.0f)/2;
+    
+    if(theta >= 360-cutoff_angle || theta < cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 1);
+    }
+    if(theta >= cutoff_angle && theta < 45+cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 2);
+    }
+    if(theta >= 45+cutoff_angle && theta < 180-45-cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 0);
+    }
+    if(theta >= 180-45-cutoff_angle && theta < 180-cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 3);
+    }
+    if(theta >= 180-cutoff_angle && theta < 180+cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 1);
+    }
+    if(theta >= 180+cutoff_angle && theta < 180+45+cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 2);
+    }
+    if(theta >= 180+45+cutoff_angle && theta < 360-45-cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 0);
+    }
+    if(theta >= 360-45-cutoff_angle && theta < 360-cutoff_angle)
+    {
+        return indexFromLink(512/graph_x_scale, xp, yp, 3);
+    }
+
+    assert(0);
+    return 0;//should be impossible
+}
+
+const uint max_frontier = 10000;
+
+void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uint frontier_end)
+{
+    uint current = frontier_start;
+    if(frontier_start > frontier_end)
+    {
+        frontier_end += max_frontier;
+    }
+    for ever
+    {
+        for(int c = 0; c < 2; c++) //loop over children
+        {
+            uint child = 2*(current-frontier_start)+c;
+            if(child > frontier_end-frontier_start)
+            {
+                return;
+            }
+            child = (child+frontier_start)%max_frontier;
+            if(priorities[current] < priorities[child])
+            {
+                uint swap = priorities[current];
+                priorities[current] = priorities[child];
+                priorities[child] = swap;
+
+                swap = frontier[current];
+                frontier[current] = frontier[child];
+                frontier[child] = swap;
+                
+                current = child;
+                break;
+            }
+            if(c == 1)
+            {
+                return;
+            }
+        }
+    }
+}
+
+uint typeFromIndex(uint width, uint i)
+{
+    int y = i/(4*width+1);
+    int x = (i-y*4*width)/4;
+    return (i-y*4*width-x)%width;
+}
+
+const float costs_by_type[] = {2, 1, sqrt(3.0f), sqrt(3.0f)};
+const float theta_by_type[] = {90, 0, 180.0/pi*atan(2.0f), -180.0/pi*atan(2.0f)};
+const float cost_per_degree = 1.0/45.0;
+
+//t -> target, p -> current
+
+uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, int xp, int yp, uint typep, int xt, int yt, uint typet)
+{
+    drawCircle(bitmap, stride, xt*graph_x_scale, yt*graph_y_scale, 10, 0x0000FF);
+    
+    uint indexp = indexFromLink(graph_width, xp, yp, typep);
+    
+    uint frontier[max_frontier];
+    float priorities[max_frontier];
+    frontier[0] = indexFromLink(graph_width, xt, yt, typet);
+    priorities[0] = 0;
+    uint frontier_start = 0;
+    uint frontier_end = 1;
+    
+    float cost_so_far[512/graph_x_scale*4*512/graph_y_scale];
+    memset(cost_so_far, 0, sizeof(cost_so_far));
+    cost_so_far[frontier[0]] = 1;
+
+    while(frontier_end!=frontier_start)
+    {
+        uint current = frontier[frontier_start];
+        frontier_end = (frontier_end+max_frontier-1)%max_frontier;
+        frontier[frontier_start] = frontier[frontier_end];
+        priorities[frontier_start] = priorities[frontier_end];
+        rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+        
+        {
+            link a = linkFromIndex(512/graph_x_scale, current);
+                
+            drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x0000FF);
+        }
+        
+        link current_link = linkFromIndex(graph_width, current);
+        uint current_type = typeFromIndex(graph_width, current);
+
+        if(current_link.x_0 <= 1 || current_link.y_0 <= 1)
+        {
+            continue;
+        }
+        if(current_link.x_0 >= graph_width || current_link.y_0 >= 8)
+        {
+            continue;
+        }
+        
+        for(uint type = 0; type <= 4; type++) //for all visitable nodes //4 is forward
+        {
+            uint next;
+            uint cost;
+            if(type == 4)
+            {
+                next = indexFromLink(graph_width, current_link.x_1, current_link.y_1, current_type);
+                cost = costs_by_type[current_type];
+            }
+            else
+            {
+                if(type == current_type)
+                {
+                    next = indexFromLink(graph_width, 2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type);
+                    cost = costs_by_type[type];
+                }
+                else
+                {
+                    next = indexFromLink(graph_width, current_link.x_0, current_link.y_0, type);
+                    cost = abs(theta_by_type[type] - theta_by_type[current_type])*cost_per_degree;
+                }
+            }
+            
+            if((w->unwalkable[next/32]>>(next%32))&1)
+            {
+                continue;
+            }
+            
+            if(next == indexp)
+            {
+                return current;
+            }
+          
+            int new_cost = cost_so_far[current] + cost;
+            if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
+            {
+                float heuristic = 0;//sqrtf(sq((current_link.x_0-xp)*graph_x_scale)+sq((current_link.y_0-yp)*graph_y_scale))/graph_x_scale;
+                cost_so_far[next] = new_cost;
+                frontier_start = (frontier_start+max_frontier-1)%max_frontier;
+                frontier[frontier_start] = next;
+                priorities[frontier_start] = new_cost+heuristic;
+                rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+            }
+        }
+    }
+
+    //it is imposible to reach target
+    return indexp; //stay
+}
 
 void resetField(world * w, uint cg)
 {
@@ -527,12 +802,17 @@ void resetField(world * w, uint cg)
     w->white_knight.dir = {0.0, 1.0};
 
     memset(w->grid, 0, sizeof(w->grid));
+
+    memset(w->unwalkable, 0, sizeof(w->unwalkable));
+
+
+    w->unwalkable[indexFromLink(16, 6, 4, 3)/32] |= 1<<(indexFromLink(16, 6, 3, 3)%32);
+    w->unwalkable[indexFromLink(16, 6, 4, 2)/32] |= 1<<(indexFromLink(16, 6, 4, 2)%32);
+    w->unwalkable[indexFromLink(16, 9, 3, 2)/32] |= 1<<(indexFromLink(16, 9, 3, 2)%32);
+    w->unwalkable[indexFromLink(16, 9, 5, 3)/32] |= 1<<(indexFromLink(16, 9, 4, 3)%32);
     
     w->n_points = 0;
 }
-
-
-const float2 robot_rel_corner = {9*inches, 9*inches};
 
 const float2 us_rel_pos = {7.5*inches, 6*inches};
 const float us_max_range = 90.0/2.53*inches;
@@ -558,13 +838,13 @@ uint8 US(world * w)
     {
         float2 rel_start = sub(w->walls[i].start, us_pos);
         float2 rel_end = sub(w->walls[i].end, us_pos);
-        float y0 = dot(rel_start, w->black_knight.dir);
-        float y1 = dot(rel_end, w->black_knight.dir);
-        float x0 = dot(rel_start, perp(w->black_knight.dir));
-        float x1 = dot(rel_end, perp(w->black_knight.dir));
-        if(x0*x1 < 0 && abs(dot(normalize(sub(w->walls[i].start, w->walls[i].end)), w->black_knight.dir)) < max_detection_cos)
+        float y_0 = dot(rel_start, w->black_knight.dir);
+        float y_1 = dot(rel_end, w->black_knight.dir);
+        float x_0 = dot(rel_start, perp(w->black_knight.dir));
+        float x_1 = dot(rel_end, perp(w->black_knight.dir));
+        if(x_0*x_1 < 0 && abs(dot(normalize(sub(w->walls[i].start, w->walls[i].end)), w->black_knight.dir)) < max_detection_cos)
         {
-            float new_distance = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
+            float new_distance = (y_1*abs(x_0)+y_0*abs(x_1))/(abs(x_1)+abs(x_0));
 
             if(new_distance > 0 && new_distance < us_max_range)
             {
@@ -608,13 +888,13 @@ uint8 US(world * w)
 
         float2 rel_start = sub(corner0, us_pos);
         float2 rel_end = sub(corner1, us_pos);
-        float y0 = dot(rel_start, w->black_knight.dir);
-        float y1 = dot(rel_end, w->black_knight.dir);
-        float x0 = dot(rel_start, perp(w->black_knight.dir));
-        float x1 = dot(rel_end, perp(w->black_knight.dir));
-        if(x0*x1 < 0 && abs(dot(normalize(sub(corner1, corner0)), w->black_knight.dir)) < max_detection_cos)
+        float y_0 = dot(rel_start, w->black_knight.dir);
+        float y_1 = dot(rel_end, w->black_knight.dir);
+        float x_0 = dot(rel_start, perp(w->black_knight.dir));
+        float x_1 = dot(rel_end, perp(w->black_knight.dir));
+        if(x_0*x_1 < 0 && abs(dot(normalize(sub(corner1, corner0)), w->black_knight.dir)) < max_detection_cos)
         {
-            float new_distance = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
+            float new_distance = (y_1*abs(x_0)+y_0*abs(x_1))/(abs(x_1)+abs(x_0));
 
             if(new_distance > 0 && new_distance < us_max_range)
             {
@@ -626,11 +906,68 @@ uint8 US(world * w)
     return min(distance/(inches)*2.53, 255);
 }
 
+bool inBounds(int x, int y)
+{
+    int robot_radius = 9*inches;
+    return (x > 0+robot_radius &&
+            y > 0+robot_radius &&
+            x < 512-robot_radius &&
+            y < 512-robot_radius &&
+            !(x < 760.0/9.0+robot_radius && y < 608.0/3.0+robot_radius) &&
+            !(x > 512-760.0/9.0-robot_radius && y > 512-608.0/3.0-robot_radius) &&
+            !(x > 256-80+robot_radius &&
+              y > 256-80+robot_radius &&
+              x < 256+80-robot_radius &&
+              y < 256+80-robot_radius)
+        );
+}
+
 void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_input input)
 {
     memset(bitmap, 0x626262, 512*512*sizeof(uint32));
 
     fillNgon(bitmap, stride, 6, w->center_hexagon, 0xFFFF00);
+
+       
+    fillRegularNgon(bitmap, stride, 4, w->black_knight.pos, complexx(robot_rel_corner, w->black_knight.dir), 0x0000FF);
+    
+    {//unwalkable graph stuff
+        link start_link = linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+        uint start_type = typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+        drawCircle(bitmap, stride, start_link.x_0*graph_x_scale, start_link.y_0*graph_y_scale, 10, 0xFF0000);
+        drawLineSafe(bitmap, stride, start_link.x_0*graph_x_scale+1, start_link.y_0*graph_y_scale+1, start_link.x_1*graph_x_scale+1, start_link.y_1*graph_y_scale+1, 0xFF0000);
+        
+        uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, 5, 5, 0);
+        
+        for(int i = 0; i < indexFromLink(512/graph_x_scale, 512/graph_x_scale, 512/graph_y_scale, 0); i++)
+        {
+            link a = linkFromIndex(512/graph_x_scale, i);
+            
+            if(inBounds(a.x_0*graph_x_scale, a.y_0*graph_y_scale) && inBounds(a.x_1*graph_x_scale, a.y_1*graph_y_scale))
+            {
+                drawLine(bitmap, stride, a.x_0*graph_x_scale, a.y_0*graph_y_scale, a.x_1*graph_x_scale, a.y_1*graph_y_scale, (i==next_index)?(0xFFFFFF):(((w->unwalkable[i/32]>>(i%32))&1)?0xFF00FF:0x505050));
+            }
+            else
+            {
+                w->unwalkable[i/32] |= 1<<(i%32);
+            }
+        }
+    }
+
+    {
+        link start_link = linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+;
+        uint start_type = typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+
+            for(int i = 0; i < 10; i++)
+            {
+                uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, 5, 5, 0);
+                drawLine(bitmap, stride, start_link.x_0*graph_x_scale, start_link.y_0*graph_y_scale, start_link.x_1*graph_x_scale, start_link.y_1*graph_y_scale, 0xFFFFFF);
+        
+                start_link = linkFromIndex(512/graph_x_scale, next_index);
+                start_type = typeFromIndex(512/graph_x_scale, next_index);
+            }
+    }
     
     for(int x = 0; x < 512; x++)
     {
@@ -704,8 +1041,6 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
         float2 rotation = {cos(1.0*dt), sin(1.0*dt)};
         w->white_knight.dir = normalize(complexx(w->white_knight.dir, rotation));
     }
-    
-    fillRegularNgon(bitmap, stride, 4, w->black_knight.pos, complexx(robot_rel_corner, w->black_knight.dir), 0x0000FF);
 
     float2 us_pos = add(complexx(us_rel_pos, w->black_knight.dir), w->black_knight.pos);
     fillCircle(bitmap, stride, us_pos.x, us_pos.y, 3, 0xFFFFFF);
@@ -864,6 +1199,10 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
             {
                 if(w->points[to_link[i]].n_neighbors < max_neighbors && w->points[w->n_points].n_neighbors < max_neighbors)
                 {
+                    cutOffGraph(w, 512/graph_x_scale, w->points[w->n_points].pos.x, w->points[w->n_points].pos.y);
+                    cutOffGraph(w, 512/graph_x_scale, w->points[to_link[i]].pos.x, w->points[to_link[i]].pos.y);
+
+                    
                     w->points[to_link[i]].neighbors[w->points[to_link[i]].n_neighbors++] = w->n_points;
                     w->points[w->n_points].neighbors[w->points[w->n_points].n_neighbors++] = to_link[i];
                 }
@@ -881,22 +1220,23 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
             }
             drawCircleSafe(bitmap, stride, w->points[i].pos.x, w->points[i].pos.y, 2, 0xFFFFFF);
             drawCircleSafe(bitmap, stride, w->points[i].pos.x, w->points[i].pos.y, min_neighbor_radius, 0x777777);
-
+            drawCircleSafe(bitmap, stride, w->points[i].pos.x, w->points[i].pos.y, 9*inches, 0xFF00FF);
+            
             #if 0
             for(int n = w->points[i].n_neighbors-1; n >= 0; n--)
             {
                 float2 rel_start = sub(w->points[i].pos, us_pos);
                 float2 rel_end = sub(w->points[w->points[i].neighbors[n]].pos, us_pos);
-                float y0 = dot(rel_start, w->black_knight.dir);
-                float y1 = dot(rel_end, w->black_knight.dir);
-                float x0 = dot(rel_start, perp(w->black_knight.dir));
-                float x1 = dot(rel_end, perp(w->black_knight.dir));
+                float y_0 = dot(rel_start, w->black_knight.dir);
+                float y_1 = dot(rel_end, w->black_knight.dir);
+                float x_0 = dot(rel_start, perp(w->black_knight.dir));
+                float x_1 = dot(rel_end, perp(w->black_knight.dir));
                 
-                float d = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
+                float d = (y_1*abs(x_0)+y_0*abs(x_1))/(abs(x_1)+abs(x_0));
 
                 if((US(w) != 255 || abs(dot(normalize(sub(w->points[i].pos, w->points[w->points[i].neighbors[n]].pos)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
                    && d > 0
-                   && x0*x1 < 0) //if seeing through where a wall should be, then remove the wall
+                   && x_0*x_1 < 0) //if seeing through where a wall should be, then remove the wall
                 {
                     for(int o = w->points[w->points[i].neighbors[n]].n_neighbors-1; o >= 0; o--)
                     {
