@@ -222,7 +222,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         //     c_x = cursor.x;
         //     c_y = cursor.y;
         // }
+        
+        {
+            POINT cursor;
+            GetCursorPos(&cursor);
 
+            ScreenToClient(hwnd, &cursor);
+                
+            input.mouse_x = cursor.x;
+            input.mouse_y = cursor.y;
+        }
         
         // fillCircle(bitmap, 512, 100, 100, 10, 0xEEFF33);
         // shadeCircle(bitmap, 512, c_x, c_y, 100, flatLambertian);
