@@ -591,7 +591,6 @@ int getCurrentRobotLink(world *w)
     return 0;//should be impossible
 }
 
-const uint max_frontier = 10000;
 
 void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uint frontier_end)
 {
@@ -695,18 +694,19 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
 
     while(frontier_end!=frontier_start)
     {
+        /* { */
+        /* uint current = frontier[frontier_start]; */
+        /*     link a = linkFromIndex(512/graph_x_scale, current); */
+                
+        /*     drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x000011*priorities[frontier_start]); */
+        /* } */
+        
         uint current = frontier[frontier_start];
         frontier_end = (frontier_end+max_frontier-1)%max_frontier;
         frontier[frontier_start] = frontier[frontier_end];
         priorities[frontier_start] = priorities[frontier_end];
         rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
-        
-        {
-            link a = linkFromIndex(512/graph_x_scale, current);
                 
-            /* drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x0000FF); */
-        }
-        
         link current_link = linkFromIndex(graph_width, current);
         uint current_type = typeFromIndex(graph_width, current);
 
@@ -723,10 +723,13 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
         {
             uint next;
             uint cost;
+            float heuristic;
             if(type == 4)
             {
                 next = indexFromLink(graph_width, current_link.x_1, current_link.y_1, current_type);
                 cost = costs_by_type[current_type];
+
+                heuristic = sqrtf(sq((current_link.x_1-xp)*graph_x_scale)+sq((current_link.y_1-yp)*graph_y_scale))/graph_x_scale;
             }
             else
             {
@@ -734,11 +737,15 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
                 {
                     next = indexFromLink(graph_width, 2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type);
                     cost = costs_by_type[type];
+
+                    heuristic = sqrtf(sq((2*current_link.x_0-current_link.x_1-xp)*graph_x_scale)+sq((2*current_link.y_0-current_link.y_1-yp)*graph_y_scale))/graph_x_scale;
                 }
                 else
                 {
                     next = indexFromLink(graph_width, current_link.x_0, current_link.y_0, type);
                     cost = abs(theta_by_type[type] - theta_by_type[current_type])*cost_per_degree;
+
+                    heuristic = sqrtf(sq((current_link.x_0-xp)*graph_x_scale)+sq((current_link.y_0-yp)*graph_y_scale))/graph_x_scale;
                 }
             }
             
@@ -755,11 +762,10 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
             int new_cost = cost_so_far[current] + cost;
             if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
             {
-                float heuristic = sqrtf(sq((current_link.x_0-xp)*graph_x_scale)+sq((current_link.y_0-yp)*graph_y_scale))/graph_x_scale;
                 cost_so_far[next] = new_cost;
                 frontier_start = (frontier_start+max_frontier-1)%max_frontier;
                 frontier[frontier_start] = next;
-                priorities[frontier_start] = new_cost+heuristic;
+                priorities[frontier_start] = new_cost;//+heuristic;
                 rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
             }
         }
