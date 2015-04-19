@@ -228,28 +228,78 @@ void gotox(float2 robot_position, world facing_dir, float x_coord, int motor_vIs
 
 void collisionTurn(float angle, int motor_vIs)
 {
-
 }
 
-void orientAngle(world facing_dir, float final_angle, int motor_vIs)
+void orientAngle(float current_angle, float final_angle, int motor_vIs)
 {
-    if(facing_dir.robot_angle < final_angle)
+    float delta_angle = final_angle - current_angle;
+    if(delta_angle < -360)
     {
-       collisionTurn(final_angle - facing_dir.robot_angle, motor_vIs);
+        delta_angle += 360;
     }
-    else if(facing_dir.robot_angle > final_angle)
+    delta_angle -= 360*floor(delta_angle/360);
+
+    if(delta_angle > 180)
     {
-        collisionTurn(facing_dir.robot_angle - final_angle, motor_vIs);
+        delta_angle -= 180;
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
     }
-    facing_dir.robot_angle = final_angle;
+    else
+    {
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+    }
+
+    delta_angle = abs(delta_angle);
+
+    float theta = 0;
+    while(abs(theta) < delta_angle)
+    {
+        float dt = time1[T1]/(1000.0);
+        clearTimer(T1);
+
+        float omega = SensorValue[gyro]-offset;
+        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+    }
+    motor[driveR] = 0;
+    motor[driveL] = 0;
+
+    //if(facing_dir.robot_angle < final_angle)
+    //{
+    //   collisionTurn(final_angle - facing_dir.robot_angle, motor_vIs);
+    //}
+    //else if(facing_dir.robot_angle > final_angle)
+    //{
+    //    collisionTurn(facing_dir.robot_angle - final_angle, motor_vIs);
+    //}
+    //facing_dir.robot_angle = final_angle;
 }
 
 void gotoCoord(float2 current_posit, float x_f, float y_f, int motor_vIs)
 {
     float distance = sqrt(sq(x_f - current_posit.x) + sq(y_f - current_posit.y));
-    if(x_f - current_posit.x < 0 || y_f - current_posit.y < 0)//If we need to go backwards at all
+    nMotorEncoder[driveR] = 0;
+    if(cos(angle/degrees_per_radian)*(x_f - current_posit.x)+sin(angle/degrees_per_radian)*(y_f - current_posit.y) < 0)//If we need to go backwards at all
     {
-        distance *= -1;
+        motor[driveL] = -motor_vIs;
+        motor[driveR] = -motor_vIs;
+    }
+    else
+    {
+        motor[driveL] = motor_vIs;
+        motor[driveR] = motor_vIs;
     }
 
+    while(us_dist > 40 && abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
+
+    motor[driveL] = 0;
+    motor[driveR] = 0;
 }
+
+#if 0
+void turnToGoal()
+{
+
+}
+#endif

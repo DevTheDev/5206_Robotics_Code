@@ -181,7 +181,7 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
 
         float omega = SensorValue[gyro]-offset;
         theta += dt*omega;//*gyro_adjustment; //rectangular approx.
-        wait1Msec((8-T1)%8);
+        //wait1Msec((8-T1)%8); // I think this does nothing
         sprintf(gyro_value, "Current: %f", theta);
         displayCenteredTextLine(2, gyro_value);
 
