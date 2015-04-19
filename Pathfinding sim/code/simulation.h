@@ -426,8 +426,6 @@ union wall
 struct user_input
 {
     uint32 buttons;
-    int mouse_x;
-    int mouse_y;
 };
 
 #define inches 512.0/144.0
@@ -486,7 +484,7 @@ link linkFromIndex(uint width, uint i)
     link out;
     int y = i/(4*width);
     int x = (i-y*4*width)/4;
-    int type = (i-y*4*width-x*4);
+    int type = (i-y*4*width-x*4)%width;
 
     /*
       type == 1 -> |
@@ -540,8 +538,8 @@ void cutOffGraph(world * w, uint graph_width, int xp, int yp)
 int getCurrentRobotLink(world *w)
 {
     float theta = 180.0/pi*atan2(w->black_knight.dir.y, w->black_knight.dir.x);
-    int xp = (w->black_knight.pos.x+graph_x_scale/2)/graph_x_scale;
-    int yp = (w->black_knight.pos.y+graph_y_scale/2)/graph_y_scale;
+    int xp = (w->black_knight.pos.x)/graph_x_scale;
+    int yp = (w->black_knight.pos.y)/graph_y_scale;
 
     if(theta < 0)
     {
@@ -602,9 +600,9 @@ void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uin
     }
     for ever
     {
-        int best_child = -1;
+        for(int c = 0; c < 2; c++) //loop over children
         {
-            uint child = 2*(current-frontier_start)+1;
+            uint child = 2*(current-frontier_start)+c;
             if(child > frontier_end-frontier_start)
             {
                 return;
@@ -612,62 +610,30 @@ void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uin
             child = (child+frontier_start)%max_frontier;
             if(priorities[current] < priorities[child])
             {
-                best_child = child;
+                uint swap = priorities[current];
+                priorities[current] = priorities[child];
+                priorities[child] = swap;
+
+                swap = frontier[current];
+                frontier[current] = frontier[child];
+                frontier[child] = swap;
+                
+                current = child;
+                break;
             }
-        }
-        {
-            uint child = 2*(current-frontier_start)+2;
-            if(child > frontier_end-frontier_start)
+            if(c == 1)
             {
-                if(best_child >= 0)
-                {
-                    uint swap = priorities[current];
-                    priorities[current] = priorities[best_child];
-                    priorities[best_child] = swap;
-                    
-                    swap = frontier[current];
-                    frontier[current] = frontier[best_child];
-                    frontier[best_child] = swap;
-                }
                 return;
             }
-            child = (child+frontier_start)%max_frontier;
-            if(best_child >= 0)
-            {
-                if(priorities[best_child] > priorities[child])
-                {
-                    best_child = child;
-                }
-            }
-            else
-            {
-                if(priorities[current] > priorities[child])
-                {
-                    best_child = child;
-                }
-            }
         }
-        {//swap with the best child
-            uint swap = priorities[current];
-            priorities[current] = priorities[best_child];
-            priorities[best_child] = swap;
-
-            swap = frontier[current];
-            frontier[current] = frontier[best_child];
-            frontier[best_child] = swap;
-                
-            current = best_child;
-        }
-        return;
-
     }
 }
 
 uint typeFromIndex(uint width, uint i)
 {
-    int y = i/(4*width);
+    int y = i/(4*width+1);
     int x = (i-y*4*width)/4;
-    return (i-y*4*width-x*4);
+    return (i-y*4*width-x)%width;
 }
 
 const float costs_by_type[] = {2, 1, sqrt(3.0f), sqrt(3.0f)};
@@ -704,7 +670,7 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
         {
             link a = linkFromIndex(512/graph_x_scale, current);
                 
-            /* drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x0000FF); */
+            drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x0000FF);
         }
         
         link current_link = linkFromIndex(graph_width, current);
@@ -755,7 +721,7 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
             int new_cost = cost_so_far[current] + cost;
             if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
             {
-                float heuristic = sqrtf(sq((current_link.x_0-xp)*graph_x_scale)+sq((current_link.y_0-yp)*graph_y_scale))/graph_x_scale;
+                float heuristic = 0;//sqrtf(sq((current_link.x_0-xp)*graph_x_scale)+sq((current_link.y_0-yp)*graph_y_scale))/graph_x_scale;
                 cost_so_far[next] = new_cost;
                 frontier_start = (frontier_start+max_frontier-1)%max_frontier;
                 frontier[frontier_start] = next;
@@ -829,7 +795,7 @@ void resetField(world * w, uint cg)
     memcpy(w->center_hexagon, center_hexagon, sizeof(center_hexagon));
     
     memcpy(w->walls, walls, sizeof(walls));
-    w->black_knight.pos = {400, 256};
+    w->black_knight.pos = {469.8, 256};
     w->black_knight.dir = {0.0, -1.0};
 
     w->white_knight.pos = {256, 9*sqrt(2.0)*inches};
@@ -958,24 +924,6 @@ bool inBounds(int x, int y)
 
 void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_input input)
 {
-    static int target_x = 5;
-    static int target_y = 5;
-
-    if(input.buttons&1)
-    {
-        target_x = input.mouse_x/graph_x_scale;
-        target_y = input.mouse_y/graph_y_scale;
-    }
-
-    static int start_x = 8;
-    static int start_y = 7;
-
-    if(input.buttons&2)
-    {
-        start_x = input.mouse_x/graph_x_scale;
-        start_y = input.mouse_y/graph_y_scale;
-    }
-    
     memset(bitmap, 0x626262, 512*512*sizeof(uint32));
 
     fillNgon(bitmap, stride, 6, w->center_hexagon, 0xFFFF00);
@@ -989,15 +937,13 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
         drawCircle(bitmap, stride, start_link.x_0*graph_x_scale, start_link.y_0*graph_y_scale, 10, 0xFF0000);
         drawLineSafe(bitmap, stride, start_link.x_0*graph_x_scale+1, start_link.y_0*graph_y_scale+1, start_link.x_1*graph_x_scale+1, start_link.y_1*graph_y_scale+1, 0xFF0000);
         
-        /* uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, 5, 5, 0); */
-
-        uint next_index = 0;
+        uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, 5, 5, 0);
         
         for(int i = 0; i < indexFromLink(512/graph_x_scale, 512/graph_x_scale, 512/graph_y_scale, 0); i++)
         {
             link a = linkFromIndex(512/graph_x_scale, i);
             
-            if(inBounds(a.x_0*graph_x_scale, a.y_0*graph_y_scale))// && inBounds(a.x_1*graph_x_scale, a.y_1*graph_y_scale))
+            if(inBounds(a.x_0*graph_x_scale, a.y_0*graph_y_scale) && inBounds(a.x_1*graph_x_scale, a.y_1*graph_y_scale))
             {
                 drawLine(bitmap, stride, a.x_0*graph_x_scale, a.y_0*graph_y_scale, a.x_1*graph_x_scale, a.y_1*graph_y_scale, (i==next_index)?(0xFFFFFF):(((w->unwalkable[i/32]>>(i%32))&1)?0xFF00FF:0x505050));
             }
@@ -1007,59 +953,21 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
             }
         }
     }
-    
-    ////////////////display route
-    {
-        drawCircleSafe(bitmap, stride, start_x*graph_x_scale, start_y*graph_y_scale, 10, 0xFF0000);
 
-        uint start_index = indexFromLink(512/graph_x_scale, start_x, start_y, 0);
-        link start_link = linkFromIndex(512/graph_x_scale, start_index);;//linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
-        uint start_type = 0;//typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+    {
+        link start_link = linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+;
+        uint start_type = typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
 
             for(int i = 0; i < 10; i++)
             {
-                uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, target_x, target_y, 0);
-                if(next_index == start_index)
-                {
-                    break;
-                }
-                drawLine(bitmap, stride, start_link.x_0*graph_x_scale, start_link.y_0*graph_y_scale, start_link.x_1*graph_x_scale, start_link.y_1*graph_y_scale, 0x331100*i);
+                uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, 5, 5, 0);
+                drawLine(bitmap, stride, start_link.x_0*graph_x_scale, start_link.y_0*graph_y_scale, start_link.x_1*graph_x_scale, start_link.y_1*graph_y_scale, 0xFFFFFF);
         
                 start_link = linkFromIndex(512/graph_x_scale, next_index);
                 start_type = typeFromIndex(512/graph_x_scale, next_index);
             }
     }
-
-    /* {//show reachable nodes */
-    /*     link current_link = linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w)); */
-    /*     uint current_type = typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w)); */
-
-    /*     assert(current_type < 4); */
-        
-    /*     for(uint type = 0; type <= 4; type++) //for all visitable nodes //4 is forward */
-    /*     { */
-    /*         uint next; */
-    /*         if(type == 4) */
-    /*         { */
-    /*             next = indexFromLink(512/graph_x_scale, current_link.x_1, current_link.y_1, current_type); */
-    /*         } */
-    /*         else */
-    /*         { */
-    /*             if(type == current_type) */
-    /*             { */
-    /*                 next = indexFromLink(512/graph_x_scale, 2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 next = indexFromLink(512/graph_x_scale, current_link.x_0, current_link.y_0, type); */
-    /*             } */
-    /*         } */
-
-    /*         link a = linkFromIndex(512/graph_x_scale, next); */
-            
-    /*         drawLine(bitmap, stride, a.x_0*graph_x_scale, a.y_0*graph_y_scale, a.x_1*graph_x_scale, a.y_1*graph_y_scale, 0x55FFFF); */
-    /*     } */
-    /* } */
     
     for(int x = 0; x < 512; x++)
     {
@@ -1095,48 +1003,25 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
         float2 r = {0, base_radius};
         fillRegularNgon(bitmap, stride, 5, w->goals[i], r, 0xFF0000);
     }
-
-    if(0){
-        link start_link = linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
-        uint start_type = typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
-        
-        uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, target_x, target_y, 0);
-        link next_link = linkFromIndex(512/graph_x_scale, next_index);
-        uint next_type = typeFromIndex(512/graph_x_scale, next_index);
-
-        {
-            if(start_link.x_0 == next_link.x_0 && start_link.y_0 == next_link.y_0)
-            {
-                float theta = atan2(w->black_knight.dir.y, w->black_knight.dir.x);
-                theta += (pi/180.0*theta_by_type[next_type]-theta > 0)?dt*1:-dt*1;
-                w->black_knight.dir.x = cos(theta);
-                w->black_knight.dir.y = sin(theta);
-            }
-            else
-            {
-                float2 dir = {graph_x_scale*next_link.x_0-w->black_knight.pos.x, graph_y_scale*next_link.y_0-w->black_knight.pos.y};
-                w->black_knight.pos = add(w->black_knight.pos, scale(normalize(dir), 100.0*dt));
-            }
-        }
+    
+    if(input.buttons&1)
+    {
+        w->black_knight.pos = add(w->black_knight.pos, scale(w->black_knight.dir, 100.0*dt));
     }
-    /* if(input.buttons&1) */
-    /* { */
-    /*     w->black_knight.pos = add(w->black_knight.pos, scale(w->black_knight.dir, 100.0*dt)); */
-    /* } */
-    /* if(input.buttons&2) */
-    /* { */
-    /*     w->black_knight.pos = add(w->black_knight.pos, scale(w->black_knight.dir, -100.0*dt)); */
-    /* } */
-    /* if(input.buttons&4) */
-    /* { */
-    /*     float2 rotation = {cos(1.0*dt), -sin(1.0*dt)}; */
-    /*     w->black_knight.dir = normalize(complexx(w->black_knight.dir, rotation)); */
-    /* } */
-    /* if(input.buttons&8) */
-    /* { */
-    /*     float2 rotation = {cos(1.0*dt), sin(1.0*dt)}; */
-    /*     w->black_knight.dir = normalize(complexx(w->black_knight.dir, rotation)); */
-    /* } */
+    if(input.buttons&2)
+    {
+        w->black_knight.pos = add(w->black_knight.pos, scale(w->black_knight.dir, -100.0*dt));
+    }
+    if(input.buttons&4)
+    {
+        float2 rotation = {cos(1.0*dt), -sin(1.0*dt)};
+        w->black_knight.dir = normalize(complexx(w->black_knight.dir, rotation));
+    }
+    if(input.buttons&8)
+    {
+        float2 rotation = {cos(1.0*dt), sin(1.0*dt)};
+        w->black_knight.dir = normalize(complexx(w->black_knight.dir, rotation));
+    }
 
     if(input.buttons&16)
     {
