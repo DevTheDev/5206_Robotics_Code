@@ -40,8 +40,8 @@ task main()
               or turn to align with next_type
             */
 
-            robot_cell_x = next_link.x0;
-            robot_cell_y = next_link.y0;
+            robot_cell_x = next_link.x_0;
+            robot_cell_y = next_link.y_0;
             robot_cell_type = next_type;
             //end loop when target is reached
         }
