@@ -43,147 +43,279 @@ struct point
 };
 
 const uint n_max_points = 127;
-struct world
-{
-    float2 robot_pos;
-    float robot_angle;
-    point points[n_max_points];
-    uint8 n_points;
-};
 
-void addUSPoint(world * w, float us)
+float robot_angle;
+float2 robot_pos = {0, 0}; //TODO: set the real starting point
+
+int robot_cell_x = 0; //TODO: real start
+int robot_cell_y = 0;
+uint robot_cell_type = 0;
+
+#define grid_cell_width 22.5
+#define grid_cell_height 45.0
+#define n_xcells 16
+#define n_ycells 8
+
+uint32 unwalkable[n_xcells*n_ycells*4/32]; //TODO: initialize this
+uint indexFromLink(int x_0, int y_0, uint type)
+{
+    return y_0*4*n_xcells+x_0*4+type;
+}
+
+typedef struct
+{
+    int x_0;
+    int y_0;
+    int x_1;
+    int y_1;
+} link;
+
+void linkFromIndex(uint i, link * out)
+{
+    int y = i/(4*n_xcells);
+    int x = (i-y*4*n_xcells)/4;
+    int type = (i-y*4*n_xcells-x*4);
+
+    /*
+      type == 1 -> |
+      type == 0 ->  _
+      type == 2 ->  / (these two depend on the orientation of your coordinate system)
+      type == 3 ->  \
+
+      00  0 +1
+      00 +1  0
+      00 +1 +1
+      00 +1 -1
+     */
+    out->x_0 = x;
+    out->y_0 = y;
+    out->x_1 = x + (type!=0);
+    out->y_1 = y + !(type&1)-(type==3);
+}
+
+uint typeFromIndex(uint i)
+{
+    int y = i/(4*n_xcells);
+    int x = (i-y*4*n_xcells)/4;
+    return (i-y*4*n_xcells-x*4);
+}
+
+#define robot_radius 22.5
+
+void addUSPoint(float us)//TODO: make sure this is threadsafe
 {
     float2 us_pos;
 
     float2 rel_us_pos;
-    rel_us_pos.x = 20*cos(pi/4 + w->robot_angle*degrees_to_radians);//TODO: measure this
-    rel_us_pos.y = 20*sin(pi/4 + w->robot_angle*degrees_to_radians);
-    add(w->robot_pos, rel_us_pos, us_pos);
+    rel_us_pos.x = 20*cos(pi/4 + robot_angle*degrees_to_radians);//TODO: measure this
+    rel_us_pos.y = 20*sin(pi/4 + robot_angle*degrees_to_radians);
+    add(robot_pos, rel_us_pos, us_pos);
 
     float2 hit_pos;
     float2 rel_hit_pos;
-    rel_hit_pos.x = us*cos(w->robot_angle*degrees_to_radians);
-    rel_hit_pos.y = us*sin(w->robot_angle*degrees_to_radians);
+    rel_hit_pos.x = us*cos(robot_angle*degrees_to_radians);
+    rel_hit_pos.y = us*sin(robot_angle*degrees_to_radians);
 
     add(us_pos, rel_hit_pos, &hit_pos);
 
-    if(us <= us_max_range && w->n_points < n_max_points)
+    if(us <= us_max_range)
     {
-        w->points[w->n_points].posit.x = hit_pos.x;
-        w->points[w->n_points].posit.y = hit_pos.y;
-        w->points[w->n_points].n_neighbors = 0;
-        w->points[w->n_points].neighbors[0] = 0x80;
-
-        uint8 to_link[max_neighbors];
-        uint n_to_link = 0;
-
-        for(int i = w->n_points-1; i >= 0; i--) //the more recent points are more likely to be close
+        for(int x = robot_cell_x-1; x <= robot_cell_x+1; x++) //this only works when robot_radius < grid_cell_width
         {
-            float2 rel_pos;
-            subt(w->points[w->n_points].posit, w->points[i].posit, &rel_pos);
-            if(dotme(rel_pos) < sq(min_neighbor_radius))
-            {
-                goto dont_add;
-            }
-            if(dotme(rel_pos) < sq(max_neighbor_radius))
-            {
-                if(n_to_link != max_neighbors)
-                {
-                    to_link[n_to_link++] = i;
-                }
-            }
-        }
-        for(uint i = 0; i < n_to_link; i++)
-        {
-            if(w->points[to_link[i]].n_neighbors < max_neighbors && w->points[w->n_points].n_neighbors < max_neighbors)
-            {
-                w->points[to_link[i]].neighbors[w->points[to_link[i]].n_neighbors++] = w->n_points;
-                w->points[w->n_points].neighbors[w->points[w->n_points].n_neighbors++] = to_link[i];
+	        for(int y = robot_cell_y-1; y <= robot_cell_y+1; y++)
+	        {
+	            for(uint type = 0; type < 4; type++)
+	            { //check for intersection between the link and the circle, can probably do the math in a better way
+	                uint current_index = indexFromLink(x, y, type);
+	                link current_link;
+	                linkFromIndex(current_index, &current_link);
 
-                drawLine(w->points[w->n_points].posit.x/3, w->points[w->n_points].posit.y/3, w->points[to_link[i]].posit.x/3, w->points[to_link[i]].posit.y/3);
-            }
-        }
-
-        w->n_points++;
-        if(hit_pos.x >- 0 && hit_pos.x < 100 && hit_pos.y >= 0 && hit_pos.y < 64)
-        {
-            setPixel(hit_pos.x, hit_pos.y);
-        }
-    dont_add:;
-    }
-
-#if 0 // stuff for removing points for moving robots
-    for(int i = w->n_points-1; i >= 0; i--) //itterate backwards for swap remove
-    {
-        for(int n = w->points[i].n_neighbors-1; n >= 0; n--)
-        {
-            float2 rel_start = subt(w->points[i].pos, us_pos);
-            float2 rel_end = subt(w->points[w->points[i].neighbors[n]].pos, us_pos);
-            float y0 = dot(rel_start, w->black_knight.dir);
-            float y1 = dot(rel_end, w->black_knight.dir);
-            float x0 = dot(rel_start, perp(w->black_knight.dir));
-            float x1 = dot(rel_end, perp(w->black_knight.dir));
-
-            float d = (y1*abs(x0)+y0*abs(x1))/(abs(x1)+abs(x0));
-
-            if((US(w) != 255 || abs(dot(normalize(subt(w->points[i].posit w->points[w->points[i].neighbors[n]].posit)), w->black_knight.dir)) < max_detection_cos) && min(US(w)*inches/2.53, us_max_range) > d+max_neighbor_radius/2.0+1
-               && d > 0
-               && x0*x1 < 0) //if seeing through where a wall should be, then remove the wall
-            {
-                for(int o = w->points[w->points[i].neighbors[n]].n_neighbors-1; o >= 0; o--)
-                {
-                    if(w->points[w->points[i].neighbors[n]].neighbors[o] == i)
-                    {
-                        w->points[w->points[i].neighbors[n]].neighbors[o] =
-                            w->points[w->points[i].neighbors[n]].neighbors[
-                                --w->points[w->points[i].neighbors[n]].n_neighbors];
-                        break;
-                    }
-                }
-                w->points[i].neighbors[n] = w->points[i].neighbors[--w->points[i].n_neighbors];
-            }
-        }
-ints[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
-                    {
-                        if(w->points[w->point
-        if(w->points[i].n_neighbors == 0 && w->points[i].neighbors[0] < 0)
-        {
-            if(dot(w->black_knight.dir, normalize(subt(w->points[i].pos, us_pos))) < 0.8)
-            {
-                w->points[i] = w->points[--w->n_points];
-
-                for(int n = w->points[w->n_points].n_neighbors-1; n >= 0; n--)
-                {
-                    for(int o = w->points[w->posit[w->n_points].neighbors[n]].neighbors[o] == w->n_points)
-                        {
-                            w->points[w->points[w->n_points].neighbors[n]].neighbors[o] = i;
-                            break;
-                        }
-                    }
-                }
-
-            }
-        }
-
-        //neighbors are only made negative at birth
-        if(w->points[i].n_neighbors == 0 && w->points[i].neighbors[0] >= 0)
-        {
-            w->points[i] = w->points[--w->n_points];
-
-            for(int n = w->points[w->n_points].n_neighbors-1; n >= 0; n--)
-            {
-                for(int o = w->points[w->points[w->n_points].neighbors[n]].n_neighbors-1; o >= 0; o--)
-                {
-                    if(w->points[w->points[w->n_points].neighbors[n]].neighbors[o] == w->n_points)
-                    {
-                        w->points[w->points[w->n_points].neighbors[n]].neighbors[o] = i;
-                        break;
-                    }
-                }
-            }
+	                float sq_dist_to_end = sq(hit_pos.x-current_link.x_0*grid_cell_width)
+	                                       +sq(hit_pos.y-current_link.y_0*grid_cell_height);
+	                float sq_dist_to_end1 = sq(hit_pos.x-current_link.x_1*grid_cell_width)
+	                                       +sq(hit_pos.y-current_link.y_1*grid_cell_height);
+	                float sq_end_to_end = sq((current_link.x_0-current_link.x_1)*grid_cell_width)
+	                                     +sq((current_link.y_0-current_link.y_1)*grid_cell_height);
+	                if(sq_dist_to_end
+	                      -sq((hit_pos.y-current_link.y_0*grid_cell_height)*(current_link.y_0-current_link.y_1))/sq_end_to_end
+	                      -sq((hit_pos.x-current_link.x_0*grid_cell_width)*(current_link.x_0-current_link.x_1))/sq_end_to_end
+	                   < sq(robot_radius)
+	                    &&
+	                   (((hit_pos.x-current_link.x_0*grid_cell_width)*(current_link.x_0-current_link.x_1)*grid_cell_width
+	                        +(hit_pos.y-current_link.y_0*grid_cell_height)*(current_link.y_0-current_link.y_1)*grid_cell_height)
+	                    *((hit_pos.x-current_link.x_1*grid_cell_width)*(current_link.x_0-current_link.x_1)*grid_cell_width
+	                        +(hit_pos.y-current_link.y_1*grid_cell_height)*(current_link.y_0-current_link.y_1)*grid_cell_height)
+	                       < 0)
+	                       || sq_dist_to_end < sq(robot_radius)
+	                       || sq_dist_to_end1 < sq(robot_radius))
+	                {
+	                    unwalkable[current_index/32] |= 1<<current_index%32;
+	                }
+	            }
+	        }
         }
     }
-    #endif
+}
+
+const uint max_frontier = 1000;
+
+void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, uint frontier_end)
+{
+    uint current = frontier_start;
+    if(frontier_start > frontier_end)
+    {
+        frontier_end += max_frontier;
+    }
+    for ever
+    {
+        int best_child = -1;
+        {
+            uint child = 2*(current-frontier_start)+1;
+            if(child > frontier_end-frontier_start)
+            {
+                return;
+            }
+            child = (child+frontier_start)%max_frontier;
+            if(priorities[current] < priorities[child])
+            {
+                best_child = child;
+            }
+        }
+        {
+            uint child = 2*(current-frontier_start)+2;
+            if(child > frontier_end-frontier_start)
+            {
+                if(best_child >= 0)
+                {
+                    uint swap = priorities[current];
+                    priorities[current] = priorities[best_child];
+                    priorities[best_child] = swap;
+
+                    swap = frontier[current];
+                    frontier[current] = frontier[best_child];
+                    frontier[best_child] = swap;
+                }
+                return;
+            }
+            child = (child+frontier_start)%max_frontier;
+            if(best_child >= 0)
+            {
+                if(priorities[best_child] > priorities[child])
+                {
+                    best_child = child;
+                }
+            }
+            else
+            {
+                if(priorities[current] > priorities[child])
+                {
+                    best_child = child;
+                }
+            }
+        }
+        {//swap with the best child
+            uint swap = priorities[current];
+            priorities[current] = priorities[best_child];
+            priorities[best_child] = swap;
+
+            swap = frontier[current];
+            frontier[current] = frontier[best_child];
+            frontier[best_child] = swap;
+
+            current = best_child;
+        }
+        return;
+    }
+}
+
+const float costs_by_type[4] = {grid_cell_height, grid_cell_width, sqrt(sq(grid_cell_height) + sq(grid_cell_width)), sqrt(sq(grid_cell_height) + sq(grid_cell_width))};
+const float theta_by_type[4] = {90, 0, (radians_to_degrees*atan(grid_cell_height/grid_cell_width)), (-radians_to_degrees*atan(grid_cell_height/grid_cell_width))};
+const float cost_per_degree = 0.5; //how many cm could have been traveled in the time it takes to turn 1 degree
+
+uint16 frontier[max_frontier];
+float priorities[max_frontier];
+float cost_so_far[n_xcells*n_ycells*4];
+
+uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
+{
+    uint indexp = indexFromLink(xp, yp, typep);
+
+    frontier[0] = indexFromLink(xt, yt, typet);
+    priorities[0] = 0;
+    uint frontier_start = 0;
+    uint frontier_end = 1;
+
+    memset(cost_so_far, 0, sizeof(cost_so_far));
+    cost_so_far[frontier[0]] = 1;
+
+    while(frontier_end!=frontier_start)
+    {
+        uint current = frontier[frontier_start];
+        frontier_end = (frontier_end+max_frontier-1)%max_frontier;
+        frontier[frontier_start] = frontier[frontier_end];
+        priorities[frontier_start] = priorities[frontier_end];
+        rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+
+        link current_link;
+        linkFromIndex(current, &current_link);
+        uint current_type = typeFromIndex(current);
+
+        if(current_link.x_0 <= 1 || current_link.y_0 <= 1)
+        {
+            continue;
+        }
+        if(current_link.x_0 >= n_xcells || current_link.y_0 >= n_ycells)
+        {
+            continue;
+        }
+
+        for(uint type = 0; type <= 4; type++) //for all visitable nodes //4 is forward
+        {
+            uint next;
+            uint cost;
+            if(type == 4)
+            {
+                next = indexFromLink(current_link.x_1, current_link.y_1, current_type);
+                cost = costs_by_type[current_type];
+            }
+            else
+            {
+                if(type == current_type)
+                {
+                    next = indexFromLink(2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type);
+                    cost = costs_by_type[type];
+                }
+                else
+                {
+                    next = indexFromLink(current_link.x_0, current_link.y_0, type);
+                    cost = abs(theta_by_type[type] - theta_by_type[current_type])*cost_per_degree;
+                }
+            }
+
+            if((unwalkable[next/32]>>(next%32))&1)
+            {
+                continue;
+            }
+
+            if(next == indexp)
+            {
+                return current;
+            }
+
+            int new_cost = cost_so_far[current] + cost;
+            if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
+            {
+                cost_so_far[next] = new_cost;
+                frontier_start = (frontier_start+max_frontier-1)%max_frontier;
+                frontier[frontier_start] = next;
+                priorities[frontier_start] = new_cost;
+                rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+            }
+        }
+    }
+
+    //it is imposible to reach target
+    return indexp; //stay
 }
 
 float netDist(float pos_0, float pos_f)
@@ -276,11 +408,12 @@ void orientAngle(float current_angle, float final_angle, int motor_vIs)
     //facing_dir.robot_angle = final_angle;
 }
 
-void gotoCoord(float2 current_posit, float x_f, float y_f, int motor_vIs)
+void gotoCoord(float x_f, float y_f, int motor_vIs)
 {
-    float distance = sqrt(sq(x_f - current_posit.x) + sq(y_f - current_posit.y));
+    float distance = sqrt(sq(x_f - robot_pos.x) + sq(y_f - robot_pos.y));
     nMotorEncoder[driveR] = 0;
-    if(cos(angle/degrees_per_radian)*(x_f - current_posit.x)+sin(angle/degrees_per_radian)*(y_f - current_posit.y) < 0)//If we need to go backwards at all
+
+    if(cos(robot_angle/degrees_to_radians)*(x_f - robot_pos.x)+sin(robot_angle/degrees_to_radians)*(y_f - robot_pos.y) < 0)//If we need to go backwards at all
     {
         motor[driveL] = -motor_vIs;
         motor[driveR] = -motor_vIs;
@@ -291,15 +424,37 @@ void gotoCoord(float2 current_posit, float x_f, float y_f, int motor_vIs)
         motor[driveR] = motor_vIs;
     }
 
-    while(us_dist > 40 && abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
+    while(US_dist > 40 && abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
 
     motor[driveL] = 0;
     motor[driveR] = 0;
 }
 
-#if 0
-void turnToGoal()
+#define goal_edge_detect_dist 12
+void turnToGoal(int max_angle, int motor_vIs)
 {
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
 
+        float old_us = US_dist;
+        float new_us = US_dist;
+
+        float theta = 0.0;
+        while(abs(old_us-new_us) < goal_edge_detect_dist)
+        {
+            if(abs(theta) >= max_angle)
+            {
+                //goal not detected
+                break;
+            }
+            old_us = new_us;
+            new_us = US_dist;
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+
+        turnAngle(10, motor_vIs);
 }
-#endif

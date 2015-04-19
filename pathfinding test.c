@@ -16,36 +16,34 @@
 
 #include "pathfinding.h"
 
-world w;
+task usUpdateGridLoop()
+{
+    for ever
+    {
+        addUSPoint(US_dist);
+    }
+}
 
 task main()
 {
     startTask(ultrasonic_loop);
+    startTask(usUpdateGridLoop);
 
-    w.robot_pos.x  = 50*3;
-    w.robot_pos.y  = 32*3;
-    w.robot_angle = 0;
-    w.n_points = 0;
-
-    setPixel(w.robot_pos.x/3, w.robot_pos.y/3);
-
-    int new_button_pressed = 0;
-    int old_button_pressed = 0;
-    for ever
-    {
-        new_button_pressed = nNxtButtonPressed;
-        if(new_button_pressed == 2 && old_button_pressed != 2)
+    {//example to go to a grid coordinate(5, 2, direction of type 0 links(up-down)) with collision avoiding
+        for ever
         {
-            clearTimer(T1);
-            addUSPoint(w, US_dist);
-            writeDebugStreamLine("%i", time1[T1]);
-            w.robot_angle += 15;
+            uint next_index = nextGotoIndex(robot_cell_x, robot_cell_y, robot_cell_type, 5, 2, 0);
+            link next_link;
+            linkFromIndex(next_index, &next_link);
+            uint next_type = typeFromIndex(next_index);
+            /*drive toward (next_link.x0*grid_cells_width, next_link.y0*grid_cells_width)
+              or turn to align with next_type
+            */
+
+            robot_cell_x = next_link.x0;
+            robot_cell_y = next_link.y0;
+            robot_cell_type = next_type;
+            //end loop when target is reached
         }
-        if(new_button_pressed == 1 && old_button_pressed != 1)
-        {
-            addUSPoint(w, US_dist);
-            w.robot_angle -= 15;
-        }
-        old_button_pressed = new_button_pressed;
     }
 }
