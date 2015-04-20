@@ -9,14 +9,21 @@ float US_error_est = 1.0;
 
 task main()
 {
+    eraseDisplay(); //Clear the NXT screen
+	disableDiagnosticsDisplay(); //Takes control away from FCS
+	bNxtLCDStatusDisplay = false; //Takes control away from NXT firmware
+	wait1Msec(100);
     float a = 0;
     while(1){
         a = 0.9*a + 0.1*SensorValue(US);
 
-        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 40.0, 1.0);
+        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 40.0, 10.0);
         US_dist = US_dist_temp; //just to be safe with multitasking, should check if an incomplete update is possible
 
         writeDebugStreamLine("%3i, %3i, %3i, %5f", SensorValue(US), a, US_dist, US_error_est);
-        wait1Msec(8);
+        char blagh[16];
+        sprintf(blagh, "US Dist: %i", US_dist);
+        displayCenteredTextLine(2, blagh);
+        wait1Msec(20);
     }
 }

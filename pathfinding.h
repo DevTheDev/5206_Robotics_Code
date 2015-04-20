@@ -44,11 +44,11 @@ struct point
 
 const uint n_max_points = 127;
 
-float robot_angle;
-float2 robot_pos = {0, 0}; //TODO: set the real starting point
+float robot_angle = 270;
+float2 robot_pos = {22.5*9, 45*4}; //TODO: set the real starting point
 
-int robot_cell_x = 0; //TODO: real start
-int robot_cell_y = 0;
+int robot_cell_x = 9; //TODO: real start
+int robot_cell_y = 4;
 uint robot_cell_type = 0;
 
 #define grid_cell_width 22.5
@@ -56,7 +56,16 @@ uint robot_cell_type = 0;
 #define n_xcells 16
 #define n_ycells 8
 
-uint32 unwalkable[n_xcells*n_ycells*4/32]; //TODO: initialize this
+uint32 unwalkable[n_xcells*n_ycells*4/32] = {
+    0xFFFFFFFF, 0xFFFFFFFF,
+    0xE0000000, 0xFFFFFFFF,
+    0xE0000000, 0xFFFFFFFF,
+    0xE000FFFF, 0xFFFFFFFF,
+    0x000FFFFF, 0xFFFFFF00,
+    0x000FFFFF, 0xFFFFFF00,
+    0x00000000, 0xFFFFFF00,
+    0x00000000, 0xFFFFFF00,
+}; //TODO: initialize this
 uint indexFromLink(int x_0, int y_0, uint type)
 {
     return y_0*4*n_xcells+x_0*4+type;
@@ -229,12 +238,14 @@ void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, u
 }
 
 const float costs_by_type[4] = {grid_cell_height, grid_cell_width, sqrt(sq(grid_cell_height) + sq(grid_cell_width)), sqrt(sq(grid_cell_height) + sq(grid_cell_width))};
-const float theta_by_type[4] = {90, 0, (radians_to_degrees*atan(grid_cell_height/grid_cell_width)), (-radians_to_degrees*atan(grid_cell_height/grid_cell_width))};
+const float theta_by_type[4] = {90, 0, (radians_to_degrees*atan(grid_cell_height/grid_cell_width)), (360-radians_to_degrees*atan(grid_cell_height/grid_cell_width))};
 const float cost_per_degree = 0.5; //how many cm could have been traveled in the time it takes to turn 1 degree
 
 uint16 frontier[max_frontier];
 float priorities[max_frontier];
 float cost_so_far[n_xcells*n_ycells*4];
+
+uint16 came_from[n_xcells*n_ycells*4];
 
 uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
 {
@@ -260,7 +271,8 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
         linkFromIndex(current, &current_link);
         uint current_type = typeFromIndex(current);
 
-        if(current_link.x_0 <= 1 || current_link.y_0 <= 1)
+        //make sure it doesn't crash without this, I added bounds checking to the neighbor search
+        if(current_link.x_0 <= 0 || current_link.y_0 <= 0)
         {
             continue;
         }
@@ -269,26 +281,38 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
             continue;
         }
 
-        for(uint type = 0; type <= 4; type++) //for all visitable nodes //4 is forward
+        for(uint type_ = 0; type_ <= 4; type_++) //for all visitable nodes //4 is forward
         {
             uint next;
             uint cost;
-            if(type == 4)
+            int next_x;
+            int next_y;
+            uint next_type;
+            if(type_ == 4) //go forward
             {
+                next_x = current_link.x_1;
+                next_y = current_link.y_1;
+                next_type = current_type;
                 next = indexFromLink(current_link.x_1, current_link.y_1, current_type);
                 cost = costs_by_type[current_type];
             }
             else
             {
-                if(type == current_type)
+                if(type_ == current_type) //go backward
                 {
-                    next = indexFromLink(2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type);
-                    cost = costs_by_type[type];
+                    next_x = 2*current_link.x_0-current_link.x_1;
+                    next_y = 2*current_link.y_0-current_link.y_1;
+                    next_type = current_type;
+                    next = indexFromLink(2*current_link.x_0-current_link.x_1, 2*current_link.y_0-current_link.y_1, type_);
+                    cost = costs_by_type[type_];
                 }
-                else
+                else //turn
                 {
-                    next = indexFromLink(current_link.x_0, current_link.y_0, type);
-                    cost = abs(theta_by_type[type] - theta_by_type[current_type])*cost_per_degree;
+                    next_x = current_link.x_0;
+                    next_y = current_link.y_0;
+                    next_type = type_;
+                    next = indexFromLink(current_link.x_0, current_link.y_0, type_);
+                    cost = abs(theta_by_type[type_] - theta_by_type[current_type])*cost_per_degree;
                 }
             }
 
@@ -305,6 +329,7 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
             int new_cost = cost_so_far[current] + cost;
             if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
             {
+                came_from[next] = current;
                 cost_so_far[next] = new_cost;
                 frontier_start = (frontier_start+max_frontier-1)%max_frontier;
                 frontier[frontier_start] = next;
@@ -315,6 +340,7 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
     }
 
     //it is imposible to reach target
+    playSound(soundBeepBeep);
     return indexp; //stay
 }
 
@@ -362,10 +388,10 @@ void collisionTurn(float angle, int motor_vIs)
 {
 }
 
-void orientAngle(float current_angle, float final_angle, int motor_vIs)
+void orientAngle(float final_angle, int motor_vIs)
 {
-    float delta_angle = final_angle - current_angle;
-    if(delta_angle < -360)
+    float delta_angle = final_angle - robot_angle;
+    if(delta_angle < 0)
     {
         delta_angle += 360;
     }
@@ -373,7 +399,7 @@ void orientAngle(float current_angle, float final_angle, int motor_vIs)
 
     if(delta_angle > 180)
     {
-        delta_angle -= 180;
+        delta_angle = 360;
         motor[driveR] = motor_vIs;
         motor[driveL] = -motor_vIs;
     }
@@ -396,16 +422,9 @@ void orientAngle(float current_angle, float final_angle, int motor_vIs)
     }
     motor[driveR] = 0;
     motor[driveL] = 0;
+    writeDebugStreamLine("Fa: %.3f, Motor_vis: %i, Delta: %.3f, Curr: %.3f", final_angle, motor_vIs, delta_angle, robot_angle);
+    robot_angle = final_angle;
 
-    //if(facing_dir.robot_angle < final_angle)
-    //{
-    //   collisionTurn(final_angle - facing_dir.robot_angle, motor_vIs);
-    //}
-    //else if(facing_dir.robot_angle > final_angle)
-    //{
-    //    collisionTurn(facing_dir.robot_angle - final_angle, motor_vIs);
-    //}
-    //facing_dir.robot_angle = final_angle;
 }
 
 void gotoCoord(float x_f, float y_f, int motor_vIs)
@@ -413,7 +432,7 @@ void gotoCoord(float x_f, float y_f, int motor_vIs)
     float distance = sqrt(sq(x_f - robot_pos.x) + sq(y_f - robot_pos.y));
     nMotorEncoder[driveR] = 0;
 
-    if(cos(robot_angle/degrees_to_radians)*(x_f - robot_pos.x)+sin(robot_angle/degrees_to_radians)*(y_f - robot_pos.y) < 0)//If we need to go backwards at all
+    if(cos(robot_angle*degrees_to_radians)*(x_f - robot_pos.x)+sin(robot_angle*degrees_to_radians)*(y_f - robot_pos.y) < 0)//If we need to go backwards at all
     {
         motor[driveL] = -motor_vIs;
         motor[driveR] = -motor_vIs;
@@ -424,10 +443,13 @@ void gotoCoord(float x_f, float y_f, int motor_vIs)
         motor[driveR] = motor_vIs;
     }
 
-    while(US_dist > 40 && abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
+    while(/*US_dist > 40 && */abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
 
     motor[driveL] = 0;
     motor[driveR] = 0;
+
+    robot_pos.x = x_f;
+    robot_pos.y = y_f;
 }
 
 #define goal_edge_detect_dist 12
@@ -440,10 +462,14 @@ void turnToGoal(int max_angle, int motor_vIs)
         float new_us = US_dist;
 
         float theta = 0.0;
+        clearTimer(T1);
+
         while(abs(old_us-new_us) < goal_edge_detect_dist)
         {
+            writeDebugStreamLine("US values (old, new): %.3f, %.3f", old_us, new_us);
             if(abs(theta) >= max_angle)
             {
+                playSound(soundBeepBeep);
                 //goal not detected
                 break;
             }
@@ -455,6 +481,7 @@ void turnToGoal(int max_angle, int motor_vIs)
 	        float omega = SensorValue[gyro]-offset;
 	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
         }
+        playSound(soundException);
 
         turnAngle(10, motor_vIs);
 }

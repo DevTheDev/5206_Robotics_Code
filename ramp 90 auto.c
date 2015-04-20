@@ -192,7 +192,7 @@ task main()
     bool blocked = 0;
     {
 	    clearTimer(T1);
-	    while(time1[T1} < 500)
+	    /*while(time1[T1} < 500)
 	    {
 	        WriteByte(file2, error2, (char)US_dist);
 	        if(US_dist < 50)
@@ -200,7 +200,7 @@ task main()
 	            blocked = 1;
 	            break;
 	        }
-	    }
+	    }*/
 	    if(blocked)
         {
             playSound(soundBeepBeep);
@@ -214,45 +214,63 @@ task main()
         {
             playSound(soundFastUpwardTones);
             lift_position = lift_60;
-            wait1Msec(2500);//minimize wasted time here for the lift
+            wait1Msec(2000);//minimize wasted time here for the lift
+            driveDist (10,  -50);
+            turnAngle (35,   50);
+            turnToGoal(47, -50);
+
+            //Grab 60
             resetDriveEncoders();
             motor[driveR] = -40;
             motor[driveL] = -40;
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -72 && time1[T1] < 2000){};
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -50 && time1[T1] < 2000){};
             servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -15 && time1[T1] < 2000){};
             motor[driveR] = 0;
             motor[driveL] = 0;
+
+            //Score 60
             wait1Msec(750);
             servo[net] = net_small;
             wait1Msec(750);//Time to score the ball in the 60
-            turnAngle(140, 50); //Check angle and direction, may want to go further to get both back into the zone
-            driveDist(65, -50);//Pushing goal towards PZ
+            //return;
+            //Goto 90
             lift_position = lift_90;
+            turnAngle(45, 50);
+            driveDist(10, -50);
+            turnAngle(80, 50);
+            driveDist(40, 50);
             servo[net] = net_close;
-            turnAngle(2.5, 50); // bash angle, aligning with 90
+            wait1Msec(200);
             servo[goal] = goal_open;
-            driveDist(35, 50);//Drive away from goal
-            turnAngle(175, -50);
+            wait1Msec(200);
+            driveDist(20, 50);//Drive away from goal
+            turnAngle(130, 50);
             wait1Msec(1000);//minimize wasted time here for the lift
+            turnToGoal(40, 50);//Might need to turn back
+            return;
+            //Grab 90
+            resetDriveEncoders();
             motor[driveR] = -40;
             motor[driveL] = -40;
-            resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -52 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -22 && time1[T1] < 2000){};//wait1Msec(900);//bash to figure out how close we need to be
             servo[goal] = goal_close;
             resetDriveEncoders();
             clearTimer(T1);
-            while(nMotorEncoder[driveR]*drive_cm_per_tick > -12
-                && time1[T1] < 2000){};//bash
+            while(nMotorEncoder[driveR]*drive_cm_per_tick > -12 && time1[T1] < 2000){};//bash
             motor[driveR] = 0;
             motor[driveL] = 0;
+
+            //Score 90
             wait1Msec(750);
             servo[net] = net_open;
             wait1Msec(750);
+
+#if 0       //Regrab 90, may not need.
             driveDist(10, 80);
             turnAngle(10, 50);
             servo[goal] = goal_open;
@@ -265,6 +283,7 @@ task main()
             servo[goal] = goal_close;
             wait1Msec(750);
             turnAngle(10, -50);
+#endif
             if(parking_zone)
             {
                 driveDist(40, 50); //Check distance

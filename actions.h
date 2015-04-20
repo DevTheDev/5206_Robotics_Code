@@ -229,3 +229,37 @@ void stopLauncher()
         motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
     }
 }
+
+#define goal_edge_detect_dist 12
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float old_us = US_dist;
+        float new_us = US_dist;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(old_us-new_us) < goal_edge_detect_dist)
+        {
+            writeDebugStreamLine("US values (old, new): %.3f, %.3f", old_us, new_us);
+            if(abs(theta) >= max_angle)
+            {
+                playSound(soundBeepBeep);
+                //goal not detected
+                break;
+            }
+            old_us = new_us;
+            new_us = US_dist;
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+        playSound(soundException);
+
+        //turnAngle(15, -motor_vIs);
+}
