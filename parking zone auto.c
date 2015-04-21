@@ -142,7 +142,8 @@ task main()
         for ever
         {
             if((seeIR(&irseeker)
-                    && (n_turns != 0 || nMotorEncoder[driveR]*drive_cm_per_tick > 10))
+                    && (n_turns != 0 || nMotorEncoder[driveR]*drive_cm_per_tick > 10)
+                    && (n_turns != 1 || nMotorEncoder[driveR]*drive_cm_per_tick < 40))
                || (n_turns == 2 && nMotorEncoder[driveR]*drive_cm_per_tick > case_1_dist)) //default case
             {
                 break;
@@ -182,7 +183,7 @@ task main()
         driveDist(7, -20);
     }
     else{}
-    turnAngle(75, 50);
+    turnAngle(80, 50);
 
     wait1Msec(5000);
     if(n_turns == 1){

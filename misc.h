@@ -6,7 +6,7 @@ typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned long uint32;
 
-#define degrees_to_radians (pi/180)
+#define degrees_to_radians (pi/180.0)
 #define radians_to_degrees (180.0/pi)
 
 #define kilobyte 1024

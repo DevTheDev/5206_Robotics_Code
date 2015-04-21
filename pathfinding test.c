@@ -41,24 +41,41 @@ task main()
         robot_cell_type = 0;
     }
     //waitForStart();
+
+    for(int y = 0; y < n_ycells; y++)
+    {
+        writeDebugStreamLine("%u %u", unwalkable[y*4*n_xcells/32], unwalkable[1 + y*4*n_xcells/32]);
+    }
+    writeDebugStreamLine("");
+
     {//example to go to a grid coordinate(5, 2, direction of type 0 links(up-down)) with collision avoiding
-        for ever
+    		for ever
         {
-            uint next_index = nextGotoIndex(robot_cell_x, robot_cell_y, robot_cell_type, 9, 6, 0);
+            uint next_index = nextGotoIndex(robot_cell_x, robot_cell_y, robot_cell_type, 1, 2, 0);
             link next_link;
             linkFromIndex(next_index, &next_link);
             uint next_type = typeFromIndex(next_index);
-            /*drive toward (next_link.x0*grid_cells_width, next_link.y0*grid_cells_width)
-              or turn to align with next_type
-            */
 
-            for(int current_index = next_index; current_index != 420; current_index = came_from[current_index])
+            uint current_index = indexFromLink(robot_cell_x, robot_cell_y, robot_cell_type);
+            if(next_index == current_index)
             {
-                link a;
-                linkFromIndex(current_index, &a);
-                uint t = typeFromIndex(current_index);
-                writeDebugStreamLine("i:%i, %i, %i, %i", current_index, a.x_0, a.y_0, t);
+                break;
             }
+
+            /*drive toward (next_link.x0*grid_cells_width, next_link.y0*grid_cells_width)
+              or turn to align with next_type*/
+
+            //for(int path_index = next_index;; path_index = came_from[path_index])
+            //{
+            //    link a;
+            //    linkFromIndex(path_index, &a);
+            //    uint t = typeFromIndex(path_index);
+            //    writeDebugStreamLine("i:%i, %i, %i, %i", path_index, a.x_0, a.y_0, t);
+            //    if(path_index == 148)
+            //    {
+            //        break;
+            //    }
+            //}
             if(next_type == robot_cell_type)
             {
                 playSound(soundFastUpwardTones);
@@ -67,12 +84,8 @@ task main()
             }
             else
             {
-                float next_angle = theta_by_type[next_type];
-                if(next_angle < 360)
-                {
-
-                }
-                orientAngle(abs(theta_by_type[next_type]), 50);
+                playSound(soundDownwardTones);
+                orientAngle(theta_by_type[next_type], 50);
             }
 
             robot_cell_x = next_link.x_0;

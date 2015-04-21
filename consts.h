@@ -18,7 +18,7 @@ typedef unsigned char uint8;
 #define goal_open 210
 
 #define side_close 146
-#define side_open 85
+#define side_open 80
 
 #define net_close 11
 #define net_open 47

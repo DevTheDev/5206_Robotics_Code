@@ -44,8 +44,8 @@ struct point
 
 const uint n_max_points = 127;
 
-float robot_angle = 270;
-float2 robot_pos = {22.5*9, 45*4}; //TODO: set the real starting point
+float volatile robot_angle = 270;
+float2 volatile robot_pos; //TODO: set the real starting point
 
 int robot_cell_x = 9; //TODO: real start
 int robot_cell_y = 4;
@@ -127,11 +127,14 @@ void addUSPoint(float us)//TODO: make sure this is threadsafe
 
     add(us_pos, rel_hit_pos, &hit_pos);
 
+    int cell_x = robot_cell_x;
+    int cell_y = robot_cell_y;
+
     if(us <= us_max_range)
     {
-        for(int x = robot_cell_x-1; x <= robot_cell_x+1; x++) //this only works when robot_radius < grid_cell_width
+        for(int x = cell_x-1; x <= cell_x+1; x++) //this only works when robot_radius < grid_cell_width
         {
-	        for(int y = robot_cell_y-1; y <= robot_cell_y+1; y++)
+	        for(int y = cell_y-1; y <= cell_y+1; y++)
 	        {
 	            for(uint type = 0; type < 4; type++)
 	            { //check for intersection between the link and the circle, can probably do the math in a better way
@@ -145,18 +148,7 @@ void addUSPoint(float us)//TODO: make sure this is threadsafe
 	                                       +sq(hit_pos.y-current_link.y_1*grid_cell_height);
 	                float sq_end_to_end = sq((current_link.x_0-current_link.x_1)*grid_cell_width)
 	                                     +sq((current_link.y_0-current_link.y_1)*grid_cell_height);
-	                if(sq_dist_to_end
-	                      -sq((hit_pos.y-current_link.y_0*grid_cell_height)*(current_link.y_0-current_link.y_1))/sq_end_to_end
-	                      -sq((hit_pos.x-current_link.x_0*grid_cell_width)*(current_link.x_0-current_link.x_1))/sq_end_to_end
-	                   < sq(robot_radius)
-	                    &&
-	                   (((hit_pos.x-current_link.x_0*grid_cell_width)*(current_link.x_0-current_link.x_1)*grid_cell_width
-	                        +(hit_pos.y-current_link.y_0*grid_cell_height)*(current_link.y_0-current_link.y_1)*grid_cell_height)
-	                    *((hit_pos.x-current_link.x_1*grid_cell_width)*(current_link.x_0-current_link.x_1)*grid_cell_width
-	                        +(hit_pos.y-current_link.y_1*grid_cell_height)*(current_link.y_0-current_link.y_1)*grid_cell_height)
-	                       < 0)
-	                       || sq_dist_to_end < sq(robot_radius)
-	                       || sq_dist_to_end1 < sq(robot_radius))
+	                if(sq_dist_to_end < sq(robot_radius))
 	                {
 	                    unwalkable[current_index/32] |= 1<<current_index%32;
 	                }
@@ -168,7 +160,8 @@ void addUSPoint(float us)//TODO: make sure this is threadsafe
 
 const uint max_frontier = 1000;
 
-void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, uint frontier_end)
+
+void siftDown(uint16 * frontier, float * priorities, uint frontier_start, uint frontier_end)
 {
     uint current = frontier_start;
     if(frontier_start > frontier_end)
@@ -185,7 +178,7 @@ void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, u
                 return;
             }
             child = (child+frontier_start)%max_frontier;
-            if(priorities[current] < priorities[child])
+            if(priorities[current] > priorities[child])
             {
                 best_child = child;
             }
@@ -222,6 +215,11 @@ void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, u
                 }
             }
         }
+        if(best_child <= 0)
+        {
+            return;
+        }
+
         {//swap with the best child
             uint swap = priorities[current];
             priorities[current] = priorities[best_child];
@@ -233,7 +231,35 @@ void rebalanceHeap(uint16 * frontier, float * priorities, uint frontier_start, u
 
             current = best_child;
         }
-        return;
+
+    }
+}
+
+void siftUp(uint16 * frontier, float * priorities, int frontier_start, int frontier_end)
+{
+    int current = frontier_end-1;
+    for ever
+    {
+        int parent = frontier_start+(current-frontier_start-1)/2;
+        if(parent == frontier_start)
+        {
+            return;
+        }
+        if(priorities[current] < priorities[parent]){//swap with the best child
+            uint swap = priorities[current];
+            priorities[current] = priorities[parent];
+            priorities[parent] = swap;
+
+            swap = frontier[current];
+            frontier[current] = frontier[parent];
+            frontier[parent] = swap;
+
+            current = parent;
+        }
+        else
+        {
+            return;
+        }
     }
 }
 
@@ -251,6 +277,8 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
 {
     uint indexp = indexFromLink(xp, yp, typep);
 
+    uint indext = indexFromLink(xt, yt, typet);
+
     frontier[0] = indexFromLink(xt, yt, typet);
     priorities[0] = 0;
     uint frontier_start = 0;
@@ -265,7 +293,7 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
         frontier_end = (frontier_end+max_frontier-1)%max_frontier;
         frontier[frontier_start] = frontier[frontier_end];
         priorities[frontier_start] = priorities[frontier_end];
-        rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+        siftDown(frontier, priorities, frontier_start, frontier_end);
 
         link current_link;
         linkFromIndex(current, &current_link);
@@ -316,6 +344,13 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
                 }
             }
 
+        if(next_x <= 0
+         ||next_y <= 0
+         ||next_x >= n_xcells
+         ||next_y >= n_ycells)
+        {
+            continue;
+        }
             if((unwalkable[next/32]>>(next%32))&1)
             {
                 continue;
@@ -323,18 +358,23 @@ uint nextGotoIndex(int xp, int yp, uint typep, int xt, int yt, uint typet)
 
             if(next == indexp)
             {
+                if(current == indext)
+                {
+                    return indexp;
+                }
                 return current;
             }
+
+            float heuristic = sqrt(sq((next_x-xp)*grid_cell_width)+sq((next_y-yp)*grid_cell_height))/grid_cell_width;
 
             int new_cost = cost_so_far[current] + cost;
             if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
             {
                 came_from[next] = current;
                 cost_so_far[next] = new_cost;
-                frontier_start = (frontier_start+max_frontier-1)%max_frontier;
-                frontier[frontier_start] = next;
-                priorities[frontier_start] = new_cost;
-                rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+                frontier[frontier_end] = next;
+                priorities[frontier_end++] = new_cost+heuristic;
+                siftUp(frontier, priorities, frontier_start, frontier_end);
             }
         }
     }
@@ -391,25 +431,39 @@ void collisionTurn(float angle, int motor_vIs)
 void orientAngle(float final_angle, int motor_vIs)
 {
     float delta_angle = final_angle - robot_angle;
-    if(delta_angle < 0)
+    delta_angle -= 360.0*floor(delta_angle/360.0); //this works for negative angles
+    //0 <= delta_angle <360 after this
+    clearTimer(T1);
+    if(delta_angle < 90)
     {
-        delta_angle += 360;
-    }
-    delta_angle -= 360*floor(delta_angle/360);
-
-    if(delta_angle > 180)
-    {
-        delta_angle = 360;
         motor[driveR] = motor_vIs;
         motor[driveL] = -motor_vIs;
     }
-    else
+    else if(delta_angle >= 90 && delta_angle < 180)
     {
+	    	final_angle = 180+final_angle;
+		    final_angle -= 360.0*floor(final_angle/360.0); //this works for negative angles
+    		delta_angle = 180.0 - delta_angle;
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+    }
+    else if(delta_angle >= 180 && delta_angle < 270)
+    {
+	    	final_angle = 180+final_angle;
+		    final_angle -= 360.0*floor(final_angle/360.0); //this works for negative angles
+	    	delta_angle = delta_angle - 180.0;
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+    }
+    else if(delta_angle >= 270 && delta_angle < 360)
+    {
+        delta_angle = 360 - delta_angle;
         motor[driveR] = -motor_vIs;
         motor[driveL] = motor_vIs;
     }
 
-    delta_angle = abs(delta_angle);
+    delta_angle *= (68.0/90.0);
+    float initial_angle = robot_angle;
 
     float theta = 0;
     while(abs(theta) < delta_angle)
@@ -419,69 +473,43 @@ void orientAngle(float final_angle, int motor_vIs)
 
         float omega = SensorValue[gyro]-offset;
         theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+
+        robot_angle = initial_angle+theta;
     }
+    robot_angle = final_angle;
     motor[driveR] = 0;
     motor[driveL] = 0;
-    writeDebugStreamLine("Fa: %.3f, Motor_vis: %i, Delta: %.3f, Curr: %.3f", final_angle, motor_vIs, delta_angle, robot_angle);
-    robot_angle = final_angle;
-
+    writeDebugStreamLine("Fa: %.3f, Init: %.3f, Delta: %.3f, Curr: %.3f", final_angle, initial_angle, delta_angle, robot_angle);
 }
 
+//needs to start in the correct orientation
 void gotoCoord(float x_f, float y_f, int motor_vIs)
 {
-    float distance = sqrt(sq(x_f - robot_pos.x) + sq(y_f - robot_pos.y));
-    nMotorEncoder[driveR] = 0;
+    float distance = sqrt(sq(x_f - robot_pos.x) + sq(y_f - robot_pos.y))-5;
+    resetDriveEncoders();
 
-    if(cos(robot_angle*degrees_to_radians)*(x_f - robot_pos.x)+sin(robot_angle*degrees_to_radians)*(y_f - robot_pos.y) < 0)//If we need to go backwards at all
-    {
-        motor[driveL] = -motor_vIs;
-        motor[driveR] = -motor_vIs;
-    }
-    else
+    if(cos(robot_angle*degrees_to_radians)*(x_f - robot_pos.x)+sin(robot_angle*degrees_to_radians)*(y_f - robot_pos.y) > 0)//If we need to go backwards at all
     {
         motor[driveL] = motor_vIs;
         motor[driveR] = motor_vIs;
     }
+    else
+    {
+        motor[driveL] = -motor_vIs;
+        motor[driveR] = -motor_vIs;
+    }
 
-    while(/*US_dist > 40 && */abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance);
+    float x_i = robot_pos.x;
+    float y_i = robot_pos.x;
+
+    while(abs(nMotorEncoder[driveR]*drive_cm_per_tick) < distance)
+    {
+        robot_pos.x = lerp(abs(nMotorEncoder[driveR]*drive_cm_per_tick)/distance, x_i, x_f);
+        robot_pos.y = lerp(abs(nMotorEncoder[driveR]*drive_cm_per_tick)/distance, x_i, x_f);
+    }
+    robot_pos.x = x_f;
+    robot_pos.y = y_f;
 
     motor[driveL] = 0;
     motor[driveR] = 0;
-
-    robot_pos.x = x_f;
-    robot_pos.y = y_f;
-}
-
-#define goal_edge_detect_dist 12
-void turnToGoal(int max_angle, int motor_vIs)
-{
-        motor[driveR] = motor_vIs;
-        motor[driveL] = -motor_vIs;
-
-        float old_us = US_dist;
-        float new_us = US_dist;
-
-        float theta = 0.0;
-        clearTimer(T1);
-
-        while(abs(old_us-new_us) < goal_edge_detect_dist)
-        {
-            writeDebugStreamLine("US values (old, new): %.3f, %.3f", old_us, new_us);
-            if(abs(theta) >= max_angle)
-            {
-                playSound(soundBeepBeep);
-                //goal not detected
-                break;
-            }
-            old_us = new_us;
-            new_us = US_dist;
-            float dt = time1[T1]/(1000.0);
-	        clearTimer(T1);
-
-	        float omega = SensorValue[gyro]-offset;
-	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
-        }
-        playSound(soundException);
-
-        turnAngle(10, motor_vIs);
 }

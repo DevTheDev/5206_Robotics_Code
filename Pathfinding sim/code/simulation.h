@@ -593,7 +593,7 @@ int getCurrentRobotLink(world *w)
 
 const uint max_frontier = 1000;
 
-void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uint frontier_end)
+void siftDown(uint * frontier, float * priorities, uint frontier_start, uint frontier_end)
 {
     uint current = frontier_start;
     if(frontier_start > frontier_end)
@@ -610,7 +610,7 @@ void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uin
                 return;
             }
             child = (child+frontier_start)%max_frontier;
-            if(priorities[current] < priorities[child])
+            if(priorities[current] > priorities[child])
             {
                 best_child = child;
             }
@@ -647,6 +647,11 @@ void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uin
                 }
             }
         }
+        if(best_child <= 0)
+        {
+            return;
+        }
+        
         {//swap with the best child
             uint swap = priorities[current];
             priorities[current] = priorities[best_child];
@@ -658,8 +663,35 @@ void rebalanceHeap(uint * frontier, float * priorities, uint frontier_start, uin
                 
             current = best_child;
         }
-        return;
 
+    }
+}
+
+void siftUp(uint * frontier, float * priorities, int frontier_start, int frontier_end)
+{
+    int current = frontier_end-1;
+    for ever
+    {
+        uint parent = frontier_start+(current-frontier_start-1)/2;
+        if(parent == frontier_start)
+        {
+            return;
+        }
+        if(priorities[current] < priorities[parent]){//swap with the best child
+            uint swap = priorities[current];
+            priorities[current] = priorities[parent];
+            priorities[parent] = swap;
+
+            swap = frontier[current];
+            frontier[current] = frontier[parent];
+            frontier[parent] = swap;
+                
+            current = parent;
+        }
+        else
+        {
+            return;
+        }
     }
 }
 
@@ -670,7 +702,7 @@ uint typeFromIndex(uint width, uint i)
     return (i-y*4*width-x*4);
 }
 
-const float costs_by_type[] = {2, 1, sqrt(3.0f), sqrt(3.0f)};
+const float costs_by_type[] = {2, 1, sqrt(5.0f), sqrt(5.0f)};
 const float theta_by_type[] = {90, 0, 180.0/pi*atan(2.0f), -180.0/pi*atan(2.0f)};
 const float cost_per_degree = 1.0/45.0;
 
@@ -695,18 +727,18 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
 
     while(frontier_end!=frontier_start)
     {
-        /* { */
-        /* uint current = frontier[frontier_start]; */
-        /*     link a = linkFromIndex(512/graph_x_scale, current); */
+        {
+            uint current = frontier[frontier_start];
+            link a = linkFromIndex(512/graph_x_scale, current);
                 
-        /*     drawLineSafe(bitmap, stride, a.x_0*graph_x_scale+2, a.y_0*graph_y_scale+2, a.x_1*graph_x_scale+2, a.y_1*graph_y_scale+2, 0x000011*priorities[frontier_start]); */
-        /* } */
+            drawLineSafe(bitmap, stride, a.x_0*graph_x_scale-2, a.y_0*graph_y_scale-2, a.x_1*graph_x_scale-2, a.y_1*graph_y_scale-2, 0x000011*priorities[frontier_start]);
+        }
         
         uint current = frontier[frontier_start];
         frontier_end = (frontier_end+max_frontier-1)%max_frontier;
         frontier[frontier_start] = frontier[frontier_end];
         priorities[frontier_start] = priorities[frontier_end];
-        rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+        siftDown(frontier, priorities, frontier_start, frontier_end);
                 
         link current_link = linkFromIndex(graph_width, current);
         uint current_type = typeFromIndex(graph_width, current);
@@ -757,6 +789,12 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
             
             if(next == indexp)
             {
+                {
+                    link a = linkFromIndex(512/graph_x_scale, current);
+                    
+                    drawLineSafe(bitmap, stride, a.x_0*graph_x_scale-2, a.y_0*graph_y_scale-2, a.x_1*graph_x_scale-2, a.y_1*graph_y_scale-2, 0xFFFFFF);
+                }
+
                 return current;
             }
           
@@ -764,10 +802,9 @@ uint nextGotoIndex(uint32 * bitmap, uint stride, world * w, uint graph_width, in
             if(cost_so_far[next] == 0.0 || new_cost < cost_so_far[next])
             {
                 cost_so_far[next] = new_cost;
-                frontier_start = (frontier_start+max_frontier-1)%max_frontier;
-                frontier[frontier_start] = next;
-                priorities[frontier_start] = new_cost;//+heuristic;
-                rebalanceHeap(frontier, priorities, frontier_start, frontier_end);
+                frontier[frontier_end] = next;
+                priorities[frontier_end++] = new_costu+heuristic;
+                siftUp(frontier, priorities, frontier_start, frontier_end);
             }
         }
     }
@@ -1021,11 +1058,11 @@ void simulateAndRender(uint32 * bitmap, uint stride, world * w, float dt, user_i
 
         uint start_index = indexFromLink(512/graph_x_scale, start_x, start_y, 1);
         link start_link = linkFromIndex(512/graph_x_scale, start_index);;//linkFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
-        uint start_type = 1;//typeFromIndex(512/graph_x_scale, getCurrentRobotLink(w));
+        uint start_type = typeFromIndex(512/graph_x_scale, start_index);
 
             for(int i = 0; i < 10; i++)
             {
-                uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, target_x, target_y, 1);
+                uint next_index = nextGotoIndex(bitmap, stride, w, 512/graph_x_scale, start_link.x_0, start_link.y_0, start_type, target_x, target_y, 0);
                 if(next_index == start_index)
                 {
                     break;

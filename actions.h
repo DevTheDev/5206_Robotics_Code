@@ -33,7 +33,7 @@ void resetDriveEncoders()
 const float lift_bottom = 0.0;
 const float lift_30 = 10.0;//needs to be lowered for new net
 const float lift_60 = 34.0;
-const float lift_90 = 59.0;//62.0; needs to be lowered for new net
+const float lift_90 = 61.0;//62.0; needs to be lowered for new net
 const float lift_120 = 87.0;
 
 float lift_position = 0;//the desired lift position in cm, is the position at the start of teleop, max = 32.5 cm
@@ -231,6 +231,7 @@ void stopLauncher()
 }
 
 #define goal_edge_detect_dist 12
+#if 0 //find goal using edge
 void turnToGoal(int max_angle, int motor_vIs)
 {
         motor[driveR] = motor_vIs;
@@ -259,7 +260,134 @@ void turnToGoal(int max_angle, int motor_vIs)
 	        float omega = SensorValue[gyro]-offset;
 	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
         }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
         playSound(soundException);
 
         //turnAngle(15, -motor_vIs);
 }
+#elif 0 //find the goal using the closest detect point
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float nearest_us = 255;
+        float nearest_angle = 0.0;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(theta) < max_angle*0.5)
+        {
+            float new_us = US_dist;
+            if(new_us < nearest_us)
+            {
+                nearest_us = new_us;
+                nearest_angle = theta;
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+
+        float stage2_start_theta = 0;
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+
+        while(abs(stage2_start_theta) < max_angle)
+        {
+            float new_us = US_dist;
+            if(new_us < nearest_us)
+            {
+                nearest_us = new_us;
+                nearest_angle = theta;
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        	stage2_start_theta += dt*omega;
+	      }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
+
+        float correction_angle = theta-nearest_angle;
+        turnAngle(correction_angle, -motor_vIs);
+        turnAngle(15, motor_vIs);
+}
+#else
+#define nearest_goal_dist 20
+#define farthest_goal_dist 28
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float low_angle = 0.0;
+				float high_angle = 0.0;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(theta) < max_angle*0.5)
+        {
+            float new_us = US_dist;
+            if(new_us < farthest_goal_dist && new_us > nearest_goal_dist)
+            {
+                if(theta < low_angle)
+                {
+                	low_angle = theta;
+                }
+                if(theta > high_angle)
+                {
+                	high_angle = theta;
+                }
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+
+        float stage2_start_theta = 0;
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+
+        while(abs(stage2_start_theta) < max_angle)
+        {
+            float new_us = US_dist;
+            if(new_us < farthest_goal_dist && new_us > nearest_goal_dist)
+            {
+                if(theta < low_angle)
+                {
+                	low_angle = theta;
+                }
+                if(theta > high_angle)
+                {
+                	high_angle = theta;
+                }
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        	stage2_start_theta += dt*omega;
+	      }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
+
+        float correction_angle = theta-0.5*(low_angle+high_angle);
+        turnAngle(correction_angle, -motor_vIs);
+        turnAngle(15, motor_vIs);
+}
+#endif

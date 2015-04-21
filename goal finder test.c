@@ -22,8 +22,8 @@ task main()
 {
     startTask(ultrasonic_loop);
     calibrateGyro();
-    turnAngle(30, 50);
-    turnToGoal(45, -50);
+    turnToGoal(45, -30);
+    return;
     clearTimer(T1);
     motor[driveL] = -40;
     motor[driveR] = -40;
