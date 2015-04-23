@@ -21,4 +21,4 @@ task main()
         }
         writeDebugStreamLine("%i", battery);
     }
-}
+}btConnect();

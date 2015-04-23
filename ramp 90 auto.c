@@ -188,6 +188,7 @@ task main()
 
 //155 -15 wood, 160 -10, metal
     driveDist(155, -30);
+    turnAngle(2.5, -50);
     //motor[driveL] = 3;
     //motor[driveR] = 3;
     bool blocked = 0;
@@ -216,7 +217,7 @@ task main()
             playSound(soundFastUpwardTones);
             lift_position = lift_60;
             wait1Msec(2000);//minimize wasted time here for the lift
-            driveDist (10,  -50);
+            driveDist (15,  -50);
             //turnAngle(1, 50); //turn a little bit to align with the 60
             //turnAngle (35,   50);
             //turnToGoal(47, -50);
@@ -242,29 +243,14 @@ task main()
             //Goto 90
             lift_position = lift_90;
             turnAngle(135, 50);
-            driveDist(8, -50);
+            driveDist(15, -50);
             servo[net] = net_close;
             wait1Msec(200);
             servo[goal] = goal_open;
             wait1Msec(200);
-            driveDist(8, 50);//Drive away from goal
-            turnAngle(145, -50);
+            driveDist(15, 50);//Drive away from goal
+            turnAngle(135, -50);
             wait1Msec(1000);//minimize wasted time here for the lift
-            //turnToGoal(40, 50);//Might need to turn back
-
-            //turnAngle(45, 50);
-            //driveDist(10, -50);
-            //turnAngle(80, 50);
-            //driveDist(40, 50);
-            //servo[net] = net_close;
-            //wait1Msec(200);
-            //servo[goal] = goal_open;
-            //wait1Msec(200);
-            //driveDist(20, 50);//Drive away from goal
-            //turnAngle(130, 50);
-            //wait1Msec(1000);//minimize wasted time here for the lift
-            //turnToGoal(40, 50);//Might need to turn back
-            //return;
 
             //Grab 90
             resetDriveEncoders();
@@ -283,9 +269,11 @@ task main()
             wait1Msec(750);
             servo[net] = net_open;
             wait1Msec(750);
-            driveDist(5, 50);
-            turnAngle(8, -50);
-
+            driveDist(20, 50);
+            turnAngle(6, -50);
+            driveDist(10, 50);
+            turnAngle(17, -50);
+/*
 #if 0       //Regrab 90, may not need.
             driveDist(10, 80);
             turnAngle(10, 50);
@@ -298,8 +286,9 @@ task main()
             motor[driveL] = 0;
             servo[goal] = goal_close;
             wait1Msec(750);
-            turnAngle(5, -50);
-#endif
+            driveDist(20, 50);
+            turnAngle(25, -50);
+#endif*/
             if(parking_zone)
             {
               driveDist(40, 50); //Check distance
@@ -311,6 +300,7 @@ task main()
 	        }
         }
     }
+    /*
     if(false && parking_zone){
         float ir_dist;
         motor[driveR] = 60;
@@ -346,6 +336,6 @@ task main()
                 driveDist(70, 100);
             }
         }
-    }
+    }*/
     //turnAngle(160, 50); //Check angle
 }
