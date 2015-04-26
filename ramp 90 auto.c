@@ -188,7 +188,7 @@ task main()
 
 //155 -15 wood, 160 -10, metal
     driveDist(155, -30);
-    turnAngle(2.5, -50);
+    turnAngle(3.5, -50);
     //motor[driveL] = 3;
     //motor[driveR] = 3;
     bool blocked = 0;
@@ -248,7 +248,7 @@ task main()
             wait1Msec(200);
             servo[goal] = goal_open;
             wait1Msec(200);
-            driveDist(15, 50);//Drive away from goal
+            driveDist(20, 50);//Drive away from goal
             turnAngle(135, -50);
             wait1Msec(1000);//minimize wasted time here for the lift
 
@@ -272,7 +272,7 @@ task main()
             driveDist(20, 50);
             turnAngle(6, -50);
             driveDist(10, 50);
-            turnAngle(17, -50);
+            turnAngle(13, -50);
 /*
 #if 0       //Regrab 90, may not need.
             driveDist(10, 80);
@@ -295,8 +295,8 @@ task main()
 	            //turnAngle(3, -50);//May or may not need this, needs to be updated for new wheel guards
 	            //turnAngle(10, -50);
 	            driveDist(225, 60);
-	            turnAngle(30, -50);
-	            driveDist(40, 50);
+	            turnAngle(40, -50);
+	            driveDist(30, 50);
 	        }
         }
     }

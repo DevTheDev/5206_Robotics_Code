@@ -159,13 +159,13 @@ float deadzone(float a)
 #define launcher_unjam joy2Btn(btnY)
 
 //Net Control
-#define net_pressed joy1press(btnLB)
+#define net_pressed 0//joy1press(btnLB)
 #define net_close_btn joy2Btn(btnX)
-#define net_open_btn joy2Btn(btnA)
-#define net_small_btn (joy1Btn(btnB) || joy2Btn(btnB))
+#define net_open_btn joy2Btn(btnB)
+#define net_small_btn (joy1Btn(btnB) || joy2Btn(btnA))
 
 //Goal Lock Control
-#define goal_open_btn joy2Btn(btnLB)
+#define goal_open_btn joy2Btn(btnLB) || joy1Btn(btnLB)
 #define goal_close_btn joy2Btn(btnLT) || joy1btn(btnLT)
 //#define goal_toggle joy1press(btnLT)
 
@@ -379,7 +379,7 @@ task main()
 			net_down = !net_down;
 		}
 
-		const unsigned short net_positions[3] = {net_open, net_close, net_endgame};
+		const unsigned short net_positions[3] = {net_open, net_close, net_small};
 
 		servo[net] = net_positions[net_down];
 
