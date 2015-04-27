@@ -5,6 +5,8 @@ Tele-op should be done in-line unless it needs to do something that might be nee
 #include "consts.h"
 #include "misc.h"
 
+#include "3rd Party Sensor Drivers\drivers\hitechnic-irseeker-v2.h"
+
 #define launcher_update_wait 16 //the rate at which we check for a jam
 #define launcher_stop_wait 96 //the time the motor needs to be stopped for a jam to be detected
 
@@ -29,10 +31,10 @@ void resetDriveEncoders()
 }
 
 const float lift_bottom = 0.0;
-const float lift_30 = 8.0;//needs to be lowered for new net
-const float lift_60 = 32.0;
-const float lift_90 = 58.0;//62.0; needs to be lowered for new net
-const float lift_120 = 85.0;
+const float lift_30 = 10.0;//needs to be lowered for new net
+const float lift_60 = 34.0;
+const float lift_90 = 61.0;//62.0; needs to be lowered for new net
+const float lift_120 = 87.0;
 
 float lift_position = 0;//the desired lift position in cm, is the position at the start of teleop, max = 32.5 cm
 
@@ -48,13 +50,26 @@ float lift_start = lift_bottom;
 
 void updateLift(){ //TODONT: Add constraints on max and min
     motor[liftL] = lift_speed_constant*atan(lift_slow_constant*(lift_position-lift_start-nMotorEncoder[liftL]*lift_cm_per_tick));//this atan is totally arbitrary and was only chosen because gives a good curve(the motor will be at an approx. const. speed far from the wanted point and will slow down near the wanted point)
-    motor[liftR] = motor[liftL];
+    //motor[liftR] = motor[liftL];
 }
 
 float offset = 0;
 
+bool seeIR(tHTIRS2 * irseeker)
+{
+    readSensor(irseeker);
+    return irseeker->acDirection == 6;
+}
+
 void calibrateGyro()
 {
+    TFileHandle file;
+    TFileIOResult error;
+    char filename[] = "GyroOffset.txt";
+    short filesize = 1024;
+    Delete(filename, error);
+    OpenWrite(file, error, filename, filesize);
+
     const int itts = 500;
     offset = 0;
     char load_display[16];
@@ -66,7 +81,9 @@ void calibrateGyro()
         displayCenteredTextLine(line++, "Please don't move");
         displayCenteredTextLine(line++, load_display);
 
-        offset += SensorValue[gyro];
+        int value = SensorValue[gyro];
+        WriteLong(file, error, value);
+        offset += value;
 
         wait1Msec(5);
     }
@@ -114,6 +131,21 @@ void calibrateGyroWithLinearRegression()
                / (n*sigma_xx - sq(sigma_x)); //slope of the least squares fit
 }
 
+float US_dist = 0.0;
+float US_dist_temp = US_dist;
+task ultrasonic_loop()
+{
+    float US_error_est = 1.0;
+    US_dist_temp = 0.0;
+    US_dist = 0.0;
+
+    for ever
+    {
+        kalmanUpdate(&US_dist_temp, &US_error_est, SensorValue[US], 4.0, 10.0);
+        US_dist = US_dist_temp; //just to be safe with multitasking, should check if a incomplete update is possible
+    }
+}
+
 const float drive_cm_per_tick = (2*PI*WHEEL_RADIUS)/encoderticks;
 void driveDist(float distance, int motor_vIs) //TODO: both motors separate
 {
@@ -149,7 +181,7 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
 
         float omega = SensorValue[gyro]-offset;
         theta += dt*omega;//*gyro_adjustment; //rectangular approx.
-        wait1Msec((8-T1)%8);
+        //wait1Msec((8-T1)%8); // I think this does nothing
         sprintf(gyro_value, "Current: %f", theta);
         displayCenteredTextLine(2, gyro_value);
 
@@ -158,6 +190,28 @@ void turnAngle(float degrees, int motor_vIs){//80 deg at 50 power = 90 deg turn,
     motor[driveL] = 0;
     sprintf(gyro_value, "Final: %f", theta);
     displayCenteredTextLine(3, gyro_value);
+}
+
+//normal turnAngle, but with a kalman filter on the gyro
+#define degrees_per_second_per_unit_motor_vIs 1
+void kalmanTurnAngle(float degrees, int motor_vIs)
+{
+    clearTimer(T1);
+    motor[driveR] = motor_vIs;
+    motor[driveL] = -(motor_vIs);
+    float theta = 0;
+    float omega = 0;
+    float error_est = 0;
+    while(abs(theta) < degrees)
+    {
+        float dt = time1[T1]/(1000.0);
+        clearTimer(T1);
+
+        kalmanUpdate(&omega, &error_est, SensorValue[gyro] - offset, motor_vIs*degrees_per_second_per_unit_motor_vIs, 1.0, 1.0);
+        theta += dt*omega;
+    }
+    motor[driveL] = 0;
+    motor[driveR] = 0;
 }
 
 void startLauncher(float launcher_speed)
@@ -175,3 +229,165 @@ void stopLauncher()
         motor[launcher] = (float)(clamp(lerp((float)time1[T4]/launcher_slow_time, launcher_speed, 0.0), 0.0, launcher_speed));
     }
 }
+
+#define goal_edge_detect_dist 12
+#if 0 //find goal using edge
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float old_us = US_dist;
+        float new_us = US_dist;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(old_us-new_us) < goal_edge_detect_dist)
+        {
+            writeDebugStreamLine("US values (old, new): %.3f, %.3f", old_us, new_us);
+            if(abs(theta) >= max_angle)
+            {
+                playSound(soundBeepBeep);
+                //goal not detected
+                break;
+            }
+            old_us = new_us;
+            new_us = US_dist;
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
+        playSound(soundException);
+
+        //turnAngle(15, -motor_vIs);
+}
+#elif 0 //find the goal using the closest detect point
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float nearest_us = 255;
+        float nearest_angle = 0.0;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(theta) < max_angle*0.5)
+        {
+            float new_us = US_dist;
+            if(new_us < nearest_us)
+            {
+                nearest_us = new_us;
+                nearest_angle = theta;
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+
+        float stage2_start_theta = 0;
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+
+        while(abs(stage2_start_theta) < max_angle)
+        {
+            float new_us = US_dist;
+            if(new_us < nearest_us)
+            {
+                nearest_us = new_us;
+                nearest_angle = theta;
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        	stage2_start_theta += dt*omega;
+	      }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
+
+        float correction_angle = theta-nearest_angle;
+        turnAngle(correction_angle, -motor_vIs);
+        turnAngle(15, motor_vIs);
+}
+#else
+#define nearest_goal_dist 20
+#define farthest_goal_dist 28
+void turnToGoal(int max_angle, int motor_vIs)
+{
+        motor[driveR] = motor_vIs;
+        motor[driveL] = -motor_vIs;
+
+        float low_angle = 0.0;
+				float high_angle = 0.0;
+
+        float theta = 0.0;
+        clearTimer(T1);
+
+        while(abs(theta) < max_angle*0.5)
+        {
+            float new_us = US_dist;
+            if(new_us < farthest_goal_dist && new_us > nearest_goal_dist)
+            {
+                if(theta < low_angle)
+                {
+                	low_angle = theta;
+                }
+                if(theta > high_angle)
+                {
+                	high_angle = theta;
+                }
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        }
+
+        float stage2_start_theta = 0;
+        motor[driveR] = -motor_vIs;
+        motor[driveL] = motor_vIs;
+
+        while(abs(stage2_start_theta) < max_angle)
+        {
+            float new_us = US_dist;
+            if(new_us < farthest_goal_dist && new_us > nearest_goal_dist)
+            {
+                if(theta < low_angle)
+                {
+                	low_angle = theta;
+                }
+                if(theta > high_angle)
+                {
+                	high_angle = theta;
+                }
+                playSound(soundException);
+            }
+            float dt = time1[T1]/(1000.0);
+	        clearTimer(T1);
+
+	        float omega = SensorValue[gyro]-offset;
+	        theta += dt*omega;//*gyro_adjustment; //rectangular approx.
+        	stage2_start_theta += dt*omega;
+	      }
+        motor[driveR] = 0;
+        motor[driveL] = 0;
+
+        float correction_angle = theta-0.5*(low_angle+high_angle);
+        turnAngle(correction_angle, -motor_vIs);
+        turnAngle(15, motor_vIs);
+}
+#endif

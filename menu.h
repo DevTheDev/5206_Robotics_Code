@@ -13,16 +13,18 @@ unsigned int menu_size = 0;
 //char menu_list[16][16];
 
 
-int prevButton = -1; // Global var? TODO: Delete me// Where do I put this; the NXT buttons are global, and robot c does not have namespaces?
+int prev_button = -1;
+int curr_button = -1;
 
 /**
  Must be run in a loop to use button checking functions
 */
 void updateButtons() {
-	if (prevButton != nNxtButtonPressed) {
+	if (prev_button != curr_button) {
 		clearTimer(T1);
 	}
-	prevButton = nNxtButtonPressed;
+	prev_button = curr_button;
+        curr_button = nNxtButtonPressed;
 }
 
 /**
@@ -30,7 +32,7 @@ Returns if button has been pressed
 button: the button being tested
 */
 bool pressed(int button) {
-	if (prevButton != button && nNxtButtonPressed == button) {
+	if (prev_button != button && curr_button == button) {
 		return true;
 	}
 	return false;
@@ -41,7 +43,7 @@ Returns true if button has been released
 button: the button being tested
 */
 bool released(int button) {
-	if (prevButton == button && nNxtButtonPressed != button) {
+	if (prev_button == button && curr_button != button) {
 		return true;
 	}
 	return false;

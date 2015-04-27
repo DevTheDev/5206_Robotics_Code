@@ -7,8 +7,6 @@
  */
 typedef unsigned char uint8;
 
-#define ever (;;)
-
 #define pi PI
 
 #define launcher_slow_time 1000.0 //How long the launcher slows for after button release
@@ -16,12 +14,16 @@ typedef unsigned char uint8;
 //Servo Values
 #define servo_stop 127 //Stopping point for continuous servos
 
-#define goal_close 85
+#define goal_close 60
 #define goal_open 210
 
-#define net_close 0
-#define net_open 40
-#define net_small 15
+#define side_close 146
+#define side_open 80
+
+#define net_close 11
+#define net_open 47
+#define net_endgame 25
+#define net_small 27
 
 // Robot specs
 #define WHEEL_RADIUS 2*2.54 //The radius of the wheels, for distance calculation (converted to cm)
